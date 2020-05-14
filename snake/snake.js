@@ -118,7 +118,7 @@ function draw() {
   collide();
 
   if (!alive) {
-    background(255);
+    background(200);
 
     textSize(40)
     if (win) {
@@ -141,7 +141,7 @@ function draw() {
     textSize(20)
     text("Paused: Hit arrow keys to unpause (Press escape to pause)", width / 2, height / 2)
 
-  } else if (frameCount % 5 == 0) { //every 5 frames
+  } else if (frameCount % 10 == 0) { //every 10 frames
     moveSnake();
   }
 }
