@@ -40,7 +40,7 @@ function noBackwards() {
 }
 
 function setup() {
-  createCanvas(800, 800);
+  createCanvas(700, 700);
   textAlign(CENTER, CENTER)
   stroke(0)
 
