@@ -8,14 +8,17 @@ var eli;
 var toggle;
 var auto = false
 
-function toggleAuto() {auto = ! auto}
+function toggleAuto() {
+  auto = ! auto
+  loop()
+}
 
 function preload() {
   names = loadStrings('inputText.txt');
 }
 
 function setup() {
-  createCanvas(800, 700);
+  createCanvas(800, 600);
   textAlign(CENTER)
   
   eli = new p5.Speech();
@@ -67,19 +70,19 @@ function generate() {
   background(0)
     textSize(40)
     fill(255);
-    text("ELI-BOT SAYS: ", 400, 300)
+    text("ELI-BOT SAYS: ", 400, 200)
       markovIt();
 }
 
 function draw() {
   if (auto && frameCount % 120 == 0) {
    generate();
-       text("AUTOMATICALLY GENERATING WISDOM", 400, 600)
+       text("AUTOMATICALLY GENERATING WISDOM", 400, 500)
   }
   
   if (!auto) {
     generate()
-       text("CLICK FOR MORE WISDOM", 400, 600)
+       text("CLICK FOR MORE WISDOM", 400, 500)
     noLoop()
   }
 }
@@ -87,7 +90,6 @@ function draw() {
 function mouseClicked() {
   if (mouseY < height) {
    generate();
-   text("CLICK FOR MORE WISDOM", 400, 600)
-    loop()
+   text("CLICK FOR MORE WISDOM", 400, 500)
   }
 }
