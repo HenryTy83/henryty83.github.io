@@ -81,7 +81,7 @@ function generate() {
   
     textSize(40)
     fill(255);
-    text("ELI-BOT SAYS: ", 400, 200)
+    text("ELI-BOT SAYS: ", 400, 150)
       markovIt();
 }
 
