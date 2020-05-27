@@ -13,6 +13,9 @@ function preload() {
 function setup() {
   createCanvas(800, 800);
   textAlign(CENTER)
+  
+  eli = new p5.Speech();
+  
   for (var j = 0; j < names.length; j++) {
     var txt = names[j];
     for (var i = 0; i <= txt.length - order; i++) {
