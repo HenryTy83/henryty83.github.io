@@ -26,9 +26,6 @@ function setup() {
   toggle.mousePressed(toggleAuto);
   
   slider = createSlider(2, 10, 2, 1)
-  
-       generate();
-text("CLICK FOR MORE WISDOM", 400, 600)
 }
 
 function generateNgram() {
