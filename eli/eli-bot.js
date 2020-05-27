@@ -4,6 +4,7 @@ var order = 2;
 var ngrams = {};
 var beginnings = [];
 var button;
+var eli;
 
 function preload() {
   names = loadStrings('inputText.txt');
@@ -46,6 +47,8 @@ function markovIt() {
 
   textSize(25)
   text(result, 400, 400)
+  	tts.setVoice("Google US English Male");
+tts.speak('Hello Big Brother!');
 }
 
 function draw() {
