@@ -47,8 +47,8 @@ function markovIt() {
 
   textSize(25)
   text(result, 400, 400)
-  	tts.setVoice("Google US English Male");
-tts.speak('Hello Big Brother!');
+  	eli.setVoice("Google US English Male");
+eli.speak(result);
 }
 
 function draw() {
