@@ -11,7 +11,7 @@ function preload() {
 }
 
 function setup() {
-  createCanvas(400, 400);
+  createCanvas(800, 800);
   textAlign(CENTER)
   for (var j = 0; j < names.length; j++) {
     var txt = names[j];
@@ -45,16 +45,16 @@ function markovIt() {
     currentGram = result.substring(len - order, len);
   }
 
-  fill(0);
-  textSize(15)
-  text(result, 200, 200)
+  textSize(20)
+  text(result, 400, 400)
 }
 
 function draw() {
-  background(255)
-  textSize(30)
-  text("ELI-BOT SAYS: ", 200, 100)
-  text("CLICK FOR MORE WISDOM", 200, 300)
+  background(0)
+  textSize(40)
+    fill(255);
+  text("ELI-BOT SAYS: ", 400, 100)
+  text("CLICK FOR MORE WISDOM", 400, 300)
   
   markovIt();
   noLoop();
