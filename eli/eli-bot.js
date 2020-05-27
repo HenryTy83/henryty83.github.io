@@ -25,7 +25,7 @@ function setup() {
   toggle = createButton("TOGGLE AUTO GENERATE")
   toggle.mousePressed(toggleAuto);
   
-  slider = createSlider(2, 10, 2, 1)
+  slider = createSlider(1, 10, 2, 1)
 }
 
 function generateNgram() {
