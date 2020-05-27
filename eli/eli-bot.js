@@ -44,7 +44,7 @@ function markovIt() {
     currentGram = result.substring(len - order, len);
   }
 
-  textSize(20)
+  textSize(25)
   text(result, 400, 400)
 }
 
@@ -53,7 +53,7 @@ function draw() {
   textSize(40)
     fill(255);
   text("ELI-BOT SAYS: ", 400, 300)
-  text("CLICK FOR MORE WISDOM", 400, 700)
+  text("CLICK FOR MORE WISDOM", 400, 600)
   
   markovIt();
   noLoop();
