@@ -36,6 +36,9 @@ function setup() {
       ngrams[gram].push(txt.charAt(i + order));
     }
   }
+  
+     generate();
+ text("CLICK FOR MORE WISDOM", 400, 600)
 }
 
 function markovIt() {
