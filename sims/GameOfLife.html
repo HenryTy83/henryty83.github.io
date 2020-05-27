@@ -116,6 +116,7 @@ function draw() {
   }
   
   if (auto && (frameCount % 2 == 0)) {update()} //autorun 
+  else {noLoop()}
 }
 
 function mouseClicked() { //toggle cells that are clicked
@@ -125,6 +126,8 @@ function mouseClicked() { //toggle cells that are clicked
 
     cells[clickX][clickY] = !cells[clickX][clickY]; //toggle
   }
+  
+    loop();
 }
     
     </script>
