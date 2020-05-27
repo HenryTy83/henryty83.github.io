@@ -5,6 +5,10 @@ var ngrams = {};
 var beginnings = [];
 var button;
 var eli;
+var toggle;
+var auto = false
+
+function toggle() {auto = ! auto}
 
 function preload() {
   names = loadStrings('inputText.txt');
@@ -15,6 +19,8 @@ function setup() {
   textAlign(CENTER)
   
   eli = new p5.Speech();
+  toggle = createButton("TOGGLE AUTO GENERATE")
+  toggle.mousePressed(toggle);
   
   for (var j = 0; j < names.length; j++) {
     var txt = names[j];
@@ -54,17 +60,22 @@ function markovIt() {
 eli.speak(result);
 }
 
-function draw() {
+function generate() {
   background(0)
-  textSize(40)
+    textSize(40)
     fill(255);
-  text("ELI-BOT SAYS: ", 400, 300)
-  text("CLICK FOR MORE WISDOM", 400, 600)
-  
-  markovIt();
-  noLoop();
+    text("ELI-BOT SAYS: ", 400, 300)
+      markovIt();
+}
+
+function draw() {
+  if (auto && frameCount % 120 == 0) {
+   generate();
+       text("AUTOMATICALLY GENERATING WISDOM", 400, 600)
+  }
 }
 
 function mouseClicked() {
-  loop();
+   generate();
+   text("CLICK FOR MORE WISDOM", 400, 600)
 }
