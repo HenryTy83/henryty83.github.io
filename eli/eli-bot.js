@@ -6,7 +6,7 @@ var beginnings = [];
 var button;
 var eli;
 var toggle;
-var auto = false
+var auto = false;
 
 function toggleAuto() {
   auto = ! auto
@@ -25,6 +25,13 @@ function setup() {
   toggle = createButton("TOGGLE AUTO GENERATE")
   toggle.mousePressed(toggleAuto);
   
+  slider = createSlider(2, 10, 2, 1)
+  
+       generate();
+text("CLICK FOR MORE WISDOM", 400, 600)
+}
+
+function generateNgram() {
   for (var j = 0; j < names.length; j++) {
     var txt = names[j];
     for (var i = 0; i <= txt.length - order; i++) {
@@ -39,9 +46,6 @@ function setup() {
       ngrams[gram].push(txt.charAt(i + order));
     }
   }
-  
-     generate();
- text("CLICK FOR MORE WISDOM", 400, 600)
 }
 
 function markovIt() {
@@ -67,7 +71,15 @@ eli.speak(result);
 }
 
 function generate() {
+  order = slider.value()
+  generateNgram()
+  
   background(0)
+    textSize(20)
+  textAlign(CORNER)
+  text("The slider changes complexity. The higher, the more full words. Keep lower for more gibberish", 10, 550)
+  textAlign(CENTER)
+  
     textSize(40)
     fill(255);
     text("ELI-BOT SAYS: ", 400, 200)
