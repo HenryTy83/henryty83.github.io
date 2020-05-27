@@ -1,6 +1,6 @@
 //taken from: https://youtu.be/9r8CmofnbAQ
 var names;
-var order = 2;
+var order = -1;
 var ngrams = {};
 var beginnings = [];
 var button;
