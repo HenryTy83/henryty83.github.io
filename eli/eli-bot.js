@@ -21,6 +21,7 @@ function setup() {
   eli = new p5.Speech();
   toggle = createButton("TOGGLE AUTO GENERATE")
   toggle.mousePressed(toggleAuto);
+  toggle.position(0, 0)
   
   for (var j = 0; j < names.length; j++) {
     var txt = names[j];
@@ -76,11 +77,18 @@ function draw() {
    generate();
        text("AUTOMATICALLY GENERATING WISDOM", 400, 600)
   }
+  
+  if (!auto) {
+    generate()
+       text("CLICK FOR MORE WISDOM", 400, 600)
+    noLoop()
+  }
 }
 
 function mouseClicked() {
-  if (mouseY < height) {
+  if (mouseY > 20) {
    generate();
    text("CLICK FOR MORE WISDOM", 400, 600)
+    loop()
   }
 }
