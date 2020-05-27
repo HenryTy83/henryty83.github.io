@@ -83,7 +83,7 @@ function generate() {
 }
 
 function draw() {
-  if (auto && frameCount % 120 == 0) {
+  if (auto && frameCount % 180 == 0) {
    generate();
        text("AUTOMATICALLY GENERATING WISDOM", 400, 500)
         textSize(15)
