@@ -15,13 +15,12 @@ function preload() {
 }
 
 function setup() {
-  createCanvas(800, 800);
+  createCanvas(800, 700);
   textAlign(CENTER)
   
   eli = new p5.Speech();
   toggle = createButton("TOGGLE AUTO GENERATE")
   toggle.mousePressed(toggleAuto);
-  toggle.position(0, 0)
   
   for (var j = 0; j < names.length; j++) {
     var txt = names[j];
