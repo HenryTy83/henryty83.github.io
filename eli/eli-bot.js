@@ -52,8 +52,8 @@ function draw() {
   background(0)
   textSize(40)
     fill(255);
-  text("ELI-BOT SAYS: ", 400, 100)
-  text("CLICK FOR MORE WISDOM", 400, 300)
+  text("ELI-BOT SAYS: ", 400, 300)
+  text("CLICK FOR MORE WISDOM", 400, 700)
   
   markovIt();
   noLoop();
