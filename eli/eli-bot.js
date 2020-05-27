@@ -88,7 +88,7 @@ function draw() {
 }
 
 function mouseClicked() {
-  if (mouseY < height) {
+  if (mouseY < height && !auto) {
    generate();
    text("CLICK FOR MORE WISDOM", 400, 500)
   }
