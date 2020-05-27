@@ -71,12 +71,14 @@ eli.speak(result);
 }
 
 function generate() {
+  if (order != slider.value()) {
   order = slider.value()
   generateNgram()
+}
   
   background(0)
-    textSize(20)
-  textAlign(CORNER)
+    textSize(15)
+  textAlign(LEFT)
   text("The slider changes complexity. The higher, the more full words. Keep lower for more gibberish", 10, 550)
   textAlign(CENTER)
   
@@ -100,7 +102,7 @@ function draw() {
 }
 
 function mouseClicked() {
-  if (mouseY < height && !auto) {
+  if (mouseX < width && mouseY < height && !auto) {
    generate();
    text("CLICK FOR MORE WISDOM", 400, 500)
   }
