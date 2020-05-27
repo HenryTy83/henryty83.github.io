@@ -8,7 +8,7 @@ var eli;
 var toggle;
 var auto = false
 
-function toggle() {auto = ! auto}
+function toggleAuto() {auto = ! auto}
 
 function preload() {
   names = loadStrings('inputText.txt');
@@ -20,7 +20,7 @@ function setup() {
   
   eli = new p5.Speech();
   toggle = createButton("TOGGLE AUTO GENERATE")
-  toggle.mousePressed(toggle);
+  toggle.mousePressed(toggleAuto);
   
   for (var j = 0; j < names.length; j++) {
     var txt = names[j];
@@ -79,6 +79,8 @@ function draw() {
 }
 
 function mouseClicked() {
+  if (mouseY < height) {
    generate();
    text("CLICK FOR MORE WISDOM", 400, 600)
+  }
 }
