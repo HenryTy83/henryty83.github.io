@@ -62,7 +62,7 @@ function markovIt() {
   }
 
   textSize(25)
-  text(result, 400, 400)
+  text(result, 400, 300)
   	eli.setVoice("Google US English Male");
 eli.speak(result);
 }
@@ -74,14 +74,11 @@ function generate() {
 }
   
   background(0)
-    textSize(15)
-  textAlign(LEFT)
-  text("The slider changes complexity. The higher, the more full words. Keep lower for more gibberish", 10, 550)
   textAlign(CENTER)
   
     textSize(40)
     fill(255);
-    text("ELI-BOT SAYS: ", 400, 150)
+    text("ELI-BOT SAYS: ", 400, 200)
       markovIt();
 }
 
@@ -89,11 +86,19 @@ function draw() {
   if (auto && frameCount % 120 == 0) {
    generate();
        text("AUTOMATICALLY GENERATING WISDOM", 400, 500)
+        textSize(15)
+  textAlign(LEFT)
+  text("The slider changes complexity. The higher, the more full words. Keep lower for more gibberish", 10, 550)
+
   }
   
   if (!auto) {
     generate()
        text("CLICK FOR MORE WISDOM", 400, 500)
+        textSize(15)
+  textAlign(LEFT)
+  text("The slider changes complexity. The higher, the more full words. Keep lower for more gibberish", 10, 550)
+
     noLoop()
   }
 }
@@ -102,5 +107,9 @@ function mouseClicked() {
   if (mouseX < width && mouseY < height && !auto) {
    generate();
    text("CLICK FOR MORE WISDOM", 400, 500)
+        textSize(15)
+  textAlign(LEFT)
+  text("The slider changes complexity. The higher, the more full words. Keep lower for more gibberish", 10, 550)
+
   }
 }
