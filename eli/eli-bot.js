@@ -7,7 +7,7 @@ var beginnings = [];
 var button;
 
 function preload() {
-  names = loadStrings('names.txt');
+  names = loadStrings('inputText.txt');
 }
 
 function setup() {
