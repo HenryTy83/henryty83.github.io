@@ -199,13 +199,7 @@ function display() {
     else {fill(0, 0, 255)}
     text(turn + "'s turn", 50, 20)
 
-    textSize(20)
-    fill(255, 0, 0)
-    text("X: " + score[0] + " wins", 550, 20)
-    fill(0, 0, 255)
-    text("O: " + score[1] + " wins", 550, 60)
-    fill(255)
-    text(score[0] + score[1] + " games played", 530, 100)
+
     strokeWeight(8)
 
     var align = width/boardSize;
