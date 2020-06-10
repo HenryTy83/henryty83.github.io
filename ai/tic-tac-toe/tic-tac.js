@@ -9,12 +9,13 @@ var done = false;
 var winner = null;
 var players = ['X','O']
 
-var playerO = new qTable('O');
+var playerO;
 var score = [0, 0];
 
 function setup() {
     createCanvas(600, 600)
     textAlign(CENTER)
+    playerO = new qTable('O')
 }
 
 function title() {
