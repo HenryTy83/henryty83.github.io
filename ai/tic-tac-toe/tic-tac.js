@@ -1,3 +1,4 @@
+//Q-learning tic tac toe bot
 var board = [];
 var boardSize = 3;
 var screen = 0;
@@ -8,10 +9,8 @@ var done = false;
 var winner = null;
 var players = ['X','O']
 
-var playerX = new gamer('X');
-var playerO = new gamer('O');
+var playerO = new qTable('O');
 var score = [0, 0];
-var trainingGames = 100;
 
 function setup() {
     createCanvas(600, 600)
@@ -100,22 +99,6 @@ function display() {
             text(board[i][j], i*align + (align/2), j*align + (align/1.5))
         }
     }
-
-    if (screen == 2) {
-        textSize(20)
-        stroke(0)
-        fill(255)
-        text("Click to skip. (The game will freeze for about 30 secs.)", width/2, 540)
-        text("TRAINING THE BOT: " + (score[0] + score[1]) + "/" + trainingGames +" games played", width/2, 560)
-        stroke(255)
-
-        fill(255, 0, 0)
-        rect(10, 570, width-20, 20)
-
-        fill(0, 255, 0)
-        var percentTrained = (score[0] + score[1])/trainingGames
-        rect(10, 570, percentTrained*(width-20), 20)
-    }
 }
 
 function startup() {
@@ -179,23 +162,17 @@ function checkWon(player) {
 }
 
 function game() {
-    if (score[0]+score[1] > trainingGames && (screen == 2)){
-        screen = 4
-        score[0] = 0;
-        score[1] = 0
-    }
-
     if (wait > 90 || (wait > 0 && screen == 2)) {
         wait = 0
         done = false
 
         //restart
+
+        playerO.learn();
+
         winner = null
         board = []; 
         generateBoard();
-
-        playerX.learn()
-        playerO.learn();
 
         if (screen == 4) {turn = 'O'}
     }
@@ -203,27 +180,16 @@ function game() {
     if (done) {
         wait ++;
     }
-    else {
-        if (screen == 4 && turn == 'O' && !isFull()) {
-            playerO.botPlay();
+
+    for (let i in players) {
+        if (checkWon(players[i])) {
+            winner = players[i]
+            done = true;
         }
+    }
 
-        if (screen == 2) {
-            if (turn == 'O') {
-                playerO.botPlay();
-            }
-            else {playerX.botPlay();}
-        }
-
-        for (let i in players)
-            if (checkWon(players[i])) {
-                winner = players[i]
-
-                score[i] ++;
-
-                done = true;
-                return
-        }   
+    if (screen == 4 && turn == 'O' && !done) {
+        playerO.botPlay();
     }
 
     if (winner != null) {
@@ -236,6 +202,12 @@ function game() {
         textSize(width/4)
         fill(0, 255, 0)
         text('DRAW', width/2, height/2)
+
+        if (done == false) {
+            score[0] += 0.5;
+            score[1] += 0.5;
+        }
+
         done = true;
     }
 };
@@ -248,8 +220,15 @@ function draw() {
         case(1): //boot up the game
             startup();
             break;
-        case(4): //face the computer
         case(2): //computer training
+            if (!boost) {game(); display(); break}
+            if (score[0]+score[1] > trainingGames) {screen = 4}
+            for (let i=0; i<1000; i++) {
+                game();
+            }
+            display()
+            break;
+        case(4): //face the computer
         case(3): //human
             display();
             game();
@@ -306,13 +285,8 @@ function mouseClicked() {
             generateBoard();
             screen = 3
             turn = random(players)
-            if (computer) {screen = 2}
+            if (computer) {screen = 4}
             break
-        case(2):
-            while (score[0]+score[1] < trainingGames) {
-                game();
-            }
-            break;
         case(4):
         case(3):
             click()

@@ -1,49 +1,55 @@
-class qtable {
+class possibilities {
+    constructor(move) {
+        this.qValue = 0;
+        this.move = move.slice();
+    }    
+}
+
+var learningRate = 0.1; 
+class qCell {
     constructor() {
         this.id = []
-        this.output = [];
-        this.moveIndex = 0;
-        this.move = [];
+        this.possibleMoves = [];
+        this.moveIndex;
 
         for (let i in board) {
             this.id.push([])
             for (let j in board) {
                 this.id[i].push(board[i][j])
                 if (board[i][j] === '') {
-                    for (let k=0; k<2; k++) {
-                        this.output.push([i, j])
-                    }
+                    this.possibleMoves.push(new possibilities([i, j]))
                 }
             }
         }
     }
 
-    lost() {
-        if (this.output.length == 1) {return}
-        //delete 1
-        for (let i=this.moveIndex; i<this.output-1; i++) {
-            this.output[i] = this.output[i+1]
-        }
-
-        this.output.pop();
-    }
-
-    won() {
-        //add 3
-        this.output.push(this.move)
-        this.output.push(this.move)
-        this.output.push(this.move)
-    }
-
-    drew() {
-        //add 1
-        this.output.push(this.move)
+    update(reward) {
+        var targetAction = this.possibleMoves[this.moveIndex]
+        targetAction.qValue += learningRate * (reward)
     }
 
     generateMove() {
-        this.move = random(this.output.slice())
-        this.moveIndex = this.output.indexOf(this.move)
-        return this.move
+        var epsilon = 0.01
+        if (random(1)<epsilon) {
+            var move = random(this.possibleMoves)
+        }
+
+        else {
+            var best = -Infinity
+            var move = null;
+
+            for (let i in this.possibleMoves) {
+                if (this.possibleMoves[i].qValue > best) {
+                    best = this.possibleMoves[i].qValue
+                    move = this.possibleMoves[i]
+                }
+            }
+        }
+
+
+        this.moveIndex = this.possibleMoves.indexOf(move);
+
+        return move.move;
     }
 
     matches() {
@@ -56,7 +62,7 @@ class qtable {
     }
 }
 
-class gamer {
+class qTable {
     constructor(symbol) {
         this.symbol = symbol
         this.table = [];
@@ -68,7 +74,7 @@ class gamer {
             if (this.table[i].matches()) {return this.table[i]}
         }
     
-        this.table.push(new qtable())
+        this.table.push(new qCell())
     
         return this.table[this.table.length-1]
     }
@@ -86,26 +92,26 @@ class gamer {
 
     //adjust q-table
     learn() {
+        var reward;
+
         switch (winner) {
             case this.symbol:
-                while (this.listOfMoves.length > 0) {
-                    this.listOfMoves[0].won();
-                    this.listOfMoves.shift();
-                }
+                reward = 0;
                 break;
             case null:
-                while (this.listOfMoves.length > 0) {
-                    this.listOfMoves[0].drew();
-                    this.listOfMoves.shift();
-                }
+                reward = 1;
                 break;
             
             default:
-                while (this.listOfMoves.length > 0) {
-                    this.listOfMoves[0].lost();
-                    this.listOfMoves.shift();
-                }
-            }
+                reward = 2;
+                break;
+        }
+
+        var rewardTable = [3, 1, -1] //win, tie, loss
+        while (this.listOfMoves.length > 0) {
+            this.listOfMoves[0].update(rewardTable[reward]);
+            this.listOfMoves.shift();
+        }
     }
 
 }
