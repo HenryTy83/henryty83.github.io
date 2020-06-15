@@ -1,123 +1,3 @@
-//Q-learning tic tac toe bot
-class possibilities {
-    constructor(move) {
-        this.qValue = 0;
-        this.move = move.slice();
-    }    
-}
-
-var learningRate = 0.1; 
-class qCell {
-    constructor() {
-        this.id = []
-        this.possibleMoves = [];
-        this.moveIndex;
-
-        for (let i in board) {
-            this.id.push([])
-            for (let j in board) {
-                this.id[i].push(board[i][j])
-                if (board[i][j] === '') {
-                    this.possibleMoves.push(new possibilities([i, j]))
-                }
-            }
-        }
-    }
-
-    update(reward) {
-        var targetAction = this.possibleMoves[this.moveIndex]
-        targetAction.qValue += learningRate * (reward)
-    }
-
-    generateMove() {
-        var epsilon = 0.01
-        if (random(1)<epsilon) {
-            var move = random(this.possibleMoves)
-        }
-
-        else {
-            var best = -Infinity
-            var move = null;
-
-            for (let i in this.possibleMoves) {
-                if (this.possibleMoves[i].qValue > best) {
-                    best = this.possibleMoves[i].qValue
-                    move = this.possibleMoves[i]
-                }
-            }
-        }
-
-
-        this.moveIndex = this.possibleMoves.indexOf(move);
-
-        return move.move;
-    }
-
-    matches() {
-        for (let i in board) {
-            for (let j in board[i]) {
-                if (board[i][j] !== this.id[i][j]) {return false}
-            }
-        }
-        return true;
-    }
-}
-
-class qTable {
-    constructor(symbol) {
-        this.symbol = symbol
-        this.table = [];
-        this.listOfMoves = []
-    }
-
-    look() {
-        for (let i in this.table) {
-            if (this.table[i].matches()) {return this.table[i]}
-        }
-    
-        this.table.push(new qCell())
-    
-        return this.table[this.table.length-1]
-    }
-
-    botPlay() {
-        var state = this.look();
-    
-        this.listOfMoves.push(state)
-    
-        var move = state.generateMove();
-    
-        board[move[0]][move[1]] = this.symbol
-        endTurn();
-    }
-
-    //adjust q-table
-    learn() {
-        var reward;
-
-        switch (winner) {
-            case this.symbol:
-                reward = 0;
-                break;
-            case null:
-                reward = 1;
-                break;
-            
-            default:
-                reward = 2;
-                break;
-        }
-
-        var rewardTable = [3, 1, -1] //win, tie, loss
-        while (this.listOfMoves.length > 0) {
-            this.listOfMoves[0].update(rewardTable[reward]);
-            this.listOfMoves.shift();
-        }
-    }
-
-}
-
-
 var board = [];
 var boardSize = 3;
 var screen = 0;
@@ -128,13 +8,83 @@ var done = false;
 var winner = null;
 var players = ['X','O']
 
-var playerO;
 var score = [0, 0];
+
+function MinMax(state, maxing, depth) {
+    //for some reason .slice() doesnt work
+    var look = [];
+    for (let i in state) {
+        look.push([])
+        for (let j in state[i]) {
+            look[i].push(state[i][j])
+        }
+    }
+
+    //terminal state
+    if (checkWon('O', look)) {
+        return 1;
+    }
+    else if (checkWon('X', look)) {
+        return -1;
+    }
+    else if (isFull(look)) {
+        return 0;
+    }
+
+    if (maxing) {
+        //O's turn (maximize score)
+        let bestScore = -Infinity;
+        let bestMove = null;
+
+        for (let i in look) {
+            for (let j in look[i]) {
+                if (look[i][j] == "") {
+                    let possibleMove = look.slice()
+                    possibleMove[i][j] = 'O'
+
+                    let possibleScore = MinMax(possibleMove, false, depth + 1)
+
+                    if (possibleScore > bestScore) {
+                        bestScore = possibleScore
+                        bestMove = [i, j]
+                    }
+                }
+            }
+        }
+
+        if (depth == 0) {
+            board[bestMove[0]][bestMove[1]] = 'O'
+            endTurn();
+        }
+
+        return bestScore
+    }
+
+    else {
+        //X's turn (minimize score)
+        let bestScore = Infinity;
+
+        for (var i in look) {
+            for (var j in look[i]) {
+                if (state[i][j] == "") {
+                    let possibleMove = look.slice()
+                    possibleMove[i][j] = 'X'
+
+                    let possibleScore = MinMax(possibleMove, true, depth + 1)
+
+                    if (possibleScore < bestScore) {
+                        bestScore = possibleScore
+                    }
+                }
+            }
+        }
+        return bestScore
+    }
+}
 
 function setup() {
     createCanvas(600, 600)
     textAlign(CENTER)
-    playerO = new qTable('O')
 }
 
 function title() {
@@ -152,17 +102,17 @@ function title() {
 
     fill(255)
     if (mouseY < 500 && mouseY > 400) {fill(255, 255, 0)}
-    text("PLAY AGAINST ROBOT \n (it learns as you play)", width/2, 450)
+    text("PLAY AGAINST ROBOT", width/2, 450)
 
     fill(255)
     textSize(10)
     text("© Henry Ty 2020", 50, 590)
 }
 
-function isFull() {
-    for (let i in board) {
-        for (let j in board[i]) {
-            if (board[i][j] == '') {
+function isFull(state) {
+    for (let i in state) {
+        for (let j in state[i]) {
+            if (state[i][j] == '') {
                 return false;
             }
         }
@@ -223,11 +173,11 @@ function startup() {
     text("GRID SIZE: " + boardSize + "\n USE KEYBOARD \n \n CLICK TO CONTINUE", width/2, height/2)
 }
 
-function checkRows(player) {
-    for(let i in board) {
+function checkRows(player, state) {
+    for(let i in state) {
         var won = true;
-        for (let j in board[i]) {
-            if (board[i][j] !== player) {
+        for (let j in state[i]) {
+            if (state[i][j] !== player) {
                 won = false;
             }
         }
@@ -237,11 +187,11 @@ function checkRows(player) {
     return false;
 };
 
-function checkColumns(player) {
-    for(let i in board) {
+function checkColumns(player, state) {
+    for(let i in state) {
         var won = true;
-        for (let j in board[i]) {
-            if (board[j][i] !== player) {
+        for (let j in state[i]) {
+            if (state[j][i] !== player) {
                 won = false;
             }
         }
@@ -251,18 +201,18 @@ function checkColumns(player) {
     return false;
 };
 
-function checkDiags(player) {
+function checkDiags(player, state) {
     var won = true;
-    for(let i in board) { //check in this direction: \
-        if (board[i][i] !== player) {
+    for(let i in state) { //check in this direction: \
+        if (state[i][i] !== player) {
             won = false;
         }
     }
     if (won === true) {return true}
 
     var won = true;
-    for(let i in board) { //check in this direction: /
-        if (board[board.length-i-1][i] !== player) {
+    for(let i in state) { //check in this direction: /
+        if (state[state.length-i-1][i] !== player) {
             won = false;
         }
     }
@@ -271,19 +221,16 @@ function checkDiags(player) {
     return false;
 };
 
-function checkWon(player) {  
-    return (checkRows(player) || checkColumns(player) || checkDiags(player))
+function checkWon(player, state) {  
+    return (checkRows(player, state) || checkColumns(player, state) || checkDiags(player, state))
 }
 
 function game() {
-    if (wait > 90 || (wait > 0 && screen == 2)) {
+    if (wait > 90) {
         wait = 0
         done = false
 
         //restart
-
-        playerO.learn();
-
         winner = null
         board = []; 
         generateBoard();
@@ -295,15 +242,15 @@ function game() {
         wait ++;
     }
 
+    else if (turn == 'O' && computer) {
+        MinMax(board.slice(), true, 0)
+    }
+
     for (let i in players) {
-        if (checkWon(players[i])) {
+        if (checkWon(players[i], board)) {
             winner = players[i]
             done = true;
         }
-    }
-
-    if (screen == 4 && turn == 'O' && !done) {
-        playerO.botPlay();
     }
 
     if (winner != null) {
@@ -312,7 +259,7 @@ function game() {
         text(winner + ' WINS', width/2, height/2)
     }
 
-    else if (isFull()) {
+    else if (isFull(board)) {
         textSize(width/4)
         fill(0, 255, 0)
         text('DRAW', width/2, height/2)
@@ -332,15 +279,15 @@ function draw() {
             title();
             break;
         case(1): //boot up the game
-            startup();
-            break;
-        case(2): //computer training
-            if (!boost) {game(); display(); break}
-            if (score[0]+score[1] > trainingGames) {screen = 4}
-            for (let i=0; i<1000; i++) {
-                game();
+            if (computer) {    
+                generateBoard();
+                screen = 3
+                turn = random(players)
+                if (computer) {screen = 4}
+                break
             }
-            display()
+
+            startup();
             break;
         case(4): //face the computer
         case(3): //human
@@ -399,7 +346,7 @@ function mouseClicked() {
             generateBoard();
             screen = 3
             turn = random(players)
-            if (computer) {screen = 4}
+            if (computer) {screen = 4; turn = 'O'}
             break
         case(4):
         case(3):
