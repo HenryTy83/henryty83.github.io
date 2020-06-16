@@ -118,7 +118,7 @@ function draw() {
 
     noStroke();
     background(255, 255, 255, 125)
-    textAlign(CENTER)
+    textAlign(CENTER, CENTER)
     fill(255*(sin(frameCount/60) + 1)/2, 255*(cos(frameCount/60) + 1)/2, 255*(sin(frameCount/60) + 1))
     textSize(width/16)
     text("Wobsite", width/2, height*0.1)
