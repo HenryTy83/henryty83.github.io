@@ -47,6 +47,7 @@ function setup() {
     buttons.push(new button(width*0.05, height*0.25, width/80, height * 0.04, "./4d.html", "A 4D Cube: Go even further beyond "))
     buttons.push(new button(width*0.05, height*0.35, width/80, height * 0.04, "./enigma/", "Enigma: I watched The Imitation Game and made this the day after"))
     buttons.push(new button(width*0.05, height*0.45, width/80, height * 0.04, "./bouncing.html", "Bouncing Balls: Random screensaver-type animation that I use for the homepage"))
+    buttons.push(new button(width*0.05, height*0.55, width/80, height * 0.04, "./menger/", "Menger Sponge: Cool 3D fractal"))
 }
 
 function draw() {
