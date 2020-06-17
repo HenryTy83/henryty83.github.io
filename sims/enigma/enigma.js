@@ -9,9 +9,13 @@ let letter = "";
 let output = "";
 let saved = "PIUAA LQTMN";
 let rotorsLoaded = true;
-let prevSettings = "Rotors: 3, 5, 4\nRotor Positions: 23, 16, 19";
+let prevSettings = "Rotors: 3, 5, 4\nRotor Positions: 23, 16, 19 \n Plugboard Connections: none";
 let settings = "";
 let plugboard = [];
+let boardPlugged = true;
+let plugPositions = [];
+let keyboard = ["QWERTYUIOP","ASDFGHJKL", "ZXCVBNM"]
+let stateHistory = [];
 
 class rotor {
     constructor(wiring, turnover) {
@@ -54,8 +58,17 @@ function setup() {
 function keyPressed() {
     if (screen != 0 || letters.indexOf(key.toUpperCase()) == -1) {return}
 
-    //pass through
     letter = key.toUpperCase();
+
+    //go through plugboard
+    for (let i in plugboard) {
+        if (plugboard[i] != null) {
+            if (plugboard[i][0] == letter) {letter = plugboard[i][1]}
+            else if (plugboard[i][1] == letter) {letter = plugboard[i][0]}
+        }
+    }
+
+    //pass through
     for (let i=2; i>=0; i--) {
         letter = rotors[rotorsUsed[i]].passThrough(letter)
     }
@@ -67,6 +80,15 @@ function keyPressed() {
     for (let i in rotorsUsed) {
         letter = rotors[rotorsUsed[i]].passBackward(letter)
     }
+
+     //go through plugboard again
+     for (let i in plugboard) {
+        if (plugboard[i] != null) {
+            if (plugboard[i][0] == letter) {letter = plugboard[i][1]}
+            else if (plugboard[i][1] == letter) {letter = plugboard[i][0]}
+        }
+    }
+
 }
 
 function main() {
@@ -100,44 +122,24 @@ function main() {
     //draw the lights
     let keyboard = ["QWERTYUIOP","ASDFGHJKL", "ZXCVBNM"]
 
-    for (let i in keyboard[0]) {
-        fill(10)
-        ellipse(365 + 50*i, 300, 30)
+    for (let j in keyboard) {
+        for (let i in keyboard[j]) {
+            let distancesX = [365 + 50*i, 400 + 50*i, 425 + 55*i]
+            let distancesY = [300, 350, 400]
 
-        fill(255)
-        text(keyboard[0][i], 365 + 50*i, 305)
+            fill(10)
+            ellipse(distancesX[j], distancesY[j], 30)
 
-        if (letter == keyboard[0][i]) {
-            fill(255, 255, 0, 200)
-            ellipse(365 + 50*i, 300, 30)
+            fill(255)
+            text(keyboard[j][i], distancesX[j], distancesY[j]+5)
+
+            if (letter == keyboard[j][i]) {
+                fill(255, 255, 0, 200)
+                ellipse(distancesX[j], distancesY[j], 30)
+            }
         }
     }
 
-    for (let i in keyboard[1]) {
-        fill(10)
-        ellipse(400 + 50*i, 350, 30)
-
-        fill(255)
-        text(keyboard[1][i],400 + 50*i, 355)
-
-        if (letter == keyboard[1][i]) {
-            fill(255, 255, 0, 200)
-            ellipse(400 + 50*i, 350, 30)
-        }
-    }
-
-    for (let i in keyboard[2]) {
-        fill(10)
-        ellipse(425 + 55*i, 400, 30)
-
-        fill(255)
-        text(keyboard[2][i], 425 + 55*i % 500, 405)
-
-        if (letter == keyboard[2][i]) {
-            fill(255, 255, 0, 200)
-            ellipse(425 + 55*i, 400, 30)
-        }
-    }
 
     //buttons
     for (let i=0; i<3; i++) {
@@ -183,6 +185,17 @@ function main() {
     //draw the settings
     settings = "Rotors: " + String(rotorsUsed[0]+1) + ", " +String(rotorsUsed[1]+1) + ", " + String(rotorsUsed[2]+1) + "\n" 
     settings += "Rotor Positions: " + rotors[rotorsUsed[0]].notch + ", " + rotors[rotorsUsed[1]].notch + ", " + rotors[rotorsUsed[2]].notch + "\n"
+    settings += "Plugboard Connections: "
+
+    let plugboardSetting = ""
+    for (let i in plugboard) {
+        if (plugboard[i] != null) {
+            plugboardSetting += plugboard[i][0]+ plugboard[i][1] + ", "
+        }
+    }
+
+    if (plugboardSetting == "") {settings += "none"}
+    else {settings += "\n" + plugboardSetting}
 
     fill(255)
     rect(150, 300, 200, 150)
@@ -202,7 +215,108 @@ function main() {
 }
 
 function plugTheBoard() {
+    background(50)
+
+    noStroke();
+    fill(0, 100, 0)
+    rect(width/2, height/4, width/2, height-10)
+
+    //draw the lights
+     //draw the lights
+     let keyboard = ["QWERTYUIOP","ASDFGHJKL", "ZXCVBNM"]
+
+     for (let j in keyboard) {
+         for (let i in keyboard[j]) {
+             let distancesX = [365 + 50*i, 400 + 50*i, 425 + 55*i]
+             let distancesY = [100, 200, 300]
+ 
+             fill(10)
+             ellipse(distancesX[j], distancesY[j], 30)
+ 
+             fill(255)
+             text(keyboard[j][i], distancesX[j], distancesY[j]+5)
+            }
+     }
+     stroke(0, 0, 0, 50)
+     strokeWeight(5)
+
+    for (let i in plugPositions) {
+        fill(0, 0, 0, 100)
+        if (plugPositions[i] == null) {continue;}
+
+        rect(plugPositions[i][0][0], plugPositions[i][0][1], 50, 50)
+
+        if (plugPositions[i][1] != null) {
+            rect(plugPositions[i][1][0], plugPositions[i][1][1], 50, 50)
+            line(plugPositions[i][0][0], plugPositions[i][0][1], plugPositions[i][1][0], plugPositions[i][1][1])
+        }
+        else {
+            rect(mouseX, mouseY, 50, 50)
+            line(plugPositions[i][0][0], plugPositions[i][0][1], mouseX, mouseY)
+        }
+    }
+    noStroke();
+
     
+    fill(255)
+    rect(800, 580, 200, 40)
+    fill(0)
+    text("RETURN TO ENIGMA", 800, 580)
+}
+
+function editPlugboard() {
+    //find first empty thing
+    if (plugboard.indexOf(null) == -1) {
+        plugboard.push(null)
+        plugPositions.push(null)
+    }
+
+    let empty = plugboard.indexOf(null)
+
+    if (!boardPlugged) {
+        for (let i in plugboard) {
+            if (plugboard[i] != null) {
+                if (plugboard[i][1] == null) {
+                   empty = i
+                }
+            }
+        }
+    }
+
+    //find the clicky
+    let keyboard = ["QWERTYUIOP","ASDFGHJKL", "ZXCVBNM"]
+
+    for (let j in keyboard) {
+        for (let i in keyboard[j]) {
+            let distancesX = [365 + 50*i, 400 + 50*i, 425 + 55*i]
+            let distancesY = [100, 200, 300]
+
+            if (dist(distancesX[j], distancesY[j], mouseX, mouseY) < 15) {
+                for (let k in plugboard) {
+                    if (plugboard[k] != null) {
+                        if ((plugboard[k][1] == keyboard[j][i] || plugboard[k][0] == keyboard[j][i]) && boardPlugged) {
+                            plugboard[k] = null
+                            plugPositions[k] = null
+                            return;
+                        }
+                    }
+                }
+
+            if (boardPlugged) {
+                boardPlugged = false;
+                plugboard[empty] = [keyboard[j][i], null]
+                plugPositions[empty] = [[distancesX[j], distancesY[j]], null]
+            }
+
+            else {
+                boardPlugged = true;
+                plugboard[empty][1] = keyboard[j][i]
+                plugPositions[empty][1] = [distancesX[j], distancesY[j]]
+            }
+            return;
+            }  
+        } 
+    }
 }
 
 function chooseMotor() {
@@ -260,6 +374,9 @@ function draw() {
         case 1:
             chooseMotor()
             break;
+        case 2:
+            plugTheBoard()
+            break;
     }
 
     fill(200)
@@ -277,11 +394,20 @@ function draw() {
 
 function keyReleased() {
     if (key === "Backspace") {
+
+        if (output[output.length-1] != " ") {
+            let prevState = stateHistory.pop()
+            rotors[rotorsUsed[2]].notch = prevState[0]
+            rotors[rotorsUsed[1]].notch = prevState[1]
+            rotors[rotorsUsed[0]].notch = prevState[2]
+        }
         output = output.substring(0, output.length-1); 
         return
     }
-   if (key === "Enter") {saved = output; output = ""; prevSettings = settings; return}
+    if (key === "Enter") {saved = output; output = ""; return}
     if (key === " ") {output += " "; return;}
+
+    stateHistory.push([rotors[rotorsUsed[2]].notch, rotors[rotorsUsed[1]].notch, rotors[rotorsUsed[0]].notch])
 
     if (letters.indexOf(letter) != -1) {
         if (rotors[rotorsUsed[2]].inc(1)) {
@@ -289,6 +415,9 @@ function keyReleased() {
                 rotors[rotorsUsed[0]].inc(1)
             }
         }
+    if (output == "") {
+        prevSettings = settings;
+    }
     output += letter
     letter = ""
     }
@@ -308,13 +437,14 @@ function incrementRotors() {
 }
 
 function mouseClicked() {
-    if (mouseX < 75 && mouseY < 55) {window.location.href = "https://henryty88.github.io/"};
-    if (mouseX < 115 && mouseX > 80 && mouseY < 40) {window.open("https://en.wikipedia.org/wiki/Enigma_machine")};
+    if (mouseX < 75 && mouseY < 55) {window.location.href = "../"};
+    if (mouseX < 115 && mouseX > 80 && mouseY < 40) {window.open("https://en.wikipedia.org/wiki/Enigma_machine#Details")};
 
     switch (screen) {
         case 0:
             incrementRotors();
             if (mouseX < 500 && mouseX > 300 && mouseY > 560) {screen = 1;};
+            if (mouseX < 900 && mouseX > 700 && mouseY > 560) {screen = 2;};
             break;
         case 1: 
             if (mouseX < 500 && mouseX > 300 && mouseY > 560 && rotorsLoaded) {screen = 0;};
@@ -329,7 +459,10 @@ function mouseClicked() {
                     rotorsUsed[rotorsUsed.indexOf(null)] = parseInt(i)
                 }
             }
-
+            break;
+        case 2:
+            if (mouseX < 900 && mouseX > 700 && mouseY > 560 && boardPlugged) {screen = 0;};
+            editPlugboard();
             break;
     }
 }
