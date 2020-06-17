@@ -77,6 +77,18 @@ function draw() {
     for (let i in bouncers) {
         bouncers[i].run();
     }
+
+    fill(0)
+    rect(0, 0, 100, 50)
+    textSize(30)
+    fill(255)
+    text("BACK", 5, 20)
+}
+
+function mouseClicked() {
+    if (mouseX<100 && mouseY < 50) {
+        window.location.href = "../"
+    }
 }
 
 function windowResized() {
