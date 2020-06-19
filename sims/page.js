@@ -48,13 +48,45 @@ function setup() {
     buttons.push(new button(width*0.05, height*0.35, width/80, height * 0.04, "./enigma/", "Enigma: I watched The Imitation Game and made this the day after"))
     buttons.push(new button(width*0.05, height*0.45, width/80, height * 0.04, "./bouncing.html", "Bouncing Balls: Random screensaver-type animation that I use for the homepage"))
     buttons.push(new button(width*0.05, height*0.55, width/80, height * 0.04, "./menger/", "Menger Sponge: Cool 3D fractal"))
+    buttons.push(new button(width*0.05, height*0.6, width/80, height * 0.04, "./tree", "Fractal tree: recursive generation"))
+}
+
+function drawBranch(depth) {
+    let length = Math.pow(0.67, depth) * height / 2
+
+    if (length < 4) {return}
+
+    strokeWeight(2)
+    stroke(255)
+
+    line(0, 0, 0, -length)
+    translate(0, -length)
+
+
+    let branchAngle = frameCount / 100
+
+    push()
+    rotate(branchAngle)
+    drawBranch(depth + 1)
+    pop()
+
+    push()
+    rotate(-branchAngle)
+    drawBranch(depth + 1)
+    pop()
 }
 
 function draw() {
     background(0);
 
+    push()
+    translate(width/2, height)
+    drawBranch(1)
+    pop()
+
+
     noStroke();
-    background(255, 255, 255, 125)
+    background(255, 255, 255, 100)
     textAlign(CENTER, CENTER)
     fill(255*(sin(frameCount/60) + 1)/2, 255*(cos(frameCount/60) + 1)/2, 255*(sin(frameCount/60) + 1))
     textSize(width/16)
@@ -75,6 +107,10 @@ function draw() {
     textSize(30)
     fill(255)
     text("BACK", 5, 20)
+}
+
+function windowResized() {
+    setup()
 }
 
 function mouseClicked() {
