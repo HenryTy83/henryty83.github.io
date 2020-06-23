@@ -10,76 +10,64 @@ var players = ['X','O']
 
 var score = [0, 0];
 
-function MinMax(state, maxing, depth) {
-    //for some reason .slice() doesnt work
-    var look = [];
-    for (let i in state) {
-        look.push([])
-        for (let j in state[i]) {
-            look[i].push(state[i][j])
-        }
+function MinMax(state, maxing, depth) {    
+    //terminal state
+    if (isFull(state)) {
+        return 0
     }
 
-    //terminal state
-    if (checkWon('O', look)) {
-        return 1;
+    if (checkWon('X', state)) {
+        return -1
     }
-    else if (checkWon('X', look)) {
-        return -1;
+
+    if (checkWon('O', state)) {
+        return 1
     }
-    else if (isFull(look)) {
-        return 0;
-    }
+
+    let look = state.slice()
 
     if (maxing) {
-        //O's turn (maximize score)
+        //o's turn
         let bestScore = -Infinity;
         let bestMove = null;
-
         for (let i in look) {
             for (let j in look[i]) {
                 if (look[i][j] == "") {
                     let possibleMove = look.slice()
-                    possibleMove[i][j] = 'O'
-
-                    let possibleScore = MinMax(possibleMove, false, depth + 1)
+                    let possibleScore = MinMax(possibleMove, false, depth+1)
 
                     if (possibleScore > bestScore) {
-                        bestScore = possibleScore
-                        bestMove = [i, j]
+                        bestMove = [i, j];
+                        bestScore = possibleScore;
                     }
                 }
             }
         }
 
         if (depth == 0) {
-            board[bestMove[0]][bestMove[1]] = 'O'
-            endTurn();
+            board[bestMove[0]][bestMove[1]] = "O"
+            endTurn()
         }
-
-        return bestScore
     }
 
     else {
-        //X's turn (minimize score)
+        //x's turn
         let bestScore = Infinity;
-
-        for (var i in look) {
-            for (var j in look[i]) {
-                if (state[i][j] == "") {
+        for (let i in look) {
+            for (let j in look[i]) {
+                if (look[i][j] == "") {
                     let possibleMove = look.slice()
-                    possibleMove[i][j] = 'X'
-
-                    let possibleScore = MinMax(possibleMove, true, depth + 1)
+                    let possibleScore = MinMax(possibleMove, true, depth+1)
 
                     if (possibleScore < bestScore) {
-                        bestScore = possibleScore
+                        bestScore = possibleScore;
                     }
                 }
             }
         }
-        return bestScore
     }
+
+    return bestScore
 }
 
 function setup() {
@@ -243,7 +231,7 @@ function game() {
     }
 
     else if (turn == 'O' && computer) {
-        MinMax(board.slice(), true, 0)
+        MinMax(board, true, 0)
     }
 
     for (let i in players) {
