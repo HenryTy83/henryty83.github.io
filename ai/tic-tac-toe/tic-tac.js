@@ -158,7 +158,7 @@ function display() {
     textSize(align * 0.6)
     for (let i in board) {
         for (let j in board[i]) {
-            if (board[i][j] == 'X') {fill(255, 0, 0)}
+            if (board[i][j] == "X") {fill(255, 0, 0)}
             else {fill(0, 0, 255)}
 
             text(board[i][j], i*align + (align/2), j*align + (align/1.5))
