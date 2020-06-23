@@ -6,39 +6,47 @@ var turn;
 var wait = 0;
 var done = false;
 var winner = null;
-var players = ['X','O']
+var players = ["X","O"]
 
 var score = [0, 0];
+var moveTimer = 0;
 
-function MinMax(state, maxing, depth) {    
+
+function MinMax(state, maxing, depth, alpha, beta) {    
     //terminal state
     if (isFull(state)) {
         return 0
     }
 
-    if (checkWon('X', state)) {
+    if (checkWon("X", state)) {
         return -1
     }
 
-    if (checkWon('O', state)) {
+    if (checkWon("O", state)) {
         return 1
     }
 
-    let look = state.slice()
-
     if (maxing) {
-        //o's turn
+        //o"s turn
         let bestScore = -Infinity;
         let bestMove = null;
-        for (let i in look) {
-            for (let j in look[i]) {
-                if (look[i][j] == "") {
-                    let possibleMove = look.slice()
-                    let possibleScore = MinMax(possibleMove, false, depth+1)
+
+        for (let i in state) {
+            for (let j in state[i]) {
+                if (state[i][j] == "") {
+
+                    state[i][j] = "O"
+                    let possibleScore = MinMax(state, false, depth+1, alpha, beta)
+                    state[i][j] = ""
 
                     if (possibleScore > bestScore) {
-                        bestMove = [i, j];
-                        bestScore = possibleScore;
+                        bestScore = possibleScore
+                        bestMove = [i, j] 
+                    }
+
+                    alpha = max(alpha, bestScore) 
+                    if (alpha >= beta) {
+                        return bestScore
                     }
                 }
             }
@@ -48,26 +56,33 @@ function MinMax(state, maxing, depth) {
             board[bestMove[0]][bestMove[1]] = "O"
             endTurn()
         }
+
+        return bestScore
     }
 
     else {
-        //x's turn
+        //x"s turn
         let bestScore = Infinity;
-        for (let i in look) {
-            for (let j in look[i]) {
-                if (look[i][j] == "") {
-                    let possibleMove = look.slice()
-                    let possibleScore = MinMax(possibleMove, true, depth+1)
+        for (let i in state) {
+            for (let j in state[i]) {
+                if (state[i][j] == "") {
 
-                    if (possibleScore < bestScore) {
-                        bestScore = possibleScore;
+                    state[i][j] = "X"
+                    let possibleScore = MinMax(state, true, depth+1, alpha, beta)
+                    state[i][j] = ""
+
+                    bestScore = min(possibleScore, bestScore)
+                    beta = min(beta, bestScore)
+
+                    if (beta <= alpha) {
+                        return bestScore;
                     }
                 }
             }
         }
-    }
 
-    return bestScore
+        return bestScore
+    }
 }
 
 function setup() {
@@ -99,10 +114,8 @@ function title() {
 
 function isFull(state) {
     for (let i in state) {
-        for (let j in state[i]) {
-            if (state[i][j] == '') {
-                return false;
-            }
+        if (state[i].indexOf("") != -1) {
+            return false
         }
     }
 
@@ -133,7 +146,7 @@ function display() {
 
     textSize(20)
     strokeWeight(2)
-    if (turn == 'X') {fill(255, 0, 0)}
+    if (turn == "X") {fill(255, 0, 0)}
     else {fill(0, 0, 255)}
     text(turn + "'s turn", 50, 20)
 
@@ -165,12 +178,12 @@ function checkRows(player, state) {
     for(let i in state) {
         var won = true;
         for (let j in state[i]) {
-            if (state[i][j] !== player) {
+            if (state[i][j] != player) {
                 won = false;
             }
         }
 
-        if (won == true) {return true}
+        if (won) {return true}
     }
     return false;
 };
@@ -179,34 +192,36 @@ function checkColumns(player, state) {
     for(let i in state) {
         var won = true;
         for (let j in state[i]) {
-            if (state[j][i] !== player) {
-                won = false;
+            if (state[j][i] != player) {
+                won = false
+                break;
             }
         }
-
-        if (won == true) {return true}
+        if (won) {return true}
     }
     return false;
 };
 
-function checkDiags(player, state) {
-    var won = true;
+function checkDiag1(player, state) {
     for(let i in state) { //check in this direction: \
         if (state[i][i] !== player) {
-            won = false;
+            return false
         }
     }
-    if (won === true) {return true}
+    return true
+}
 
-    var won = true;
+function checkDiag2(player, state) {
     for(let i in state) { //check in this direction: /
         if (state[state.length-i-1][i] !== player) {
-            won = false;
+            return false
         }
     }
-    if (won === true) {return true}
+    return true
+}
 
-    return false;
+function checkDiags(player, state) {
+    return checkDiag1(player, state) || checkDiag2(player, state)
 };
 
 function checkWon(player, state) {  
@@ -223,15 +238,16 @@ function game() {
         board = []; 
         generateBoard();
 
-        if (screen == 4) {turn = 'O'}
+        if (computer) {turn = "O"}
     }
 
     if (done) {
         wait ++;
     }
 
-    else if (turn == 'O' && computer) {
-        MinMax(board, true, 0)
+    else if (turn == "O" && computer) {
+        MinMax(board, true, 0, -Infinity, Infinity)
+        return;
     }
 
     for (let i in players) {
@@ -244,13 +260,13 @@ function game() {
     if (winner != null) {
         textSize(width/4)
         fill(0, 255, 0)
-        text(winner + ' WINS', width/2, height/2)
+        text(winner + " WINS", width/2, height/2)
     }
 
     else if (isFull(board)) {
         textSize(width/4)
         fill(0, 255, 0)
-        text('DRAW', width/2, height/2)
+        text("DRAW", width/2, height/2)
 
         if (done == false) {
             score[0] += 0.5;
@@ -269,9 +285,8 @@ function draw() {
         case(1): //boot up the game
             if (computer) {    
                 generateBoard();
-                screen = 3
-                turn = random(players)
-                if (computer) {screen = 4}
+                turn = "O"
+                screen = 4;
                 break
             }
 
@@ -287,15 +302,15 @@ function draw() {
 
 function keyTyped() {
     switch(key) {
-        case('1'):
-        case('3'):
-        case('5'):
-        case('7'):
-        case('9'):
-        case('2'):
-        case('4'):
-        case('6'):
-        case('8'):
+        case("1"):
+        case("3"):
+        case("5"):
+        case("7"):
+        case("9"):
+        case("2"):
+        case("4"):
+        case("6"):
+        case("8"):
             boardSize = key
             break;
         default:
@@ -319,7 +334,8 @@ function click() {
         }
     }
 
-    if (board[x][y] != '') {return}
+    if (board[x][y] != "") {return}
+    if (computer && turn == "O") {return}
     board[x][y] = turn;
     endTurn();
 }
@@ -334,7 +350,6 @@ function mouseClicked() {
             generateBoard();
             screen = 3
             turn = random(players)
-            if (computer) {screen = 4; turn = 'O'}
             break
         case(4):
         case(3):
