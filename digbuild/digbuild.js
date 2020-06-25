@@ -106,7 +106,7 @@ class block {
 
 
     update(i) {
-        if (steve.blockX == this.pos.x && steve.blockY == this.pos.y && mouseIsPressed && steve.heldItem == 0) {
+        if (this.blockId == null) {
             world.splice(i, 1)
             return;
             //delete yourself
@@ -214,25 +214,27 @@ class player {
         }
     }
 
-    calcChunk() {
-        let temp = (this.pos.x - width/2)/width
+    calcChunk(x) {
+        let temp = (x- width/2)/width
 
         if (temp > 0) {return floor(temp)}
         return ceil(temp)
     }
 
     build() {
-        let chunk = this.findChunk(this.currentChunk).blockData
-        for (let i in chunk) {
-            if (chunk[i].pos.x == this.blockX && chunk[i].pos.y == this.blockY) {
-                if (this.heldItem == 0) {
-                    brokenBlock = chunk.splice(i, 1)
-                    brokenBlock.blockId = null
-                    this.placeTimer = 0
-                }
-                //break the block
+        let placedBlock = this.calcChunk(this.pos.x)
+        for (let i=-1; i<=1; i++) {
+            let chunk = this.findChunk(placedBlock + i).blockData
+            for (let j in chunk) {
+                if (chunk[j].pos.x == this.blockX && chunk[j].pos.y == this.blockY) {
+                    if (this.heldItem == 0) {
+                        chunk[j].blockId = null
+                        this.placeTimer = 0
+                    }
+                    //break the block
 
-                return
+                    return
+                }
             }
         }
         if (this.heldItem == 0) {return}
@@ -252,7 +254,7 @@ class player {
 
     loadChunks() {
         //check if we need to load new chunks
-        this.currentChunk = this.calcChunk()
+        this.currentChunk = this.calcChunk(this.pos.x)
         if (this.currentChunk == -0) {this.currentChunk = 0}
 
         if (this.pos.x <= this.loadBoundaryMin) {
@@ -308,7 +310,7 @@ class player {
         this.blockY =  round(blockSize * floor(this.blockY/blockSize))
         //round to the nearest block
 
-        if (dist(this.pos.x, this.pos.y, this.blockX, this.blockY) < 200) {
+        if (dist(this.pos.x, this.pos.y, this.blockX, this.blockY) < 200 && dist(this.pos.x, this.pos.y, this.blockX, this.blockY) > blockSize) {
             fill(0, 0, 0, 100)
             rect(this.blockX, this.blockY, blockSize, blockSize)
 
