@@ -1,20 +1,20 @@
 let world = [];
 let chunks = [];
 let blockSize = 25;
-let seed = Math.random()
+let seed = ""
 let maxVerticalChange = 10;
 let smoothness = 10
 let brokenBlock;
 let textures;
 let sprites
 let hotbar;
-let screen = 3;
-let letters = "abcdefghijklmnopqrstuvwxyz"
+let screen = 0;
+let letters = "0123456789abcdefghijklmnopqrstuvwxyz"
 
 function preload() {
-    textures = loadImage("./textures.png")
-    sprites = loadImage("./playerSprites.png")
-    hotbar = loadImage("./hotbar.png")
+    textures = loadImage("./assets/textures.png")
+    sprites = loadImage("./assets/playerSprites.png")
+    hotbar = loadImage("./assets/hotbar.png")
 }
 
 class chunk {
@@ -31,7 +31,7 @@ class chunk {
     
             this.blockData.push(new block(i, maxY, 0))
             for (let j = maxY + blockSize; j < height * 1.25; j += blockSize) {
-                if (j < height + random(-10, 10)) {this.blockData.push(new block(i, j, 2))}
+                if (j < maxY + 5*blockSize + 2*noise(seed + i) - 1) {this.blockData.push(new block(i, j, 2))}
                 else {this.blockData.push(new block(i, j, 1))}
             }
         }
@@ -222,9 +222,10 @@ class player {
     }
 
     build() {
-        let placedBlock = this.calcChunk(this.pos.x)
+        let placedBlock = this.calcChunk(this.blockX)
+        let chunk;
         for (let i=-1; i<=1; i++) {
-            let chunk = this.findChunk(placedBlock + i).blockData
+            chunk = this.findChunk(placedBlock + i).blockData
             for (let j in chunk) {
                 if (chunk[j].pos.x == this.blockX && chunk[j].pos.y == this.blockY) {
                     if (this.heldItem == 0) {
@@ -248,8 +249,9 @@ class player {
         this.placeTimer = 0;
         
         //empty block
-        chunk.push(new block(this.blockX, this.blockY, this.heldItem-1))
-        world.push(new block(this.blockX, this.blockY, this.heldItem-1))
+        let builtBlock = new block(this.blockX, this.blockY, this.heldItem-1)
+        this.findChunk(placedBlock).blockData.push(builtBlock)
+        world.push(builtBlock)
     }
 
     loadChunks() {
@@ -328,10 +330,6 @@ let steve;
 function setup() {
     createCanvas(1200, 600)
     noStroke();
-
-    steve = new player()
-
-    chunks.push(new chunk(0, 0))
 }
 
 function game() {
@@ -386,10 +384,42 @@ function hotbarChange() {
 
 function titleScreen() {
     textAlign(CENTER)
-    background(200)
+    background(100 + sin(frameCount/10)*10, 180 + sin(frameCount/10)*10, 240 + sin(frameCount/10)*10)
+
+    fill(0, 255, 0)
+    rect(500, 200, 200, 100)
+    if (mouseX > 500 && mouseY > 200 && mouseX < 700 && mouseY < 300) {
+        fill(0, 0, 0, 100)
+        rect(500, 200, 200, 100)
+    }
+
     textSize(100)
     fill(0)
-    text("DIGBUILD", width/2, height/2)
+    text("DIGBUILD", width/2, height/4)
+
+    textSize(25) 
+    text("© Henry Ty 2020", 100, height-10)
+    text("PLAY", width/2, 250)
+
+    image(sprites, 150, 150, 200,  400, 0, 0, 25, 50)
+    image(sprites, width-150-200, 150, 200,  400, 0, 0, 25, 50)
+}
+
+function generateWorld() {
+    //clean the seed
+    let filteredSeed = "";
+    for (let letter of seed) {
+        filteredSeed += letters.indexOf(letter)
+    }
+
+    if (filteredSeed == "") {filteredSeed = "0"}
+    seed = filteredSeed
+
+    
+    steve = new player()
+    chunks.push(new chunk(0, 0))
+
+    screen = 3
 }
 
 function draw() {
@@ -397,13 +427,47 @@ function draw() {
         case 0:
             titleScreen()
             break
+        case 1:
+            worldGen();
+            break;
+        case 2:
+            generateWorld()
+            break;
         case 3:
             game();
     }
 }
 
+function worldGen() {
+    background(100 + sin(frameCount/10)*10, 180 + sin(frameCount/10)*10, 240 + sin(frameCount/10)*10)
+    fill(0)
+    textSize(100)
+    text("SEED: " + seed + "\n Hit enter to generate world", width/2, height/2)
+}
+
+function mouseClicked() {
+    switch (screen) {
+        case 0:
+            if (mouseX > 500 && mouseY > 200 && mouseX < 700 && mouseY < 300) {screen = 1;}
+            break;
+    }
+}
+
 function keyReleased() {
     switch (screen) {
+        case 1:
+            if (letters.indexOf(key) != -1) {
+                seed += key 
+            }
+
+            if (key == "Backspace") {
+                seed = seed.slice(0, seed.length-1)
+            }
+
+            if (key == "Enter") {
+                screen = 2
+            }
+            break;
         case 3:
             hotbarChange();
             break;
