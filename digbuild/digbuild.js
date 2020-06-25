@@ -1,9 +1,21 @@
 let world = [];
 let chunks = [];
 let blockSize = 25;
-let seed = Math.random()*100
+let seed = Math.random()
 let maxVerticalChange = 10;
 let smoothness = 10
+let brokenBlock;
+let textures;
+let sprites
+let hotbar;
+let screen = 3;
+let letters = "abcdefghijklmnopqrstuvwxyz"
+
+function preload() {
+    textures = loadImage("./textures.png")
+    sprites = loadImage("./playerSprites.png")
+    hotbar = loadImage("./hotbar.png")
+}
 
 class chunk {
     constructor(x, chunkID) {
@@ -17,9 +29,10 @@ class chunk {
         for (let i = x; i < x+width; i += blockSize) {
             let maxY = blockSize * round(maxVerticalChange * noise(i / (blockSize * smoothness) + parseFloat(seed))) + height / 2
     
-            for (let j = maxY; j < height * 1.25; j += blockSize) {
-                if (j < height + random(-10, 10)) {this.blockData.push(new block(i, j, 1))}
-                else {this.blockData.push(new block(i, j, 2))}
+            this.blockData.push(new block(i, maxY, 0))
+            for (let j = maxY + blockSize; j < height * 1.25; j += blockSize) {
+                if (j < height + random(-10, 10)) {this.blockData.push(new block(i, j, 2))}
+                else {this.blockData.push(new block(i, j, 1))}
             }
         }
     }
@@ -30,31 +43,48 @@ class block {
     constructor(x, y, id) {
         this.pos = createVector(x, y)
         this.blockId = id;
-        this.color = [color(0, 255, 0), color(100)][this.blockId-1]
+
+        this.generateColor()
+    }
+
+    generateColor() {
+        switch (this.blockId) {
+            case 0:
+                this.texture = createVector(25, 0)
+                break
+            case 1:
+                this.texture = createVector(0, 25)
+                break
+            case 2:
+                this.texture = createVector(0, 0)
+                break
+        }
     }
 
     display() {
-        fill(this.color)
-        rect(this.pos.x, this.pos.y, blockSize, blockSize)
+        image(textures, this.pos.x, this.pos.y, blockSize, blockSize, this.texture.x, this.texture.y, 25, 25)
     }
 
     collideWithPlayer() {
+        if (dist(steve.pos.x, steve.pos.y, this.pos.x, this.pos.y) > 3*blockSize) {return}
+
         //keep the player from clipping into blocks
 
         let isInLeft = steve.pos.x + blockSize >= this.pos.x && steve.pos.x + blockSize <= this.pos.x + blockSize
         let isInRight = steve.pos.x <= this.pos.x + blockSize && steve.pos.x >= this.pos.x
         let isOnTop = steve.pos.y + 2 * blockSize >= this.pos.y && steve.pos.y + blockSize <= this.pos.y
         let isInY = steve.pos.y + blockSize >= this.pos.y && steve.pos.y + blockSize <= this.pos.y + blockSize
+        let isOnBottom = steve.pos.y < this.pos.y + blockSize && steve.pos.y > this.pos.y
 
         //collide from side
-        if (isInLeft && isInY) {
-            steve.pos.x = this.pos.x - blockSize
+        if (isInLeft && isInY && steve) {
+            steve.pos.x = this.pos.x - blockSize - 1
             steve.grounded = true;
             return
         }
 
         if (isInRight && isInY) {
-            steve.pos.x = this.pos.x + blockSize
+            steve.pos.x = this.pos.x + blockSize + 1
             steve.grounded = true;
             return
         }
@@ -65,12 +95,24 @@ class block {
             steve.grounded = true;
             return
         }
+
+        if (isOnBottom && (isInLeft || isInRight)) {
+            //check from bottom
+            steve.grounded = false;
+            steve.pos.y = this.pos.y + blockSize
+            return
+        }
     }
 
 
-    update() {
+    update(i) {
         this.collideWithPlayer()
         this.display()
+
+        if (steve.blockX == this.pos.x && steve.blockY == this.pos.y && mouseIsPressed && steve.heldItem == 0) {
+            world.splice(i, 1)
+            //delete yourself
+        }
     }
 }
 
@@ -78,9 +120,11 @@ class player {
     constructor() {
         this.pos = createVector(width / 2, height/2)
 
-        this.speed = 1
+        this.speed = 0.1
         this.vel = createVector(0, 0);
         this.gravity = createVector(0, 0.1)
+        this.placeTimer = 0;
+        this.maxTimer = 10;
         //physics vars
 
         this.grounded = false;
@@ -94,6 +138,10 @@ class player {
         this.currentChunk = 0
         this.prevChunk = null;
         //game data
+
+        this.animTimer = 0;
+        this.runningAnim = true;
+        //animation vars
     }
 
     keyboard() {
@@ -104,36 +152,53 @@ class player {
         if (key == "a") {
             this.vel.x -= this.speed
             this.walking = true;
-
-            if (!this.grounded) {
-                this.vel.x += this.speed/2
-            }
-
+            key == null
             return
         }
 
         if (key == "d") {
             this.vel.x += this.speed
             this.walking = true;
-
-            if (!this.grounded) {
-                this.vel.x -= this.speed/2
-            }
-
+            key == null
             return
         }
 
         if (this.grounded && key == " ") {
             this.vel.y = -5
             this.grounded = false;
+            key == null
             return;
         }
     }
 
     display() {
-        fill(0)
-        rect(this.pos.x, this.pos.y, blockSize, 2 * blockSize)
-        //replace this with a sprite
+        if (!this.grounded) {
+            //falling
+            image(sprites, this.pos.x, this.pos.y, blockSize, 2*blockSize, 50, 0, 25, 50)
+            return
+        }
+
+
+        if (!this.walking) {
+            //idle state
+            image(sprites, this.pos.x, this.pos.y, blockSize, 2*blockSize, 0, 0, 25, 50)
+            return
+        }
+
+        if (this.runningAnim) {
+            //running animation
+            image(sprites, this.pos.x, this.pos.y, blockSize, 2*blockSize, 0, 0, 25, 50)
+        }
+
+        else {
+            image(sprites, this.pos.x, this.pos.y, blockSize, 2*blockSize, 25, 0, 25, 50)
+        }
+
+        this.animTimer ++
+        if (this.animTimer > 10) {
+            this.animTimer = 0
+            this.runningAnim = !this.runningAnim
+        }
     }
 
     findChunk(chunkID) {
@@ -150,32 +215,41 @@ class player {
         let temp = (this.pos.x - width/2)/width
 
         if (temp > 0) {return floor(temp)}
-
         return ceil(temp)
     }
 
     build() {
-        let blockX = mouseX + this.pos.x - width/2
-        let blockY = mouseY + this.pos.y - height/2
-        //undo the transformation
+        let chunk = this.findChunk(this.currentChunk).blockData
+        for (let i in chunk) {
+            if (chunk[i].pos.x == this.blockX && chunk[i].pos.y == this.blockY) {
+                if (this.heldItem == 0) {
+                    brokenBlock = chunk.splice(i, 1)
+                    this.placeTimer = 0
+                }
+                //break the block
 
-        blockX =  round(blockSize * floor(blockX/blockSize))
-        blockY =  round(blockSize * floor(blockY/blockSize))
-        //round to the nearest block
-
-        for (let block of this.findChunk(this.currentChunk).blockData) {
-            if (block.pos.x == blockX && this.pos.y == blockY) {
-                block.blockId = this.heldItem
                 return
             }
         }
+        if (this.heldItem == 0) {return}
 
-        this.findChunk(this.currentChunk).blockData.push(new block(blockX, blockY, this.heldItem))
+        let isInY = this.pos.y + blockSize >= this.blockY && this.pos.y + blockSize <= this.blockT + blockSize
+        let isInLeft = this.pos.x + blockSize >= this.blockX && this.pos.x + blockSize <= this.blockX + blockSize
+        let isInRight = this.pos.x <= this.blockX + blockSize && this.pos.x >= this.blockX
+
+        if (isInY && (isInLeft || isInRight)) {return}
+
+        this.placeTimer = 0;
+        
+        //empty block
+        chunk.push(new block(this.blockX, this.blockY, this.heldItem-1))
+        world.push(new block(this.blockX, this.blockY, this.heldItem-1))
     }
 
     loadChunks() {
         //check if we need to load new chunks
         this.currentChunk = this.calcChunk()
+        if (this.currentChunk == -0) {this.currentChunk = 0}
 
         if (this.pos.x <= this.loadBoundaryMin) {
             this.loadBoundaryMin -= width
@@ -222,8 +296,23 @@ class player {
 
         this.loadChunks();
 
-        if (mouseIsPressed) {
-            this.build();
+        this.blockX = mouseX + this.pos.x - width/2
+        this.blockY = mouseY + this.pos.y - height/2
+        //undo the transformation
+
+        this.blockX =  round(blockSize * floor(this.blockX/blockSize))
+        this.blockY =  round(blockSize * floor(this.blockY/blockSize))
+        //round to the nearest block
+
+        if (dist(this.pos.x, this.pos.y, this.blockX, this.blockY) < 200) {
+            fill(0, 0, 0, 100)
+            rect(this.blockX, this.blockY, blockSize, blockSize)
+
+            if (mouseIsPressed && this.placeTimer > this.maxTimer) {
+                this.build();
+            }   
+
+            if (this.placeTimer <= this.maxTimer) {this.placeTimer ++;}
         }
     }
 }
@@ -239,12 +328,28 @@ function setup() {
     chunks.push(new chunk(0, 0))
 }
 
-function draw() {
+function game() {
     background(0, 200, 255)
 
     //draw the hotbar
     fill(0, 0, 0, 100)
-    rect(10, 10, 200, 50)
+    for (let i=0; i<4; i++) {
+        rect(10 + 110*i, 10, 100, 100)
+        image(hotbar, 10+110*i, 10, 100, 100, 50*i, 0, 50, 50)
+    }
+
+    fill(200, 200, 200)
+    rect(10 + 110*steve.heldItem, 10, 20, 100)
+    rect(90 + 110*steve.heldItem, 10, 20, 100)
+    rect(30 + 110*steve.heldItem, 10, 80, 20)
+    rect(30 + 110*steve.heldItem, 90, 80, 20)
+
+
+    textSize(10)
+    fill(255)
+    for (let i=0; i<4; i++) {
+        text(i+1, 100 + i*110, 100)
+    }
 
     push();
     translate(width / 2 - steve.pos.x, height / 2 - steve.pos.y)
@@ -252,8 +357,8 @@ function draw() {
 
     steve.grounded = false;
     //assume that steve's in the air, run collision which will check if he is grounded
-    for (let block of world) {
-        block.update();
+    for (let i in world) {
+        world[i].update(i);
     }
 
     steve.update()
@@ -261,13 +366,35 @@ function draw() {
     pop()
 }
 
-function keyReleased() {
+function hotbarChange() {
     switch (key) {
-        case 1:    
-        case 2:
-        case 3:
-        case 4:
-            steve.heldItem = key
+        case "1":    
+        case "2":
+        case "3":
+        case "4":
+            steve.heldItem = parseInt(key)-1
             break;           
     }
+}
+
+function titleScreen() {
+    textAlign(CENTER)
+    background(200)
+    textSize(100)
+    fill(0)
+    text("DIGBUILD", width/2, height/2)
+}
+
+function draw() {
+    switch (screen) {
+        case 0:
+            titleScreen()
+            break
+        case 3:
+            game();
+    }
+}
+
+function keyReleased() {
+
 }
