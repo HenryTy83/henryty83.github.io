@@ -106,13 +106,14 @@ class block {
 
 
     update(i) {
-        this.collideWithPlayer()
-        this.display()
-
         if (steve.blockX == this.pos.x && steve.blockY == this.pos.y && mouseIsPressed && steve.heldItem == 0) {
             world.splice(i, 1)
+            return;
             //delete yourself
         }
+
+        this.collideWithPlayer()
+        this.display()
     }
 }
 
@@ -150,6 +151,7 @@ class player {
         //keyboard controls
 
         if (key == "a") {
+            this.vel.x = constrain(this.vel.x, -Infinity, 0)
             this.vel.x -= this.speed
             this.walking = true;
             key == null
@@ -157,6 +159,7 @@ class player {
         }
 
         if (key == "d") {
+            this.vel.x = constrain(this.vel.x, 0, Infinity)
             this.vel.x += this.speed
             this.walking = true;
             key == null
@@ -224,6 +227,7 @@ class player {
             if (chunk[i].pos.x == this.blockX && chunk[i].pos.y == this.blockY) {
                 if (this.heldItem == 0) {
                     brokenBlock = chunk.splice(i, 1)
+                    brokenBlock.blockId = null
                     this.placeTimer = 0
                 }
                 //break the block
@@ -331,6 +335,21 @@ function setup() {
 function game() {
     background(0, 200, 255)
 
+    push();
+    translate(width / 2 - steve.pos.x, height / 2 - steve.pos.y)
+    //keep steve in the center of the screen
+
+    steve.grounded = false;
+    //assume that steve's in the air, run collision which will check if he is grounded
+    for (let i in world) {
+        world[i].update(i);
+    }
+
+    steve.update()
+
+    pop()
+
+    
     //draw the hotbar
     fill(0, 0, 0, 100)
     for (let i=0; i<4; i++) {
@@ -350,20 +369,6 @@ function game() {
     for (let i=0; i<4; i++) {
         text(i+1, 100 + i*110, 100)
     }
-
-    push();
-    translate(width / 2 - steve.pos.x, height / 2 - steve.pos.y)
-    //keep steve in the center of the screen
-
-    steve.grounded = false;
-    //assume that steve's in the air, run collision which will check if he is grounded
-    for (let i in world) {
-        world[i].update(i);
-    }
-
-    steve.update()
-
-    pop()
 }
 
 function hotbarChange() {
@@ -396,5 +401,9 @@ function draw() {
 }
 
 function keyReleased() {
-
+    switch (screen) {
+        case 3:
+            hotbarChange();
+            break;
+    }
 }
