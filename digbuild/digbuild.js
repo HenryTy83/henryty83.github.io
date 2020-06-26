@@ -224,8 +224,7 @@ class player {
     build() {
         let placedBlock = this.calcChunk(this.blockX)
         let chunk;
-        for (let i=-1; i<=1; i++) {
-            chunk = this.findChunk(placedBlock + i).blockData
+        chunk = this.findChunk(placedBlock).blockData
             for (let j in chunk) {
                 if (chunk[j].pos.x == this.blockX && chunk[j].pos.y == this.blockY) {
                     if (this.heldItem == 0) {
@@ -238,7 +237,6 @@ class player {
                     return
                 }
             }
-        }
         if (this.heldItem == 0) {return}
 
         let isInY = this.pos.y + blockSize >= this.blockY && this.pos.y + blockSize <= this.blockT + blockSize
