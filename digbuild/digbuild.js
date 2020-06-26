@@ -1,7 +1,7 @@
 let world = [];
 let chunks = [];
 let blockSize = 25;
-let seed = ""
+let seed = "";
 let maxVerticalChange = 10;
 let smoothness = 10
 let brokenBlock;
@@ -230,6 +230,7 @@ class player {
                 if (chunk[j].pos.x == this.blockX && chunk[j].pos.y == this.blockY) {
                     if (this.heldItem == 0) {
                         chunk[j].blockId = null
+                        chunk.splice(j, 1)
                         this.placeTimer = 0
                     }
                     //break the block
@@ -407,12 +408,11 @@ function titleScreen() {
 
 function generateWorld() {
     //clean the seed
-    let filteredSeed = "";
+    let filteredSeed = 0;
     for (let letter of seed) {
-        filteredSeed += letters.indexOf(letter)
+        filteredSeed += parseInt(letters.indexOf(letter))
     }
 
-    if (filteredSeed == "") {filteredSeed = "0"}
     seed = filteredSeed
 
     
@@ -456,7 +456,7 @@ function mouseClicked() {
 function keyReleased() {
     switch (screen) {
         case 1:
-            if (letters.indexOf(key) != -1) {
+            if (letters.indexOf(key) != -1 && seed.length < 10) {
                 seed += key 
             }
 
