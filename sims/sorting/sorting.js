@@ -5,17 +5,20 @@ let sorted = false;
 let sortedCooldown = 60;
 
 let currentSort = 0;
-let sorts = ["Bubble Sort"]
+let sorts = ["Bubble Sort", "Insertion Sort"]
 
 let a=0;
 let b=0;
 let indexes = [-1, -1]
 let good = [];
 let arrayAccesses = 0;
+let callStack = [];
 //iterator vars
 
 function setup() {
     createCanvas(1200, 600)
+
+    currentSort = round(random(sorts.length-1))
 
     regen();
 
@@ -30,15 +33,33 @@ function regen() {
 
     sorted = false;
     good = [];
-    a = 0;
-    b = 0;
     arrayAccesses = 0;
+
+    switch (currentSort) {
+        case 0:
+            a = 0;
+            b = 0;
+            break;
+        case 1:
+            a = 1;
+            b = 0;
+        case 2:
+            callStack = [];
+            a = round(random(array.length-1))
+            b = 0;
+
+    }
 }
 
 function swap(index1, index2) {
     let temp = array[index1]
     array[index1] = array[index2]
     array[index2] = temp
+}
+
+function quickSort() {
+    let currentArray = callStack.pop();
+    
 }
 
 function bubbleSort() {
@@ -60,6 +81,26 @@ function bubbleSort() {
             indexes = [-1, -1]
         }
     } 
+}
+
+function insertionSort() {
+    arrayAccesses += 2
+    if (array[b] < array[b-1] && b >= 0) {
+        indexes = [b, b-1]
+        swap(b-1, b)
+        b --;
+        return;
+    }
+
+    a ++
+    b = a-1
+    if (a > array.length) {
+        indexes = []
+        for (let i in array) {
+            good.push(i)
+        }
+        sorted = true;
+    }
 }
 
 function draw() {
@@ -90,7 +131,14 @@ function draw() {
 
     //check sorted
     if (!sorted) {
-        bubbleSort()
+        switch (currentSort) {
+            case 0:
+                bubbleSort()
+                break;
+            case 1:
+                insertionSort()
+                break;
+        }
     }
 
     else {
@@ -98,6 +146,7 @@ function draw() {
 
         else {
             sortedCooldown = 60
+            currentSort = (currentSort+1) % sorts.length
             regen();
         }
     }
