@@ -53,7 +53,7 @@ class network {
         this.outputs = outputs;
         this.hiddenLayers = hiddenLayers;
         this.neuronsPerHidden = neuronsPerHidden
-        this.learningRate = 0.001;
+        this.learningRate = 0.01;
 
         this.layers = [];
 
@@ -145,8 +145,8 @@ class network {
         let loss = 0;
         let error = [];
         for (let i in predicted) {
-            error.push((predicted[i] - actual[i]) * (predicted[i] - actual[i]))
-            loss += error[i]
+            error.push(actual[i] - predicted[i])
+            loss += error[i] * error[i]
         }
 
         return [error, loss];

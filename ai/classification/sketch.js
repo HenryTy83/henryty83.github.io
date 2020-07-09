@@ -2,6 +2,9 @@ let brain;
 let testData = [];
 let trainingData = [];
 let mode = true;
+let currentNum = 0;
+let testsDone = 0;
+let testsPerFrame = 100
 
 function preload() {
     // for (let i=1; i<=150; i++) {
@@ -25,6 +28,30 @@ function setup() {
     noStroke();
 }
 
+function trainFast() {
+    //pick an image to train with
+    let correctGuess = currentNum
+
+    let trainingImage = random(trainingData[correctGuess])
+
+    trainingImage.loadPixels();
+    let inputPixels = [];
+    for (let i=0; i<trainingImage.pixels.length; i+=4) {
+        inputPixels.push(trainingImage.pixels[i])
+    }
+
+    let botGuess = brain.test(inputPixels)
+
+    let actual = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1];
+    actual[correctGuess] = 1
+
+    let loss = brain.train(botGuess[2], actual)
+
+    currentNum = floor(random(10))
+    
+    testsDone ++;
+}
+
 function trainMode() {
     background(0)
 
@@ -37,10 +64,11 @@ function trainMode() {
     else {text("MODE: AUTO-TRAIN", 300, 100)}
 
     //pick an image to train with
-    let correctGuess = floor(random(10))
+    let correctGuess = currentNum
 
     textSize(25)
-    text("CORRECT ANSWER: " + correctGuess, 700, 200)
+    text("TESTS DONE: " + testsDone, 700, 200)
+    text("CORRECT DIGIT: " + currentNum, 700, 250)
 
     let trainingImage = random(trainingData[correctGuess])
     rect(100, 200, 300, 300)
@@ -55,17 +83,17 @@ function trainMode() {
 
     let botGuess = brain.test(inputPixels)
 
-    text("BOT'S GUESS " + botGuess[0], 700, 250)
-    text("WITH " + map(botGuess[1], -1, 1, 0, 100).toFixed(2) + "% CERTAINTY", 700, 300)
+    text("BOT'S GUESS: " + botGuess[0], 700, 300)
+    text("WITH " + map(botGuess[1], -1, 1, 0, 100).toFixed(2) + "% CERTAINTY", 700, 350)
 
     if (botGuess[0] == correctGuess) {
         fill(0, 255, 0)
-        text("CORRECT", 700, 350)
+        text("CORRECT", 700, 400)
     }
 
     else {
         fill(255, 0, 0)
-        text("WRONG", 700, 350)
+        text("WRONG", 700, 400)
     }
 
     let actual = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1];
@@ -74,13 +102,23 @@ function trainMode() {
     let loss = brain.train(botGuess[2], actual)
 
     fill(255)
-    text("LOSS: " + loss, 700, 400)
+    text("LOSS: " + loss, 700, 450)
 
-    text("CLICK TO CHANGE MODE", 700, 500)
+    text("CLICK TO CHANGE MODE", 700, 550)
+
+    currentNum = floor(random(10))
+    
+    testsDone ++;
 }
 
 function draw() {
-    trainMode()
+    trainMode();
+
+    if (!mode) {
+        for (let i=1; i<testsPerFrame; i++) {
+            trainFast()
+        }
+    }
 
     if (mode) {
         noLoop()
