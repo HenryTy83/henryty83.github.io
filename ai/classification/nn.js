@@ -205,10 +205,10 @@ class network {
         let data = importedData.split(",")
         data.pop();
 
-        this.inputs = data.shift()
-        this.outputs = data.shift()
-        this.hiddenLayers = data.shift()
-        this.neuronsPerHidden = data.shift();
+        this.inputs = parseInt(data.shift())
+        this.outputs = parseInt(data.shift())
+        this.hiddenLayers = parseInt(data.shift())
+        this.neuronsPerHidden = parseInt(data.shift());
 
         this.layers = [];
 
@@ -223,26 +223,27 @@ class network {
         for (let i=0; i<this.neuronsPerHidden; i++) {
             let newNeuron = new neuron(this.inputs)
 
-            for (let i in newNeuron.weights) {
-                newNeuron.weights[i] = data.shift()
+            for (let j in newNeuron.weights) {
+                newNeuron.weights[j] = parseFloat(data.shift())
             }
 
-            newNeuron.bias = data.shift()
+            newNeuron.bias = parseFloat(data.shift())
 
             this.layers[0].push(newNeuron)
         }
 
         //create the other hidden layers
-        for (let i=0; i<this.hiddenLayers-1; i++) {
+        for (let i=1; i<this.hiddenLayers; i++) {
             this.layers.push([])
             for (let j=0; j<this.neuronsPerHidden; j++) {
                 let newNeuron = new neuron(this.neuronsPerHidden)
 
-                for (let i in newNeuron.weights) {
-                    newNeuron.weights[i] = data.shift()
+                for (let k in newNeuron.weights) {
+                    newNeuron.weights[k] = parseFloat(data.shift())
+                    console.log(newNeuron.weights[k])
                 }
     
-                newNeuron.bias = data.shift()
+                newNeuron.bias = parseFloat(data.shift())
 
                 this.layers[i].push(new neuron(newNeuron))
             }
@@ -253,11 +254,11 @@ class network {
         for (let i=0; i<this.outputs; i++) {
             let newNeuron = new neuron(this.neuronsPerHidden)
 
-            for (let i in newNeuron.weights) {
-                newNeuron.weights[i] = data.shift()
+            for (let j in newNeuron.weights) {
+                newNeuron.weights[j] = parseFloat(data.shift())
             }
 
-            newNeuron.bias = data.shift()
+            newNeuron.bias = parseFloat(data.shift())
             
             this.layers[this.layers.length-1].push(newNeuron)
         }

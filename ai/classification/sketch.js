@@ -114,12 +114,6 @@ function trainMode() {
 function draw() {
     trainMode();
 
-    if (!mode) {
-        for (let i=1; i<testsPerFrame; i++) {
-            trainFast()
-        }
-    }
-
     if (mode) {
         noLoop()
     }
