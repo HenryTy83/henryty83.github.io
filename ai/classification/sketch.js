@@ -5,8 +5,16 @@ let mode = true;
 let currentNum = 0;
 let testsDone = 0;
 let testsPerFrame = 100
+let brainData;
 
 function preload() {
+    //load brain data
+    brainData = loadStrings("./brainData.txt")
+
+
+    //load images
+
+
     // for (let i=1; i<=150; i++) {
     //     testData.push(loadImage("./testSet/test-digit-(" +i+ ").jpg"))
     // }
@@ -23,7 +31,7 @@ function preload() {
 function setup() {
     createCanvas(1200, 600)
 
-    brain = new network(28*28, 10, 2, 10)
+    brain = new network(28*28, 10, 3, 10)
 
     noStroke();
 }

@@ -65,21 +65,21 @@ class network {
         //create the 1st hidden layer
         this.layers.push([])
         for (let i=0; i<neuronsPerHidden; i++) {
-            this.layers[0].push(new neuron(inputs))
+            this.layers[0].push(new neuron(this.inputs))
         }
 
         //create the other hidden layers
-        for (let i=1; i<hiddenLayers; i++) {
+        for (let i=1; i<this.hiddenLayers; i++) {
             this.layers.push([])
-            for (let j=0; j<neuronsPerHidden; j++) {
-                this.layers[i].push(new neuron(neuronsPerHidden))
+            for (let j=0; j<this.neuronsPerHidden; j++) {
+                this.layers[i].push(new neuron(this.neuronsPerHidden))
             }
         }
 
         //create the output layer
         this.layers.push([])
-        for (let i=0; i<outputs; i++) {
-            this.layers[this.layers.length-1].push(new neuron(neuronsPerHidden))
+        for (let i=0; i<this.outputs; i++) {
+            this.layers[this.layers.length-1].push(new neuron(this.neuronsPerHidden))
         }
 
     }
@@ -201,8 +201,8 @@ class network {
         return [choice, best, output]
     }   
 
-    import(importedData) {
-        let data = importedData.split(",")
+    import() {
+        let data = brainData[0].split(",")
         data.pop();
 
         this.inputs = parseInt(data.shift())
@@ -240,12 +240,11 @@ class network {
 
                 for (let k in newNeuron.weights) {
                     newNeuron.weights[k] = parseFloat(data.shift())
-                    console.log(newNeuron.weights[k])
                 }
     
                 newNeuron.bias = parseFloat(data.shift())
 
-                this.layers[i].push(new neuron(newNeuron))
+                this.layers[i].push(newNeuron)
             }
         }
 
