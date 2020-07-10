@@ -152,7 +152,7 @@ class network {
         return [error, loss];
     }
 
-    backpropogate(errors, layer) {
+    backpropogate(layer) {
         if (layer < 0) {return}
 
         let layerErrors = [];
@@ -162,13 +162,13 @@ class network {
             currentNeuron.loss = 0;
 
             for (let neuron of this.layers[layer+1]) {
-                currentNeuron.loss += neuron.weights[i] * errors[i]
+                currentNeuron.loss += neuron.weights[i] * neuron.loss
             }
 
             layerErrors.push(currentNeuron.loss)
         }
 
-        this.backpropogate(layerErrors, layer-1)
+        this.backpropogate(layer-1)
     }
 
     train(predictedOutput, actualOutput) {
@@ -179,7 +179,7 @@ class network {
             this.layers[this.layers.length-1][i].loss = loss[0][i]
         }
 
-        this.backpropogate(loss[0], this.layers.length-2)
+        this.backpropogate(this.layers.length-2)
         this.adjust(this.layers.length-1)
 
         return loss[1]

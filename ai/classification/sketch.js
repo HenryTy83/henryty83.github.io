@@ -6,24 +6,17 @@ let currentNum = 0;
 let testsDone = 0;
 let testsPerFrame = 100
 let brainData;
+let runningCorrect = 0;;
 
 function preload() {
     //load brain data
     brainData = loadStrings("./brainData.txt")
 
-
-    //load images
-
-
-    // for (let i=1; i<=150; i++) {
-    //     testData.push(loadImage("./testSet/test-digit-(" +i+ ").jpg"))
-    // }
-
     for (let i=0; i<10; i++) {
         trainingData.push([])
 
-        for (let j=1; j<=60; j++) {
-            trainingData[i].push(loadImage("./trainingSet/" + i.toString() + "/training-digit-(" + j.toString() + ").jpg"))
+        for (let j=1; j<=500; j++) {
+            trainingData[i].push(loadImage("./data/trainingSet/" + i.toString() + "/test-digit-(" + j.toString() + ").jpg"))
         }
     }
 }
@@ -31,33 +24,9 @@ function preload() {
 function setup() {
     createCanvas(1200, 600)
 
-    brain = new network(28*28, 10, 3, 10)
+    brain = new network(28*28, 10, 4, 15)
 
     noStroke();
-}
-
-function trainFast() {
-    //pick an image to train with
-    let correctGuess = currentNum
-
-    let trainingImage = random(trainingData[correctGuess])
-
-    trainingImage.loadPixels();
-    let inputPixels = [];
-    for (let i=0; i<trainingImage.pixels.length; i+=4) {
-        inputPixels.push(trainingImage.pixels[i])
-    }
-
-    let botGuess = brain.test(inputPixels)
-
-    let actual = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1];
-    actual[correctGuess] = 1
-
-    let loss = brain.train(botGuess[2], actual)
-
-    currentNum = floor(random(10))
-    
-    testsDone ++;
 }
 
 function trainMode() {
@@ -97,6 +66,7 @@ function trainMode() {
     if (botGuess[0] == correctGuess) {
         fill(0, 255, 0)
         text("CORRECT", 700, 400)
+        runningCorrect ++
     }
 
     else {
@@ -111,6 +81,8 @@ function trainMode() {
 
     fill(255)
     text("LOSS: " + loss, 700, 450)
+
+    text("AVERAGE ACCURACY: " + (100*runningCorrect/testsDone).toFixed(2) + "%", 700, 500)
 
     text("CLICK TO CHANGE MODE", 700, 550)
 
