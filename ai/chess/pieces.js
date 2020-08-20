@@ -464,3 +464,12 @@ class knight extends piece {
         }
     }
 }
+
+class king extends piece { 
+    constructor(color, pos) {
+        super(color, pos);
+        this.type = "KING"
+        this.value *= 1000000
+        this.spriteCoords[0] = 0
+    }
+}

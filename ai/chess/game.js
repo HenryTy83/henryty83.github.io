@@ -31,10 +31,15 @@ function newBoard() {
     board[56] = new rook("WHITE", 56)
     board[63] = new rook("WHITE", 63)
 
+    //knights
     board[1] = new knight("BLACK", 1)
     board[6] = new knight("BLACK", 6)
     board[57] = new knight("WHITE", 57)
     board[62] = new knight("WHITE", 62)
+
+    //kings
+    board[4] = new king("BLACK", 4)
+    board[60] = new king("WHITE", 60)
 }
 
 function isSquareInRange(x, y) {
