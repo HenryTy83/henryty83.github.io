@@ -99,7 +99,7 @@ function setup() {
     }
 
     buttons.push(new button(width*0.05, height*0.3, width/80, height * 0.04, "./ai", "Artificial Intelligence: My adventures in making AI"))
-    buttons.push(new button(width*0.05, height*0.35, width/80, height * 0.04, "./eli", "Eli-Bot: A webpage that generates new things for Eli to say (also less annoying)"))
+    buttons.push(new button(width*0.05, height*0.35, width/80, height * 0.04, "./eli", "Eli-Bot: A webpage that generates new things for Eli to say"))
     buttons.push(new button(width*0.05, height*0.4, width/80, height * 0.04, "./sims", "Sims: A hub for all of the simulations I've made"))
     buttons.push(new button(width*0.05, height*0.45, width/80, height * 0.04, "./maze", "A maze game: Randomized maze to navigate through"))
     buttons.push(new button(width*0.05, height*0.5, width/80, height * 0.04, "./snake", "Snake: A remake of a classic arcade game"))
