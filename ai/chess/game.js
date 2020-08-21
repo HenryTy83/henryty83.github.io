@@ -20,7 +20,7 @@ function newBoard() {
     board[59] = new queen("WHITE", 59)
 
     //bishops
-    board[2] = new bishop("BLACK", 3)
+    board[2] = new bishop("BLACK", 2)
     board[5] = new bishop("BLACK", 5)
     board[58] = new bishop("WHITE", 58)
     board[61] = new bishop("WHITE", 61)
@@ -102,10 +102,12 @@ function runGame() {
             if (currentPiece.isClicked) {
                 //draw possible squares
                 for (let move of currentPiece.possibleMoves) {
-                    let squareDisplay = board2Display(move[0])
+                    if (move[1] != "DEFENDING") {
+                        let squareDisplay = board2Display(move[0])
 
-                    fill(255, 255, 0, 150)
-                    rect(squareDisplay[0], squareDisplay[1], squareSize, squareSize)
+                        fill(255, 255, 0, 150)
+                        rect(squareDisplay[0], squareDisplay[1], squareSize, squareSize)
+                    }
                 }
             }
         }
@@ -147,6 +149,20 @@ function calcScore(board) {
     return score;
 }
 
+function changeTurn() {
+    if (turn == "WHITE") {
+        turn = "BLACK"
+    } else {
+        turn = "WHITE"
+    }
+
+    for (let square of board) {
+        if (square != null && square.color == turn) {
+            square.canPassant = false;
+        }
+    }
+}
+
 function mouseClicked() {
     adjustedX = clickBoard()[0]
     adjustedY = clickBoard()[1]
@@ -175,12 +191,13 @@ function mouseClicked() {
                     //check valid moves for the piece
                     for (let j in piece.possibleMoves) {
                         let square = piece.possibleMoves[j]
-                        if (square[0] == clickPos && square[1] != "STARTING") {
+                        if (square[0] == clickPos && square[1] != "STARTING" && square[1] != "DEFENDING") {
                             //move to square
                             board[square[0]] = board[i]
                             board[i] = null
 
                             piece.isMoved(square[0], square)
+                            changeTurn();
                             return;
                         }
                     }

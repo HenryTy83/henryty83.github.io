@@ -26,26 +26,186 @@ class piece {
         return (pos + 8) % 8 != 0
     }
 
-    changeTurn() {
-        this.hasMoved = true;
-        this.isClicked = false
+    rookMovement() {
+        //horizontal
+        //left
+        if (this.notOnLeft(this.pos)) {
+            let cast = this.pos - 1
+            for (let i = 0; i < 8; i++) {
+                if (board[cast] != null && board[cast].color == this.color) {
+                    break
+                }
 
-        if (turn == "WHITE") {
-            turn = "BLACK"
-        } else {
-            turn = "WHITE"
+                this.possibleMoves.push([cast, "HORIZONTAL"])
+                if (!this.notOnLeft(cast)) {
+                    break
+                }
+                if (board[cast] != null) {
+                    if (board[cast].type != "KING") {
+                        break
+                    }
+                }
+                cast--;
+            }
+        }
+        //right
+        if (this.notOnRight(this.pos)) {
+            let cast = this.pos + 1
+            for (let i = 0; i < 8; i++) {
+                if (board[cast] != null && board[cast].color == this.color) {
+                    break
+                }
+                this.possibleMoves.push([cast, "HORIZONTAL"])
+                if (!this.notOnRight(cast)) {
+                    break
+                }
+                if (board[cast] != null) {
+                    if (board[cast].type != "KING") {
+                        break
+                    }
+                }
+                cast++;
+            }
         }
 
-        for (let square of board) {
-            if (square != null && square.color == turn) {
-                square.canPassant = false;
+        //vertical
+        //go down
+        if (this.pos < 56) {
+            let cast = this.pos + 8
+            for (let i = 0; i < 8; i++) {
+                if (board[cast] != null && board[cast].color == this.color) {
+                    this.possibleMoves.push([cast, "DEFENDING"])
+                    break
+                }
+
+                this.possibleMoves.push([cast, "VERTICAL"])
+                if (cast >= 56) {
+                    break
+                }
+                if (board[cast] != null) {
+                    if (board[cast].type != "KING") {
+                        break
+                    }
+                }
+
+                cast += 8;
+            }
+        }
+        //go up
+        if (this.pos >= 8) {
+            let cast = this.pos - 8
+            for (let i = 0; i < 8; i++) {
+                if (board[cast] != null && board[cast].color == this.color) {
+                    this.possibleMoves.push(cast, "DEFENDING")
+                    break
+                }
+
+                this.possibleMoves.push([cast, "VERTICAL"])
+                if (cast < 8) {
+                    break
+                }
+                if (board[cast] != null) {
+                    if (board[cast].type != "KING") {
+
+                        break
+                    }
+                }
+                cast -= 8;
+            }
+        }
+    }
+
+    bishopMovement() {
+        //diagonal
+        // like: / (part one)
+        if (this.notOnLeft(this.pos) && this.pos >= 8) {
+            let cast = this.pos - 7
+            for (let i = 0; i < 8; i++) {
+                if (board[cast] != null && board[cast].color == this.color) {
+                    break
+                }
+
+                this.possibleMoves.push([cast, "DIAGONAL"])
+                if (!this.notOnRight(cast) || cast < 8) {
+                    break
+                }
+                if (board[cast] != null) {
+                    if (board[cast].type != "KING") {
+                        break
+                    }
+                }
+                cast -= 7;
+            }
+        }
+        // like: / (part two)
+        if (this.notOnLeft(this.pos) && this.pos < 56) {
+            let cast = this.pos + 7
+            for (let i = 0; i < 8; i++) {
+                if (board[cast] != null && board[cast].color == this.color) {
+                    this.possibleMoves.push([cast, "DEFENDING"])
+                    break
+                }
+
+                this.possibleMoves.push([cast, "DIAGONAL"])
+                if (!this.notOnLeft(cast) || cast >= 56) {
+                    break
+                }
+                if (board[cast] != null) {
+                    if (board[cast].type != "KING") {
+                        break
+                    }
+                }
+                cast += 7;
+            }
+        }
+        // like: \ (part one)
+        if (this.notOnRight(this.pos) && this.pos < 56) {
+            let cast = this.pos + 9
+            for (let i = 0; i < 8; i++) {
+                if (board[cast] != null && board[cast].color == this.color) {
+                    this.possibleMoves.push([cast, "DEFENDING"])
+                    break
+                }
+
+                this.possibleMoves.push([cast, "DIAGONAL"])
+                if (!this.notOnRight(cast) || cast > 56) {
+                    break
+                }
+                if (board[cast] != null) {
+                    if (board[cast].type != "KING") {
+                        break
+                    }
+                }
+                cast += 9;
+            }
+        }
+        // like: \ (part two)
+        if (this.notOnLeft(this.pos) && this.pos >= 8) {
+            let cast = this.pos - 9
+            for (let i = 0; i < 8; i++) {
+                if (board[cast] != null && board[cast].color == this.color) {
+                    this.possibleMoves.push([cast, "DEFENDING"])
+                    break
+                }
+
+                this.possibleMoves.push([cast, "DIAGONAL"])
+                if (!this.notOnLeft(cast) || cast < 8) {
+                    break;
+                }
+                if (board[cast] != null) {
+                    if (board[cast].type != "KING") {
+                        break
+                    }
+                }
+                cast -= 9;
             }
         }
     }
 
     isMoved(pos) {
         this.pos = pos
-        this.changeTurn();
+        this.hasMoved = true;
+        this.isClicked = false
     }
 
     calcMoves() {
@@ -72,7 +232,7 @@ class pawn extends piece {
     }
 
     isMoved(pos, move) {
-        this.pos = pos
+        super.isMoved(pos)
         if (this.pos <= 8) {
             this.promoted = true;
             return;
@@ -85,8 +245,6 @@ class pawn extends piece {
         if (move[1] == "EN PASSANT") {
             board[this.pos - this.moveDir] = null
         }
-
-        this.changeTurn()
     }
 
     calcMoves() {
@@ -142,130 +300,8 @@ class queen extends piece {
     calcMoves() {
         super.calcMoves()
 
-        //horizontal
-        //left
-        if (this.notOnLeft(this.pos)) {
-            let cast = this.pos - 1
-            for (let i = 0; i < 8; i++) {
-                if (board[cast] != null && board[cast].color == this.color) {
-                    break
-                }
-
-                this.possibleMoves.push([cast, "HORIZONTAL"])
-                if (board[cast] != null || !this.notOnLeft(cast)) {
-                    break
-                }
-                cast--;
-            }
-        }
-        //right
-        if (this.notOnRight(this.pos)) {
-            let cast = this.pos + 1
-            for (let i = 0; i < 8; i++) {
-                if (board[cast] != null && board[cast].color == this.color) {
-                    break
-                }
-                this.possibleMoves.push([cast, "HORIZONTAL"])
-                if (board[cast] != null || !this.notOnRight(cast)) {
-                    break
-                }
-                cast++;
-            }
-        }
-
-        //vertical
-        //go down
-        if (this.pos < 56) {
-            let cast = this.pos + 8
-            for (let i = 0; i < 8; i++) {
-                if (board[cast] != null && board[cast].color == this.color) {
-                    break
-                }
-
-                this.possibleMoves.push([cast, "VERTICAL"])
-                if (board[cast] != null || cast >= 56) {
-                    break
-                }
-                cast += 8;
-            }
-        }
-        //go up
-        if (this.pos >= 8) {
-            let cast = this.pos - 8
-            for (let i = 0; i < 8; i++) {
-                if (board[cast] != null && board[cast].color == this.color) {
-                    break
-                }
-
-                this.possibleMoves.push([cast, "VERTICAL"])
-                if (board[cast] != null || cast < 8) {
-                    break
-                }
-                cast -= 8;
-            }
-        }
-
-        //diagonal
-        // like: / (part one)
-        if (this.notOnLeft(this.pos) && this.pos >= 8) {
-            let cast = this.pos - 7
-            for (let i = 0; i < 8; i++) {
-                if (board[cast] != null && board[cast].color == this.color) {
-                    break
-                }
-
-                this.possibleMoves.push([cast, "DIAGONAL"])
-                if (board[cast] != null || !this.notOnRight(cast) || cast < 8) {
-                    break
-                }
-                cast -= 7;
-            }
-        }
-        // like: / (part two)
-        if (this.notOnLeft(this.pos) && this.pos < 56) {
-            let cast = this.pos + 7
-            for (let i = 0; i < 8; i++) {
-                if (board[cast] != null && board[cast].color == this.color) {
-                    break
-                }
-
-                this.possibleMoves.push([cast, "DIAGONAL"])
-                if (board[cast] != null || !this.notOnLeft(cast) || cast >= 56) {
-                    break
-                }
-                cast += 7;
-            }
-        }
-        // like: \ (part one)
-        if (this.notOnRight(this.pos) && this.pos < 56) {
-            let cast = this.pos + 9
-            for (let i = 0; i < 8; i++) {
-                if (board[cast] != null && board[cast].color == this.color) {
-                    break
-                }
-
-                this.possibleMoves.push([cast, "DIAGONAL"])
-                if (board[cast] != null || !this.notOnRight(cast) || cast > 56) {
-                    break
-                }
-                cast += 9;
-            }
-        }
-        // like: \ (part two)
-        if (this.notOnLeft(this.pos) && this.pos >= 8) {
-            let cast = this.pos - 9
-            for (let i = 0; i < 8; i++) {
-                if (board[cast] != null && board[cast].color == this.color) {
-                    break
-                }
-
-                this.possibleMoves.push([cast, "DIAGONAL"])
-                if (board[cast] != null || !this.notOnLeft(cast) || cast < 8) {
-                    break
-                }
-                cast -= 9;
-            }
-        }
+        this.rookMovement()
+        this.bishopMovement()
     }
 }
 
@@ -278,67 +314,7 @@ class bishop extends piece {
     }
 
     calcMoves() {
-        //diagonal
-        // like: / (part one)
-        if (this.notOnLeft(this.pos) && this.pos >= 8) {
-            let cast = this.pos - 7
-            for (let i = 0; i < 8; i++) {
-                if (board[cast] != null && board[cast].color == this.color) {
-                    break
-                }
-
-                this.possibleMoves.push([cast, "DIAGONAL"])
-                if (board[cast] != null || !this.notOnRight(cast) || cast < 8) {
-                    break
-                }
-                cast -= 7;
-            }
-        }
-        // like: / (part two)
-        if (this.notOnLeft(this.pos) && this.pos < 56) {
-            let cast = this.pos + 7
-            for (let i = 0; i < 8; i++) {
-                if (board[cast] != null && board[cast].color == this.color) {
-                    break
-                }
-
-                this.possibleMoves.push([cast, "DIAGONAL"])
-                if (board[cast] != null || !this.notOnLeft(cast) || cast >= 56) {
-                    break
-                }
-                cast += 7;
-            }
-        }
-        // like: \ (part one)
-        if (this.notOnRight(this.pos) && this.pos < 56) {
-            let cast = this.pos + 9
-            for (let i = 0; i < 8; i++) {
-                if (board[cast] != null && board[cast].color == this.color) {
-                    break
-                }
-
-                this.possibleMoves.push([cast, "DIAGONAL"])
-                if (board[cast] != null || !this.notOnRight(cast) || cast > 56) {
-                    break
-                }
-                cast += 9;
-            }
-        }
-        // like: \ (part two)
-        if (this.notOnLeft(this.pos) && this.pos >= 8) {
-            let cast = this.pos - 9
-            for (let i = 0; i < 8; i++) {
-                if (board[cast] != null && board[cast].color == this.color) {
-                    break
-                }
-
-                this.possibleMoves.push([cast, "DIAGONAL"])
-                if (board[cast] != null || !this.notOnLeft(cast) || cast < 8) {
-                    break
-                }
-                cast -= 9;
-            }
-        }
+        this.bishopMovement()
     }
 }
 
@@ -352,69 +328,7 @@ class rook extends piece {
 
     calcMoves() {
         super.calcMoves()
-
-        //horizontal
-        //left
-        if (this.notOnLeft(this.pos)) {
-            let cast = this.pos - 1
-            for (let i = 0; i < 8; i++) {
-                if (board[cast] != null && board[cast].color == this.color) {
-                    break
-                }
-
-                this.possibleMoves.push([cast, "HORIZONTAL"])
-                if (board[cast] != null || !this.notOnLeft(cast)) {
-                    break
-                }
-                cast--;
-            }
-        }
-        //right
-        if (this.notOnRight(this.pos)) {
-            let cast = this.pos + 1
-            for (let i = 0; i < 8; i++) {
-                if (board[cast] != null && board[cast].color == this.color) {
-                    break
-                }
-                this.possibleMoves.push([cast, "HORIZONTAL"])
-                if (board[cast] != null || !this.notOnRight(cast)) {
-                    break
-                }
-                cast++;
-            }
-        }
-
-        //vertical
-        //go down
-        if (this.pos < 56) {
-            let cast = this.pos + 8
-            for (let i = 0; i < 8; i++) {
-                if (board[cast] != null && board[cast].color == this.color) {
-                    break
-                }
-
-                this.possibleMoves.push([cast, "VERTICAL"])
-                if (board[cast] != null || cast >= 56) {
-                    break
-                }
-                cast += 8;
-            }
-        }
-        //go up
-        if (this.pos >= 8) {
-            let cast = this.pos - 8
-            for (let i = 0; i < 8; i++) {
-                if (board[cast] != null && board[cast].color == this.color) {
-                    break
-                }
-
-                this.possibleMoves.push([cast, "VERTICAL"])
-                if (board[cast] != null || cast < 8) {
-                    break
-                }
-                cast -= 8;
-            }
-        }
+        this.rookMovement()
     }
 }
 
@@ -442,11 +356,17 @@ class knight extends piece {
         //vertical
         for (let i = -16; i <= 16; i += 32) {
             for (let j = -1; j <= 1; j += 2) {
-                if ((!this.notOnRight(this.pos) && j == 1) || (!this.notOnLeft(this.pos) && j == -1)) {
-                    break
-                }
-                if (this.canLandOn(this.pos + i + j)) {
-                    this.possibleMoves.push([this.pos + i + j, "NORMAL"])
+                if (!((!this.notOnRight(this.pos) && j == 1) || (!this.notOnLeft(this.pos) && j == -1))) {
+
+                    if (board[this.pos + i + j] != null) {
+                        if (board[this.pos].color == this.color) {
+                            this.possibleMoves.push([this.pos + i + j, "DEFENDING"])
+                        }
+                    }
+
+                    if (this.canLandOn(this.pos + i + j)) {
+                        this.possibleMoves.push([this.pos + i + j, "NORMAL"])
+                    }
                 }
             }
         }
@@ -454,22 +374,96 @@ class knight extends piece {
         //horizontal
         for (let i = -2; i <= 2; i += 4) {
             for (let j = -8; j <= 8; j += 16) {
-                if ((!this.notOnRight(this.pos + 2) && i > 0) || (!this.notOnLeft && i < 0) || (!this.notOnRight(this.pos + 1) && i > 0) || (!this.notOnRight(this.pos) && i > 0)) {
-                    break
-                }
-                if (this.canLandOn(this.pos + i + j)) {
-                    this.possibleMoves.push([this.pos + i + j, "NORMAL"])
+                if (!((!this.notOnRight(this.pos + 2) && i > 0) || (!this.notOnLeft && i < 0) || (!this.notOnRight(this.pos + 1) && i > 0) || (!this.notOnRight(this.pos) && i > 0))) {
+                    if (board[this.pos + i + j] != null) {
+                        if (board[this.pos].color == this.color) {
+                            this.possibleMoves.push([this.pos + i + j, "DEFENDING"])
+                        }
+                    }
+
+                    if (this.canLandOn(this.pos + i + j)) {
+                        this.possibleMoves.push([this.pos + i + j, "NORMAL"])
+                    }
                 }
             }
         }
     }
 }
 
-class king extends piece { 
+class king extends piece {
     constructor(color, pos) {
         super(color, pos);
         this.type = "KING"
         this.value *= 1000000
         this.spriteCoords[0] = 0
+    }
+
+    isMoved(pos, move) {
+        if (move[1] == "CASTLE_KING") {
+            board[pos - 1] = board[pos + 1]
+            board[pos + 1] = null
+            board[pos - 1].isMoved(pos - 1)
+        }
+
+        if (move[1] == "CASTLE_QUEEN") {
+            board[pos + 1] = board[pos - 2]
+            board[pos - 2] = null
+            board[pos + 1].isMoved(pos + 1)
+        }
+
+        super.isMoved(pos)
+    }
+
+    isNotInCheck(pos) {
+        for (let piece of board) {
+            if (piece != null && piece.color != this.color) {
+                if (piece.type != "PAWN") {
+                    for (let move of piece.possibleMoves) {
+                        if (pos == move[0]) {
+                            return false
+                        }
+                    }
+                } else {
+                    if ((pos - 7 == piece.pos && this.notOnLeft(pos)) || (pos - 9 == piece.pos && this.notOnRight(pos))) {
+                        return false
+                    }
+                }
+
+            }
+        }
+
+        return true;
+    }
+
+    calcMoves() {
+        super.calcMoves()
+        for (let i = -1; i <= 1; i++) {
+            for (let j = -8; j <= 8; j += 8) {
+                if (this.isNotInCheck(this.pos + i + j)) {
+                    let possibleSquare = this.pos + i + j
+                    if (0 <= possibleSquare && possibleSquare < 64) {
+                        if (board[possibleSquare] == null || board[possibleSquare].color != this.color) {
+                            this.possibleMoves.push([possibleSquare, "MOVE"])
+                        } else if (board[possibleSquare].color == this.color) {
+                            this.possibleMoves.push([possibleSquare, "DEFENDING"])
+                        }
+                    }
+                }
+            }
+        }
+
+        //castling
+        if (!this.hasMoved) {
+            if (board[this.pos + 3] != null && !board[this.pos + 3].hasMoved) {
+                if (board[this.pos + 1] == null && this.isNotInCheck(this.pos + 1) && board[this.pos + 2] == null && this.isNotInCheck(this.pos + 2)) {
+                    this.possibleMoves.push([this.pos + 2, "CASTLE_KING"])
+                }
+            }
+            if (board[this.pos - 4] != null && !board[this.pos - 4].hasMoved) {
+                if (board[this.pos - 1] == null && this.isNotInCheck(this.pos - 1) && board[this.pos - 2] == null && this.isNotInCheck(this.pos - 2) && board[this.pos - 3] == null && this.isNotInCheck(this.pos - 3)) {
+                    this.possibleMoves.push([this.pos - 2, "CASTLE_QUEEN"])
+                }
+            }
+        }
     }
 }
