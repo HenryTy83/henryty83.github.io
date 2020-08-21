@@ -2,6 +2,7 @@ let board = []
 let squareSize;
 let turn = "WHITE"
 let sprites
+let blackKing, whiteKing;
 
 function newBoard() {
     //clear it
@@ -39,7 +40,50 @@ function newBoard() {
 
     //kings
     board[4] = new king("BLACK", 4)
+    blackKing = board[4]
     board[60] = new king("WHITE", 60)
+    whiteKing = board[60]
+}
+
+function isStuck(piece) {
+        for (let move of piece.possibleMoves) {
+            if (move[1] != "DEFENDING" && move[1] != "STARTING") {
+                return true
+            }
+        }
+
+    return false
+}
+
+function canMove(color) {
+    let king = (color == "WHITE" ? whiteKing : blackKing)
+    if (!king.isChecked) {
+        for (let piece of board) {
+            if (piece != null && piece.color == color) {
+                if (isStuck(piece)) {
+                    return true
+                }
+            }
+        }
+
+        return false
+    } else {
+        return !isStuck(king)
+    }
+}
+
+function check(king) {
+    return !king.isNotInCheck(king.pos)
+}
+
+function checkState(color) {
+    let checking = color == "WHITE" ? whiteKing : blackKing
+    checking.isChecked = check(checking)
+    if (!canMove(color)) {
+        return isChecked ? "CHECKMATE" : "STALEMATE"
+    }
+
+    return checking.isChecked ? "CHECK" : "CONTINUE"
 }
 
 function isSquareInRange(x, y) {

@@ -396,6 +396,7 @@ class king extends piece {
         this.type = "KING"
         this.value *= 1000000
         this.spriteCoords[0] = 0
+        this.isChecked = false;
     }
 
     isMoved(pos, move) {
@@ -419,7 +420,7 @@ class king extends piece {
             if (piece != null && piece.color != this.color) {
                 if (piece.type != "PAWN") {
                     for (let move of piece.possibleMoves) {
-                        if (pos == move[0]) {
+                        if (pos == move[0] && move[1] != "STARTING") {
                             return false
                         }
                     }
