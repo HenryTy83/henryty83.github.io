@@ -98,13 +98,12 @@ function setup() {
         bouncers.push(new mover())
     }
 
-    buttons.push(new button(width*0.05, height*0.3, width/80, height * 0.04, "./ai", "Artificial Intelligence: My adventures in making AI"))
-    buttons.push(new button(width*0.05, height*0.35, width/80, height * 0.04, "./eli", "Eli-Bot: A webpage that generates new things for Eli to say"))
-    buttons.push(new button(width*0.05, height*0.4, width/80, height * 0.04, "./sims", "Sims: A hub for all of the simulations I've made"))
-    buttons.push(new button(width*0.05, height*0.45, width/80, height * 0.04, "./maze", "A maze game: Randomized maze to navigate through"))
-    buttons.push(new button(width*0.05, height*0.5, width/80, height * 0.04, "./snake", "Snake: A remake of a classic arcade game"))
-    buttons.push(new button(width*0.05, height*0.55, width/80, height * 0.04, "./despair", "Despair: I started making a game with raycasting, but it went off the rails"))
-    buttons.push(new button(width*0.05, height*0.6, width/80, height * 0.04, "./digbuild", "Digbuild: A minecraft/terraria clone"))
+    buttons.push(new button(width*0.05, height*0.3, width/80, height * 0.04, "./ai", "Artificial Intelligence: SKYNET IS COMING"))
+    buttons.push(new button(width*0.05, height*0.35, width/80, height * 0.04, "./sims", "Sims: A hub for all of the simulations I've made"))
+    buttons.push(new button(width*0.05, height*0.40, width/80, height * 0.04, "./maze", "A maze game: Randomized maze to navigate through"))
+    buttons.push(new button(width*0.05, height*0.45, width/80, height * 0.04, "./snake", "Snake: A remake of a classic arcade game"))
+    buttons.push(new button(width*0.05, height*0.50, width/80, height * 0.04, "./despair", "Despair: I started making a game with raycasting, but it went off the rails"))
+    buttons.push(new button(width*0.05, height*0.55, width/80, height * 0.04, "./digbuild", "Digbuild: A minecraft/terraria clone"))
 
 
     buttons.push(new button(width*0.05, height*0.8, width/80, height * 0.04, "https://github.com/henryty88/Salvius-Sim", "(Windows Only) Salvius Sim: a cookie clicker type game about a latin textbook."))
