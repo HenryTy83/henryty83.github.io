@@ -323,8 +323,8 @@ class network {
         return errors
     }
 
-    train(input, actualOut, predictedOut) {
-        let predicted = predictedOut
+    train(input, actualOut) {
+        let predicted = this.feedForward(input)
         let actual = actualOut
 
         //calc errors
