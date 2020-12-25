@@ -1,6 +1,6 @@
 //boilerplate
 let brain;
-let weights, biases;
+let brainData;
 let trainingData;
 let testingData;
 
@@ -11,8 +11,7 @@ let trainingTime = 0;
 let trainingSpeed = 1;
 
 function preload() {
-    weights = loadStrings("./weights.csv")
-    biases = loadStrings("./biases.csv")
+    brainData = loadStrings("./brainData.csv")
 }
 
 function setup() {

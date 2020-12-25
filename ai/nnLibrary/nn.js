@@ -260,10 +260,10 @@ class matrix {
     }
 
     import(x) {
-        let data = x.split(",")
+        let data = x
         for (let i in this.data) {
             for (let j in this.data[i]) {
-                this.data[i][j] = parseFloat(data.shift())
+                this.data[i][j] = data.shift()
             }
         }
         return this
@@ -276,18 +276,16 @@ class matrix {
                 output += value.toString() + ","
             }
         }
-        return output
-    }
-}
 
-function exportNet(network) {
-    console.log(network.export(network.weights))
-    console.log("\n\n\n\n\n\n")
-    console.log(network.export(network.biases))
+        //remove last ,
+        return output.slice(0, output.length-1)
+    }
 }
 
 class network {
     constructor(neuronsPerLayer) {
+        if (neuronsPerLayer == null) {return} //blank network
+
         this.initData = neuronsPerLayer
 
         this.inputs = neuronsPerLayer[0]
@@ -336,7 +334,6 @@ class network {
 
     backProp(input, errors) {
         let nextLayerError = array2Matrix(errors);
-
         for (let i = this.weights.length - 1; i >= 0; i--) {
             //calc inputs & outputs for this layer
             let layerData = this.calcLayerIO(input, i)
@@ -403,18 +400,17 @@ class network {
 
         //convert from matrix back to array
         let output = layerOutput.export().split(",").map(Number)
-        output.pop()
 
         return output
     }
 
     import(weights, biases) {
         for (let i in this.weights) {
-            this.weights[i].import(weights[i])
+            this.weights[i].import(split(weights[i], ",").map(Number))
         }
 
         for (let i in this.biases) {
-            this.biases[i].import(biases[i])
+            this.biases[i].import(split(biases[i], ",").map(Number))
         }
 
         return this
@@ -423,11 +419,28 @@ class network {
     export (source) {
         let output = "";
         for (let layer of source) {
-            output += layer.export()
-            output += "\n"
+            output += layer.export() + ";"
         }
 
-        return output
+        //remove last comma
+        return output.slice(0, output.length-1)
+    }
+
+    exportNet() {
+        saveStrings([this.initData, this.export(this.weights), this.export(this.biases)], "brainData", "csv")
+    }
+    
+    importNet(data) {
+        let initData = (split(data[0], ",")).map(Number)
+        let weights = split(data[1], ";")
+        let biases = split(data[2], ";")
+
+        this.initData = initData
+        new network(initData)
+
+        this.import(weights, biases)
+
+        return this
     }
 
     copy() {
@@ -437,8 +450,7 @@ class network {
         let copiedWeights = this.export(this.weights)
         let copiedBiases = this.export(this.biases)
 
-        result.import(copiedWeights, result.weights)
-        result.import(copiedBiases, result.biases)
+        result.import(copiedWeights, copiedBiases)
         return result;
     }
 }
