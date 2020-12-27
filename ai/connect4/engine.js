@@ -3,7 +3,9 @@ class game {
         this.board = []
 
         if (data != null) {
-            this.board = [...data] //copy data 
+            for (let column of data) {
+                this.board.push(column.slice()) //copy
+            }
         }
 
         else { //fill with le empty cells
@@ -143,7 +145,7 @@ function findMouseMove() {
 
 function runGame() {
     if (mouseX > 100 && mouseX < 1100) {
-        if (move == 1) {
+        if (turn == 1) {
             fill(palette.red)
         }
         else {

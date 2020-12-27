@@ -1,4 +1,4 @@
-let move = 1;
+let turn = 1;
 let palette;
 let winTimer = 100
 let winTimerLimit = 100
@@ -40,7 +40,7 @@ function draw() {
             gameBoard.display()
             runGame()
 
-            if (move == 1)  {
+            if (turn == 1 && winTimer == winTimerLimit)  {
                 ai.move(gameBoard)
             }
 
@@ -110,7 +110,7 @@ function mouseClicked() {
             }
             if(mouseX > 450 && mouseX < 750 && mouseY < 500 && mouseY > 450) {
                 screen = 2
-                ai = new bot(1, 20)
+                ai = new bot(1, 3)
             }
             break;
         case 1:
@@ -121,9 +121,9 @@ function mouseClicked() {
             }
             break;
         case 2:
-            if (mouseX > 100 && mouseX < 1100 && winTimer == winTimerLimit && move == 2) {
-                if(gameBoard.move(move, findMouseMove())) {
-                    move = 2
+            if (mouseX > 100 && mouseX < 1100 && winTimer == winTimerLimit && turn == 2) {
+                if(gameBoard.move(turn, findMouseMove())) {
+                    turn = 1
                 }
             }
             break
