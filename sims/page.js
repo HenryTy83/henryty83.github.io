@@ -250,7 +250,8 @@ function setup() {
     buttons.push(new button(width*0.05, height*0.45, width/80, height * 0.04, "./bouncing.html", "Bouncing Balls: Random screensaver-type animation that I use for the homepage"))
     buttons.push(new button(width*0.05, height*0.55, width/80, height * 0.04, "./menger/", "Menger Sponge: Cool 3D fractal"))
     buttons.push(new button(width*0.05, height*0.6, width/80, height * 0.04, "./tree", "Fractal tree: recursive generation"))
-    buttons.push(new button(width*0.05, height*0.7, width/80, height * 0.04, "./sorting", "Sorting: A visualization of many sorting algorithms"))
+    buttons.push(new button(width * 0.05, height * 0.7, width / 80, height * 0.04, "./sorting", "Sorting: A visualization of many sorting algorithms"))
+    buttons.push(new button(width * 0.05, height*0.80, width/80, height * 0.04, "./tsp", "Travelling Salesman Problem: Brute force solution"))
 
 }
 
