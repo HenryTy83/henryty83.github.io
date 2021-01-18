@@ -160,7 +160,7 @@ function runGame() {
         if (winTimer < 0) {
             gameBoard = new game()
             winTimer = winTimerLimit;
-            screen = 0
+            window.location.href = window.location.href
         }
     }
 }

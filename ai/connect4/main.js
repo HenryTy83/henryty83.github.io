@@ -38,9 +38,16 @@ function draw() {
             break;
         case 2: 
             gameBoard.display()
+
+             if (ai.rageQuit && winTimer == winTimer) { 
+                textSize(100)
+                fill(0)
+                text("I DON'T LIKE THIS GAME", width/2, 500)
+            }
+
             runGame()
 
-            if (turn == 1 && winTimer == winTimerLimit)  {
+            if (winTimer == winTimerLimit && (turn == 1 || (ai.rageQuit && frameCount % 60 == 0)))  {
                 ai.move(gameBoard)
             }
 
@@ -110,18 +117,18 @@ function mouseClicked() {
             }
             if(mouseX > 450 && mouseX < 750 && mouseY < 500 && mouseY > 450) {
                 screen = 2
-                ai = new bot(1, 3)
+                ai = new bot(1, 7)
             }
             break;
         case 1:
             if (mouseX > 100 && mouseX < 1100 && winTimer == winTimerLimit) {
-                if(gameBoard.move(move, findMouseMove())) {
-                    move = [0, 2, 1][move]
+                if(gameBoard.move(turn, findMouseMove())) {
+                    turn = [0, 2, 1][turn]
                 }
             }
             break;
         case 2:
-            if (mouseX > 100 && mouseX < 1100 && winTimer == winTimerLimit && turn == 2) {
+            if (mouseX > 100 && mouseX < 1100 && winTimer == winTimerLimit && turn == 2 && !ai.rageQuit) {
                 if(gameBoard.move(turn, findMouseMove())) {
                     turn = 1
                 }

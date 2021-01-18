@@ -225,6 +225,7 @@ class player {
         let placedBlock = this.calcChunk(this.blockX)
         let chunk;
         chunk = this.findChunk(placedBlock).blockData
+        console.log(placedBlock, this.blockX, chunk)
             for (let j in chunk) {
                 if (chunk[j].pos.x == this.blockX && chunk[j].pos.y == this.blockY) {
                     if (this.heldItem == 0) {

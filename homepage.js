@@ -103,7 +103,6 @@ function setup() {
     buttons.push(new button(width*0.05, height*0.4, width/80, height * 0.04, "./maze", "A maze game: Randomized maze to navigate through"))
     buttons.push(new button(width*0.05, height*0.45, width/80, height * 0.04, "./snake", "Snake: A remake of a classic arcade game"))
     buttons.push(new button(width*0.05, height*0.5, width/80, height * 0.04, "./despair", "Despair: I started making a game with raycasting, but it went off the rails"))
-    buttons.push(new button(width*0.05, height*0.55, width/80, height * 0.04, "./digbuild", "Digbuild: A minecraft/terraria clone"))
 
 
     buttons.push(new button(width*0.05, height*0.8, width/80, height * 0.04, "https://github.com/henryty88/Salvius-Sim", "(Windows Only) Salvius Sim: a cookie clicker type game about a latin textbook."))

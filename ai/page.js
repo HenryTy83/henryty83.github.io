@@ -70,8 +70,9 @@ function setup() {
         }
     ]
 
-    buttons.push(new button(300, 125, 30, 30, "./tic-tac-toe", "TIC TAC TOE: YOU CANNOT BEAT THEM"))
-    buttons.push(new button(300, 175, 30, 30, "./xor", "THE XOR PROBLEM: 'HELLO WORLD' OF NEURAL NETWORKS"))
+    buttons.push(new button(150, 125, 30, 30, "./tic-tac-toe", "TIC TAC TOE: YOU CANNOT BEAT THEM"))
+    buttons.push(new button(150, 175, 30, 30, "./xor", "THE XOR PROBLEM: 'HELLO WORLD' OF NEURAL NETWORKS"))
+    buttons.push(new button(150, 225, 30, 30, "./connect4", "CONNECT FOUR: NOT PERFECT, BUT THEY COULD PROABABLY BEAT YOU"))
 }
 
 function train() {
