@@ -52,6 +52,7 @@ function train() {
     let randomSample = random(trainingData)
 
     brain.train(randomSample.inputs, randomSample.outputs)
+    brain.saveTraining()
     trainingTime++;
 
 }

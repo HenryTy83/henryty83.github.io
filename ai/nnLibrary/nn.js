@@ -325,11 +325,19 @@ class network {
         let predicted = this.feedForward(input)
         let actual = actualOut
 
+        this.workingWeights = this.weights.slice()
+        this.workingBiases = this.biases.slice()
+
         //calc errors
         let outputError = this.getErrors(predicted, actual)
 
         //backpropagate & adjust
         this.backProp(input, outputError)
+    }
+
+    saveTraining() {
+        this.weights = this.workingWeights.slice()
+        this.biases = this.workingBiases.slice()
     }
 
     backProp(input, errors) {
@@ -351,8 +359,8 @@ class network {
             let deltaWeight = matrix.combine(gradients, layerData.input)
 
             //adjust weights and biases
-            this.weights[i].matrixAdding(deltaWeight)
-            this.biases[i].matrixAdding(gradients)
+            this.workingWeights[i].matrixAdding(deltaWeight)
+            this.workingBiases[i].matrixAdding(gradients)
 
             //prepare to move backwards
             nextLayerError = adjustedError

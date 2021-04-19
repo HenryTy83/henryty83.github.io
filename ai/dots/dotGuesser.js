@@ -1,5 +1,6 @@
 let clickColor = 0
 let palette
+let gridSize = 10;
 
 let changeColor, toggleTrain
 
@@ -14,7 +15,7 @@ class dot {
     constructor(x, y, color) {
         this.pos = createVector(x, y)
         this.color = palette[color]
-        this.label = color
+        this.label = 2*color-1
     }
 
     display() {
@@ -39,13 +40,23 @@ function setup() {
     toggleTrain.mousePressed(() => training = !training)
     
     //initialize bot
-    brain = new network([2, 2, 1])
+    brain = new network([4, 3, 2, 1])
+    brain.lr = 0.01
 }
 
 function draw() {
     background(0)
-    stroke(255)
+
+    //draw grid
+    noStroke()
+    for (x = 0; x < width; x+=gridSize) {
+        for (y = 0; y < width; y+=gridSize) {
+            fill(lerpColor(palette[0], palette[1], (brain.feedForward([x, y, x**2, y**2])[0]+1)/2))
+            rect(x, y, gridSize, gridSize)
+        }
+    }
     
+    stroke(255)
     //cursor
     if (mouseY < 600) {
         strokeWeight(1)
@@ -55,8 +66,6 @@ function draw() {
 
     //draw the dots
     for (d of dots) {
-        strokeWeight(3)
-        stroke(palette[round((brain.feedForward([d.pos.x, d.pos.y])+1)/2)])
         d.display()
     }
 
@@ -81,7 +90,7 @@ function trainBot() {
     trainingCycles += trainingSpeed;
     for (i = 0; i < trainingSpeed; i++) {
         for (d of dots) {
-            brain.train([d.pos.x, d.pos.y], [2 * d.label - 1])
+            brain.train([d.pos.x, d.pos.y, d.pos.x**2, d.pos.y**2], [d.label])
         }
     }
 }
@@ -89,7 +98,7 @@ function trainBot() {
 function testBot() {
     let avgLoss = 0
     for (d of dots) {
-        avgLoss += abs(2*d.label-1-brain.feedForward([d.pos.x, d.pos.y]))
+        avgLoss += abs(d.label-brain.feedForward([d.pos.x, d.pos.y, d.pos.x**2, d.pos.y**2])[0])
     }
     avgLoss /= dots.length
     return avgLoss
