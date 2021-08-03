@@ -244,14 +244,15 @@ function setup() {
 
     // buttons.push(new button(width*0.05, height*0.2, width/80, height * 0.04, "redirect link", "text"))
 
-    buttons.push(new button(width*0.05, height*0.2, width/80, height * 0.04, "./cube.html", "The Third Dimension: A 3d C U B E made with only 2D graphics"))
-    buttons.push(new button(width*0.05, height*0.25, width/80, height * 0.04, "./4d.html", "A 4D Cube: Go even further beyond "))
+    buttons.push(new button(width*0.05, height*0.2, width/80, height * 0.04, "./cube", "The Third Dimension: A 3d C U B E made with only 2D graphics"))
+    buttons.push(new button(width*0.05, height*0.25, width/80, height * 0.04, "./4d", "A 4D Cube: Go even further beyond "))
     buttons.push(new button(width*0.05, height*0.35, width/80, height * 0.04, "./enigma/", "Enigma: I watched The Imitation Game and made this the day after"))
-    buttons.push(new button(width*0.05, height*0.45, width/80, height * 0.04, "./bouncing.html", "Bouncing Balls: Random screensaver-type animation that I use for the homepage"))
+    buttons.push(new button(width*0.05, height*0.45, width/80, height * 0.04, "./bouncing", "Bouncing Balls: Random screensaver-type animation that I use for the homepage"))
     buttons.push(new button(width*0.05, height*0.55, width/80, height * 0.04, "./menger/", "Menger Sponge: Cool 3D fractal"))
     buttons.push(new button(width*0.05, height*0.6, width/80, height * 0.04, "./tree", "Fractal tree: recursive generation"))
-    buttons.push(new button(width * 0.05, height * 0.7, width / 80, height * 0.04, "./sorting", "Sorting: A visualization of many sorting algorithms"))
-    buttons.push(new button(width * 0.05, height*0.80, width/80, height * 0.04, "./tsp", "Travelling Salesman Problem: Brute force solution"))
+    buttons.push(new button(width * 0.05, height * 0.75, width / 80, height * 0.04, "./sorting", "Sorting: A visualization of many sorting algorithms"))
+    buttons.push(new button(width * 0.05, height * 0.85, width / 80, height * 0.04, "./tsp", "Travelling Salesman Problem: Brute force solution"))
+    buttons.push(new button(width * 0.05, height*0.65, width/80, height * 0.04, "./mandelbrot", "Mandelbrot Set: Interactive Explorer"))
 
 }
 
