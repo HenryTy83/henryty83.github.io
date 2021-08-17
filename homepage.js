@@ -47,41 +47,6 @@ class mover {
   }
 }
 
-class button {
-    constructor(x, y, w, h, link, text) {
-        this.x = x;
-        this.y = y;
-        this.width = text.length * w / 2
-        this.height = h;
-        this.link = link;
-        this.text = text;
-    }
-
-    display() {
-        fill(0, 255, 0)
-        rect(this.x, this.y, this.width, this.height)
-        fill(0)
-        text(this.text, this.x + 50, this.y + this.height/2 + 10)
-    }
-
-    mouseOver() {
-        if (mouseX > this.x && mouseX < this.x + this.width && mouseY > this.y && mouseY < this.y + this.height) {
-            fill(0, 0, 0, 100)
-            rect(this.x, this.y, this.width, this.height)
-            return true;
-        }
-        return false;
-    }
-
-    run() {
-        this.display();
-        if(this.mouseOver() && mouseIsPressed) {
-            window.location.href = this.link;
-        }
-    }
-
-}
-
 let bouncers;
 let buttons;
 
@@ -128,7 +93,7 @@ function draw() {
     textSize(width/75)
     text("I'm a programmer. I make games and sims. They are very bad. Enjoy:", width/2, height*0.15)
 
-    textAlign(LEFT, LEFT)
+    textAlign(LEFT)
     textSize(width/40)
     text("Stuff I'm proud of: (requires Javascript)", width*0.025, height*0.25)
     text("Stuff that should not see the light of day (Downloads)", width*0.025, height*0.75)
