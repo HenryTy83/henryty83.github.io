@@ -80,6 +80,10 @@ class block {
             }
         }
     }
+
+    exportSelf() {
+        return [this.pos.x, this.pos.y, this.id, this.touchScore, this.collectible, this.movable]
+    }
 }
 
 class agent extends block {
