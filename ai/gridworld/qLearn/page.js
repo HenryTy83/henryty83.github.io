@@ -1,4 +1,4 @@
-let wallPunish = -1000
+let wallPunish = -10000
 
 function generateWalls() {
     let walls = []
@@ -37,6 +37,8 @@ function generateGoals() {
 }
 
 function respawn() {
+    background(totalScore < 0 ? color(255, 0, 0) : color(0, 255, 0))
+
     alberto = new agent(4, 6, color(0, 0, 255))
     alberto.score = 0
 
@@ -50,21 +52,25 @@ function respawn() {
     visited = []
 
     tries++;
-    totalScore = 100
+
+    totalScore = 0
 }
 
-let learningRate = 0.1
-let exploreRate = 0
+let learningRate = 1
+let exploreRate = 0.05
 let discountFactor = 0.5
 let overlay = true
+
+let exploreSlider, speedrunSlider, turbo;
 
 let alberto
 let qTable = []
 let goals;
 let tries = 1;
-let totalScore
+let totalScore = 0
 let idle = 0
 let visited;
+let speed = false
 
 function setup() {
     createCanvas(1200, 600)
@@ -81,6 +87,16 @@ function setup() {
     worldCopy = concat(worldCopy, generateHazards())
     worldCopy = concat(worldCopy, generateGoals())
     respawn()
+
+    exploreSlider = createSlider(0, 1, 0.1, 0.01)
+    exploreSlider.position(160, 605)
+
+    speedrunSlider = createSlider(1, 10, 1)
+    speedrunSlider.position(500, 605)
+
+    turbo = createButton('Turbo Train')
+    turbo.position(1115, 605)
+    turbo.mousePressed(a => speed = !speed)
 }
 
 function findMax(a) {
@@ -111,47 +127,76 @@ function findMove() {
     return int(findMax(findCell(alberto.pos)[1]))
 }
 
-function learn(prevPos, pos) {
+function learn(prevPos, pos, move) {
     let lastCell = findCell(prevPos)[0]
     let optimalQ = max(findCell(pos)[1])
-    console.log(findCell(pos), optimalQ)
-    qTable[lastCell][1] += learningRate * (alberto.score + (discountFactor * optimalQ) - qTable[lastCell][1])
+    qTable[lastCell][move] += learningRate * (alberto.score + (discountFactor * optimalQ) - qTable[lastCell][move])
     alberto.updateScore(i => 0)
-    noLoop()
 }
 
+function noRepeats() {
+    for (let block of visited) {
+        if (block.equals(alberto.pos)) {
+            alberto.updateScore(i => i - 1)
+            return 
+        }
+    }
+}
 
 function episode() {
+    visited.push(alberto.pos.copy())
     prevPos = alberto.pos.copy()
     let move = findMove(alberto.pos)
     alberto.move(move)
 
+    noRepeats()
+
     totalScore += alberto.score
-    learn(prevPos, alberto.pos)
-
-    if (totalScore < 0) {
-        respawn()
-    }
-
+    learn(prevPos, alberto.pos, move)
 }
 
 function draw() {
     background("#0390fc")
     stroke(0)
 
+    exploreRate = exploreSlider.value()
+
+    fill(0)
+    noStroke()
+    textSize(15)
+    text("Exploration rate: " + exploreRate, 10, 590)
+    text("Training rate: " + speedrunSlider.value(), 375, 590)
+
+    stroke(0)
     for (let square of world) {
         square.display(palette)
     }
 
     alberto.display()
 
-    
+    if (frameCount % round(10/speedrunSlider.value()) == 0) {
+        episode()
+    }
+
     noStroke()
     fill(0)
     textSize(20)
-    text("Score: " + totalScore.toFixed(2), 10, 20)
+    text("Score: " + totalScore, 10, 20)
     text("Tries: " + tries, 10, 40)
 
-    episode()
+    if (totalScore < 0 || totalScore > 100) {
+        respawn()
+    }
+
+    if (speed) {
+        for (let i = 0; i < speedrunSlider.value() * 10; i++) {
+            episode()
+
+            if (totalScore < 0 || totalScore > 100) {
+                respawn()
+            }
+        }
+    }
+
     //noLoop()
 }
