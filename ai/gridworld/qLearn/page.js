@@ -88,7 +88,7 @@ function setup() {
     worldCopy = concat(worldCopy, generateGoals())
     respawn()
 
-    exploreSlider = createSlider(0, 1, 0.1, 0.01)
+    exploreSlider = createSlider(0, 1, 0, 0.01)
     exploreSlider.position(160, 605)
 
     speedrunSlider = createSlider(1, 10, 1)
