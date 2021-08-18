@@ -1,13 +1,15 @@
+let wallPunish = -1000
+
 function generateWalls() {
     let walls = []
      for (let i = 3; i < 20; i++) {
-        walls.push(new block(i, 1, 2, i => -100, true, false))
-        walls.push(new block(i, 10, 2, i => -100, true, false))
+        walls.push(new block(i, 1, 2, i => wallPunish, true, false))
+        walls.push(new block(i, 10, 2, i => wallPunish, true, false))
     }
 
     for (let i = 2; i < 10; i++) {
-        walls.push(new block(3, i, 2, i => -100, true, false))
-        walls.push(new block(19, i, 2, i => -100, true, false))
+        walls.push(new block(3, i, 2, i => wallPunish, true, false))
+        walls.push(new block(19, i, 2, i => wallPunish, true, false))
     }
 
     return walls
@@ -15,13 +17,13 @@ function generateWalls() {
 
 function generateHazards() {
     let hazards = []
-    for (let x = 7; x < 18; x += 4) {
+    for (let x = 5; x < 20; x += 2) {
         for (let y = 2; y < 8; y++) {
-            hazards.push(new block(x, y, 2, i => -100, true, false))
+            hazards.push(new block(x, y, 2, i => wallPunish, true, false))
 
             if (random(1) < 0.30 && y != 7) {
                 for (let y2 = y+2; y2 < 10; y2++) {
-                    hazards.push(new block(x, y2, 2, i => -100, true, false))
+                    hazards.push(new block(x, y2, 2, i => wallPunish, true, false))
                 }
                 break
             }
@@ -31,16 +33,12 @@ function generateHazards() {
 }
 
 function generateGoals() {
-    let goals = []
-    for (let x = 5; x < 18; x += 4) {
-        goals.push(new block(x, round(random(3, 7)), 1, i => i + 1000, true, false))
-    }
-    return goals
+    return [new block(18, round(random(3, 7)), 1, i => i + 10000, true, false)]
 }
 
 function respawn() {
-    alberto = new agent(4, 2, color(0, 0, 255))
-    alberto.score = 1000
+    alberto = new agent(4, 6, color(0, 0, 255))
+    alberto.score = 0
 
     world = []
     //make a copy
@@ -49,19 +47,24 @@ function respawn() {
         world.push(new block(params[0], params[1], params[2], params[3], params[4], params[5]))
     }
 
+    visited = []
+
     tries++;
-    totalScore = 0
+    totalScore = 100
 }
 
+let learningRate = 0.1
+let exploreRate = 0
+let discountFactor = 0.5
+let overlay = true
+
 let alberto
-let exploreRate = 0.05
 let qTable = []
 let goals;
 let tries = 1;
 let totalScore
-let learningRate = 0.01
-let discountFactor = 0.5
 let idle = 0
+let visited;
 
 function setup() {
     createCanvas(1200, 600)
@@ -80,16 +83,6 @@ function setup() {
     respawn()
 }
 
-function search(pos) {
-    for (let i in qTable) {
-        if (qTable[i][0].equals(pos)) {
-            return i
-        }
-    }
-
-    return null
-}
-
 function findMax(a) {
     let index = 0
     for (let i in a) {
@@ -101,65 +94,64 @@ function findMax(a) {
     return index
 }
 
-function findCell() {
-    let cellID = search(alberto.pos)
-    if (cellID == null) {
-       qTable.push([alberto.pos.copy(), 0, 0, 0, 0, 0])
-       return qTable.length-1
+function findCell(pos) {
+    let cellID = int(str(pos.x) + str(pos.y))
+    if (qTable[cellID] == null) {
+       qTable[cellID] = [0, 0, 0, 0, 0] 
     }
 
-    return cellID
+    return [cellID, qTable[cellID]]
 }
 
-function findMove(cell) {
+function findMove() {
     if (random(1) < exploreRate) {
-        return round(random(5))
+        return round(random(4))
     }
 
-    return findMax(cell.slice(1, 5))
+    return int(findMax(findCell(alberto.pos)[1]))
 }
 
-function learn(move, cellID) {
-    let newCell = qTable[findCell()]
-    let optimalMove = findMax(newCell.slice(1, 5))
-    let optimalQ = newCell[int(optimalMove)+1]
-    qTable[cellID][int(move)+1] += float(learningRate * (alberto.score + discountFactor * optimalQ - qTable[cellID][int(move)+1])) 
+function learn(prevPos, pos) {
+    let lastCell = findCell(prevPos)[0]
+    let optimalQ = max(findCell(pos)[1])
+    console.log(findCell(pos), optimalQ)
+    qTable[lastCell][1] += learningRate * (alberto.score + (discountFactor * optimalQ) - qTable[lastCell][1])
+    alberto.updateScore(i => 0)
+    noLoop()
+}
+
+
+function episode() {
+    prevPos = alberto.pos.copy()
+    let move = findMove(alberto.pos)
+    alberto.move(move)
+
+    totalScore += alberto.score
+    learn(prevPos, alberto.pos)
+
+    if (totalScore < 0) {
+        respawn()
+    }
+
 }
 
 function draw() {
     background("#0390fc")
     stroke(0)
-    alberto.display()
 
     for (let square of world) {
         square.display(palette)
     }
 
+    alberto.display()
+
+    
     noStroke()
     fill(0)
     textSize(20)
-    text("Score: " + totalScore, 10, 20)
+    text("Score: " + totalScore.toFixed(2), 10, 20)
     text("Tries: " + tries, 10, 40)
 
-    let currentID = findCell()
-
-    let move = findMove(qTable[currentID])
-    idle += 1
-    if (move != 5) {
-        alberto.move(move)
-        idle = 0
-    }
-
-    alberto.updateScore(i => i - 10*idle)
-    alberto.updateScore(i => i - 1)
-    
-    learn(move, currentID)
-
-    if (alberto.score < -100 || totalScore < 0) {
-        respawn()
-    }
-
-    totalScore += alberto.score
-    alberto.updateScore(i => 0)
+    episode()
     //noLoop()
 }
