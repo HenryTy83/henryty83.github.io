@@ -1,17 +1,32 @@
 let world = []
 let cellSize = 50
+let palette;
 
 class block {
-    constructor(x, y, id, touchScore) {
+    constructor(x, y, id, touchScore, collectible, movable) {
         this.pos = new p5.Vector(x, y)
-        this.collision = [false, false, false, false]
-        this.movable = false
+
+        if (id == -1) {return}
+
+        this.movable = movable
         this.touchScore = touchScore
         this.id = id
+        this.color = palette[id]
+        this.collectible = collectible
+
+        if (collectible) {
+            this.collision = [true, true, true, true]
+        }
+
+        else {
+            this.collision = [false, false, false, false]
+        }
     }
 
-    display(palette) {
-        palette[this.id](this.pos)
+    display() {
+        strokeWeight(2)
+        fill(this.color)
+        square(this.pos.x*cellSize, this.pos.y*cellSize, cellSize, 5)
     }
 
     collide(direction) {
@@ -25,12 +40,9 @@ class block {
     checkCollision(direction, target) {
         for (let square of world) {
             if (target.equals(square.pos)) {
-                if (!square.collide(direction)) {
-                    return false
-                }
+                return square.collide(direction)
             }
         }
-
         return true
     }
 
@@ -40,6 +52,7 @@ class block {
         switch (direction) {
             case 0:
                 working.y -= 1
+                break
             case 1:
                 working.x += 1
                 break
@@ -49,6 +62,7 @@ class block {
             case 3:
                 working.x -= 1
                 break
+            default:
         }
 
         if (this.checkCollision(direction, working)) {
@@ -59,17 +73,20 @@ class block {
     }
 
     isInside(agent) {
-        if (this.pos == agent.pos) {
-            agent.updateScore(this.touchScore())
+        if (this.pos.equals(agent.pos)) {
+            agent.updateScore(this.touchScore)
+            if (this.collectible) {
+                this.pos = new p5.Vector(-1, -1)
+            }
         }
     }
 }
 
 class agent extends block {
-    constructor(x, y, palette) {
-        super(x, y)
-        this.palette = palette
-        this.score = 0
+    constructor(x, y, color) {
+        super(x, y, -1)
+        this.color = color
+        this.score = 0.0
     }
 
     updateScore(f) {
@@ -81,9 +98,5 @@ class agent extends block {
         for (let square of world) {
             square.isInside(this)
         }
-    }
-
-    display() {
-        this.palette(this.pos)
     }
 }

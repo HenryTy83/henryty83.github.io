@@ -103,17 +103,17 @@ function nn() {
 }
 
 function draw() {
-    nn()  
-
+    nn()
+    
     background(255, 255, 255, 100)
     fill(0)
     textSize(40)
     stroke(255)
     text("SKYNET IS COMING", width/2-225, 75)
 
+    noStroke()
     textSize(20)
     for (let button of buttons) {
         button.run()
     }
-    noStroke()
 }
