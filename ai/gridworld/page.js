@@ -11,25 +11,24 @@ function setup() {
         color(0, 255, 0)
     ]
 
-    mover = new agent(4, 4, color(0, 0, 255))
+    mover = new agent(8, 3, color(0, 0, 255))
     world = []
     buttons = []
 
-    for (let i = 3; i < 20; i++) {
+    for (let i = 7; i < 16; i++) {
         world.push(new block(i, 1, 0, 0, false, false))
         world.push(new block(i, 10, 0, 0, false, false))
     }
 
     for (let i = 2; i < 10; i++) {
-        world.push(new block(3, i, 0, 0, false, false))
-        world.push(new block(19, i, 0, 0, false, false))
+        world.push(new block(7, i, 0, 0, false, false))
+        world.push(new block(15, i, 0, 0, false, false))
     }
 
-    for (let i = 0; i < 5; i++) {
-        world.push(new block(round(random(4, 18)), round(random(3, 9)), 1, x => x + 200, true, false))
-        world.push(new block(round(random(4, 18)), round(random(3, 9)), 2, x => x - 1000, true, false))
-        world.push(new block(round(random(4, 18)), round(random(3, 9)), 3, x => x + 200, false, true))
-    }
+    world.push(new block(round(random(8, 14)), round(random(2, 4)), 1, x => x + 200, true, false))
+    world.push(new block(round(random(8, 14)), round(random(5, 6)), 2, x => x - 1000, true, false))
+    world.push(new block(round(random(8, 14)), round(random(7, 9)), 3, x => x + 200, false, true))
+
 
     buttons.push(new button(width*0.05, height*0.3, width/50, 35, "./qLearn", "Q-Learning: The simplest form of machine learning"))
 }
