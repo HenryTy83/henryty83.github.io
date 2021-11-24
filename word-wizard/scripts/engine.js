@@ -165,7 +165,7 @@ function shuffleTiles() {
 }
 
 function keyTyped() {
-    if (screen != 0 && screen != 11) {
+    if (screen != 0 && screen != 11 && !done) {
         if (key == ' ') {
             shuffleTiles()
             return
@@ -177,7 +177,7 @@ function keyTyped() {
             board.push(typed)
             tiles[index] = tiles[tiles.length - board.length]
             tiles[tiles.length - board.length] = dummyTile
-            typed.startingpos = typed.pos.copy()
+            typed.startingpos = typed.Tpos.copy()
             typed.Tpos = createVector(50 + 120 * (board.length - 1), 250)
         }
     }
@@ -193,7 +193,7 @@ function backspace() {
 }
 
 function keyReleased() {
-    if (key == 'Backspace' && board.length > 0) {
+    if (key == 'Backspace' && board.length > 0 && !done) {
         backspace()
     }
 

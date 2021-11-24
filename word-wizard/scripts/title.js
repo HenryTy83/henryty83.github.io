@@ -22,7 +22,7 @@ function title() {
 
     textSize(10)
     fill(255)
-    text('Henry Ty 2021', 50, height - 20)
+    text('© Henry Ty 2021', 60, height - 20)
 }
 
 let winButtons = []
