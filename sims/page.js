@@ -216,7 +216,7 @@ function setup() {
     buttons.push(new button(width*0.05, height*0.55, width/80, height * 0.04, "./menger/", "Menger Sponge: Cool 3D fractal"))
     buttons.push(new button(width*0.05, height*0.6, width/80, height * 0.04, "./tree", "Fractal tree: recursive generation"))
     buttons.push(new button(width * 0.05, height * 0.75, width / 80, height * 0.04, "./sorting", "Sorting: A visualization of many sorting algorithms"))
-    buttons.push(new button(width * 0.05, height * 0.85, width / 80, height * 0.04, "./tsp", "Travelling Salesman Problem: Brute force solution"))
+    buttons.push(new button(width * 0.05, height * 0.85, width / 80, height * 0.04, "./tsm", "Travelling Salesman Problem: Brute force solution"))
     buttons.push(new button(width * 0.05, height*0.65, width/80, height * 0.04, "./mandelbrot", "Mandelbrot Set: Interactive Explorer"))
 
 }
