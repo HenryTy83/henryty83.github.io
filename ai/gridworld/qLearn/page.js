@@ -58,7 +58,7 @@ function respawn() {
 
 let learningRate = 1
 let exploreRate = 0.05
-let discountFactor = 0.5
+let discountFactor = 1
 let overlay = true
 
 let exploreSlider, speedrunSlider, turbo;

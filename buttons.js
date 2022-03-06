@@ -9,6 +9,7 @@ class button {
     }
 
     display() {
+        textAlign(LEFT, BOTTOM)
         fill(0, 255, 0)
         rect(this.x, this.y, this.width, this.height)
         fill(0)
