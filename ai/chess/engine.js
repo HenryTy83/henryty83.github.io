@@ -38,6 +38,7 @@ class engine {
 
         this.board = [];
 
+        //pieces
         for (var i = 0; i < 64; i++) {
             if (!(piece > 0)) {
                 this.board.push(pieces[piece]);
@@ -53,6 +54,16 @@ class engine {
                 if (piece == '/') { piece = fenA.shift(); }
             }
         }
+
+        //move
+        fenA.shift()
+        this.whiteMove = fenA.shift() == 'w'
+        fenA.shift();
+
+        fenA = fenA.split(' ')
+
+        //castling rights
+        
     }
 
     toFEN() {
@@ -83,6 +94,9 @@ class engine {
             
             output += '/'
         }
+
+        output += ' ' + this.whiteMove ? 'w' : 'b' + ' '
+
 
         return output
     }
