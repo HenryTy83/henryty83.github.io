@@ -11,13 +11,13 @@ class Particle {
     this.pos = createVector(10, sceneH / 2);
     this.rays = [];
     this.heading = 0;
-    for (let a = -this.fov / 2; a < this.fov / 2; a += 0.1) {
+    for (let a = -this.fov / 2; a < this.fov / 2; a += 0.05) {
       this.rays.push(new Ray(this.pos, radians(a)));
     }
 
   }
 
-  look(walls) {
+  look() {
     const scene = [];
     for (let i = 0; i < this.rays.length; i++) {
       const ray = this.rays[i];
@@ -38,8 +38,5 @@ class Particle {
       scene[i] = record;
     }
     return scene;
-  }
-
-  show() {
   }
 }

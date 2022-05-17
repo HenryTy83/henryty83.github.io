@@ -16,7 +16,7 @@ let score = 0;
 let screen = 0;
 let deathTimer = 0;
 let hell;
-let forever = 999999999999999;
+let forever = 1000000000000;
 
 const sceneW = 1200;
 const sceneH = 600;
@@ -32,11 +32,13 @@ function setup() {
   walls.push(new Boundary(0, sceneH-10, sceneW, sceneH-10));
   particle = new Particle();
 
-  obstacles.push(new obstacle(width))
-  obstacles.push(new obstacle(width*3/2))
+  obstacles.push(new obstacle(width, 0))
+  obstacles.push(new obstacle(width*3/2, 1))
 
   textAlign(CENTER)
   rectMode(CENTER)
+
+  history.pushState(0, 0, "../despair");
 }
 
 function runGame() {
@@ -50,8 +52,8 @@ function runGame() {
     }
   } 
 
-  for (let i in obstacles) {
-    obstacles[i].update(i)
+  for (let wall of obstacles) {
+    wall.update()
   }
 
   background(0);
@@ -64,9 +66,9 @@ function runGame() {
     noStroke();
     const sq = scene[i] * scene[i];
     const wSq = sceneW * sceneW;
-    const b = map(sq, 0, wSq, 255, 0);
+    const b = map(sq, 0, wSq, 256, 0);
     const h = map(scene[i], 0, sceneW, sceneH, 0);
-    fill(b);
+    fill(b * map(scene[i], 0, sceneW, 1, 0));
     rectMode(CENTER);
     rect(i * w + w / 2, sceneH / 2, w + 1, h);
   }
@@ -84,7 +86,7 @@ function titleScreen() {
   textSize(100)
   text("PURGATORY", width/2, 100)
   textSize(50)
-  text("CLICK TO ENTER", width/2, height/2)
+  text("CLICK TO ACKNOWLEDGE YOUR SINS", width/2, height/2)
 
   if (mouseIsPressed) {
     screen = 1;
@@ -94,10 +96,6 @@ function titleScreen() {
 
 
 function died() {
-  if (!hell.isPlaying()) {
-    hell.play()
-  }
-
   background(200)
   textSize(100)
   fill(0)
@@ -106,7 +104,7 @@ function died() {
   fill(0, 0, 0, map(deathTimer, 100, 300, 0, 255))
   text("BUT EVEN IN DEATH, YOU CANNOT ESCAPE", width/2, height*3/4 + 50)
   deathTimer++;
-  forever = 999999999999999
+  forever += 100;
 
   if (deathTimer > 300) {
     deathTimer = 0;
@@ -116,8 +114,8 @@ function died() {
     for (let i=2; i<walls.length; i++) {
       walls[i] = null
     }
-    obstacles.push(new obstacle(width))
-    obstacles.push(new obstacle(width*3/2))
+    obstacles[0] = new obstacle(width)
+    obstacles[1] = new obstacle(width*3/2)
 
     screen = 1
   }
@@ -142,5 +140,9 @@ function draw() {
     textSize(20)
     text(forever, width/2, 50)
     forever --;
+
+    if (!hell.isPlaying()) {
+      hell.play()
+    }
   }
 }
