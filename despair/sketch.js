@@ -95,7 +95,7 @@ function titleScreen() {
   background(0)
   fill(255)
   textSize(100)
-  text(rebirths > 10 ? "HELL" : "PURGATORY", width/2, 100)
+  text(rebirths == 10 ? "HELL" : "PURGATORY", width/2, 100)
   textSize(50)
   text(rebirths == 0 ? "CLICK TO ACKNOWLEDGE YOUR SINS" : "YOU MAY LEAVE, \n BUT THE LORD REMEMBERS YOUR SINS \n (CLICK TO REPENT)", width/2, height/2)
 
