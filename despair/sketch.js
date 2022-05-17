@@ -44,11 +44,11 @@ function setup() {
 function runGame() {
   if (keyIsDown(LEFT_ARROW)) {
     if (particle.pos.y > 100) {
-      particle.pos.y -= 5;
+      particle.pos.y -= speed/2;
     }
   } else if (keyIsDown(RIGHT_ARROW)) {
     if (particle.pos.y < height - 100) {
-      particle.pos.y += 5;
+      particle.pos.y += speed/2;
     }
   } 
 
