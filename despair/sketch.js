@@ -16,7 +16,8 @@ let score = 0;
 let screen = 0;
 let deathTimer = 0;
 let hell;
-let forever = 1000000000000;
+let forever;
+let rebirths;
 
 const sceneW = 1200;
 const sceneH = 600;
@@ -39,6 +40,16 @@ function setup() {
   rectMode(CENTER)
 
   history.pushState(0, 0, "../despair");
+
+  rebirths = getItem("rebirths")
+  if (rebirths == null) {
+    rebirths = 0;
+  }
+
+  forever = getItem("forever")
+  if (forever == null) {
+    forever = 1000000;
+  }
 }
 
 function runGame() {
@@ -76,21 +87,30 @@ function runGame() {
 
   fill(255)
   textSize(20)
-  text("USE L&R ARROW KEYS", width/2, height - 20)
-  text("SCORE: " + score, width/2, 20)
+  text("USE LEFT AND RIGHT ARROW KEYS", width/2, height - 20)
+  text("GATES OF REDEMPTION PASSED: " + score, width/2, 20)
 }
 
 function titleScreen() {
   background(0)
   fill(255)
   textSize(100)
-  text("PURGATORY", width/2, 100)
+  text(rebirths > 10 ? "HELL" : "PURGATORY", width/2, 100)
   textSize(50)
-  text("CLICK TO ACKNOWLEDGE YOUR SINS", width/2, height/2)
+  text(rebirths == 0 ? "CLICK TO ACKNOWLEDGE YOUR SINS" : "YOU MAY LEAVE, \n BUT THE LORD REMEMBERS YOUR SINS \n (CLICK TO REPENT)", width/2, height/2)
 
   if (mouseIsPressed) {
-    screen = 1;
-    hell.play()
+    if (rebirths < 10) {
+      screen = 1;
+      storeItem("rebirths", rebirths + 1)
+      hell.play()
+    }
+
+    else {
+      storeItem("rebirths", null)
+      storeItem("forever", null)
+      location.reload();
+    }
   }
 }
 
@@ -118,6 +138,8 @@ function died() {
     obstacles[1] = new obstacle(width*3/2)
 
     screen = 1
+
+    storeItem("forever", forever)
   }
 }
 
@@ -138,11 +160,16 @@ function draw() {
   if (screen != 0) {
     fill(150)
     textSize(20)
-    text(forever, width/2, 50)
+    text("SINS LEFT TO ABSOLVE: " + forever, width/2, 50)
+    text("REBIRTHS: " + rebirths, width/2, 75)
     forever --;
 
     if (!hell.isPlaying()) {
       hell.play()
     }
+  }
+
+  if (forever < 0) {
+    alert('A MESSAGE FROM GOD: bruh how did you even do this')
   }
 }
