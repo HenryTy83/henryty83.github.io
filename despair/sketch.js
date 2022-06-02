@@ -72,9 +72,9 @@ function runGame() {
 
   background(0);
 
-  image(theEnd, width/2-100/2, height/2-100/2, 100, 100);
+  image(theEnd, width/2-100/2, height/2-100, 100, 100);
   fill(0, 0, 0, 150 + 100*max(0, sin(frameCount/30)+0.5))
-  rect(width/2, height/2, 100, 100)
+  rect(width/2, height/2-100/2, 100, 100)
 
   const scene = particle.look(walls);
   const w = sceneW / scene.length;
