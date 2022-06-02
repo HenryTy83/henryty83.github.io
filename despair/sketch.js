@@ -18,12 +18,14 @@ let deathTimer = 0;
 let hell;
 let forever;
 let rebirths;
+let theEnd;
 
 const sceneW = 1200;
 const sceneH = 600;
 
 function preload() {
   hell = loadSound("screams-of-the-damned.mp3")
+  theEnd = loadImage("salvation.jpg")
 }
 
 function setup() {
@@ -35,6 +37,7 @@ function setup() {
 
   obstacles.push(new obstacle(width, 0))
   obstacles.push(new obstacle(width*3/2, 1))
+
 
   textAlign(CENTER)
   rectMode(CENTER)
@@ -53,11 +56,11 @@ function setup() {
 }
 
 function runGame() {
-  if (keyIsDown(LEFT_ARROW)) {
+  if (keyIsDown(LEFT_ARROW) || keyIsDown(65)) {
     if (particle.pos.y > 100) {
       particle.pos.y -= speed/2;
     }
-  } else if (keyIsDown(RIGHT_ARROW)) {
+  } else if (keyIsDown(RIGHT_ARROW) || keyIsDown(68)) {
     if (particle.pos.y < height - 100) {
       particle.pos.y += speed/2;
     }
@@ -69,6 +72,9 @@ function runGame() {
 
   background(0);
 
+  image(theEnd, width/2-100/2, height/2-100/2, 100, 100);
+  fill(0, 0, 0, 150 + 100*max(0, sin(frameCount/30)+0.5))
+  rect(width/2, height/2, 100, 100)
 
   const scene = particle.look(walls);
   const w = sceneW / scene.length;
@@ -87,7 +93,7 @@ function runGame() {
 
   fill(255)
   textSize(20)
-  text("USE LEFT AND RIGHT ARROW KEYS", width/2, height - 20)
+  text("USE W AND S OR ARROW KEYS", width/2, height - 20)
   text("GATES OF REDEMPTION PASSED: " + score, width/2, 20)
 }
 
@@ -171,5 +177,6 @@ function draw() {
 
   if (forever < 0) {
     alert('A MESSAGE FROM GOD: bruh how did you even do this')
+    window.location.href = "https:/henryty88.github.io/huang";
   }
 }

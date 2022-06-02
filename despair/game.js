@@ -1,6 +1,6 @@
 class obstacle {
     constructor(x, i) {
-        this.gap = random(100, height-200)
+        this.gap = random(250, height-250)
         this.gapSize = random(50, 100)
         this.createWall(x)
         this.wallIndex;

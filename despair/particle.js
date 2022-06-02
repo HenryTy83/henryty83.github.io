@@ -7,7 +7,7 @@
 
 class Particle {
   constructor() {
-    this.fov = 60;
+    this.fov = 75;
     this.pos = createVector(10, sceneH / 2);
     this.rays = [];
     this.heading = 0;
