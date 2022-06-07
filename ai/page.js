@@ -21,6 +21,7 @@ function setup() {
     buttons.push(new button(150, 175, 30, 30, "./xor", "THE XOR PROBLEM: 'HELLO WORLD' OF NEURAL NETWORKS"))
     buttons.push(new button(150, 225, 30, 30, "./gridworld", "GRIDWORLDS: HUB OF AI DEMOS"))
     buttons.push(new button(150, 275, 30, 30, "./cartpole", "CARTPOLE: THE MOST BASIC Q-LEARNING PROBLEM"))
+     buttons.push(new button(150, 325, 30, 30, "./flappy-bird", "FLAPPY BIRD: TRYING OUT GENETIC EVOLUTION"))
 }
 
 function runCartpole() {

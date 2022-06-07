@@ -1,31 +1,42 @@
 var walls = [];
-var player;
 
 class bird {
     constructor() {
         this.y = height/2;
         this.vel = 0;
-        this.acc = 1;
+        this.acc = 0.8;
         this.alive = true
     }
 
     display() {
-        fill(255, 255, 0);
+        fill(this.alive ? color(255, 255, 0, 10) : color(255, 0, 0, 1));
         ellipseMode(CENTER)
         circle(50, this.y, 20)
     }
 
-    update() {
+    update(walls) {
         if (this.alive) {
             this.vel += this.acc
             this.y += this.vel
 
-            this.vel = constrain(this.vel, -20, 10)
+            this.vel = constrain(this.vel, -15 , 10)
         }
+
+        this.collide(walls);
+    }
+
+    hasHit(walls) { 
+        for (pipe of walls) { 
+            if (abs(pipe.pos.x - 50) < 20) {
+                if (this.y < pipe.gapY || this.y > pipe.gapY + pipe.gapSize) { return true; }
+            }
+        }
+
+        return false
     }
 
     collide(walls) {
-        if (this.y > height-10) {}
+        this.alive = this.alive && (this.y < height - 20) && (this.y > 0) && !this.hasHit(walls);
     }
 }
 
