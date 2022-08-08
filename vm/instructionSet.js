@@ -1,0 +1,6 @@
+const LIT_ACC = 0x10;
+const LIT_X = 0x11;
+const LIT_Y = 0x12;
+const LIT_D = 0x13;
+const ADD = 0x20;
+const SUB = 0x21;
