@@ -1,8 +1,8 @@
-var canvas = document.getElementById("screen"); //This code is a mess, taken from 50 different websites. I have no idea how it works
-var ctx = canvas.getContext("2d");
-var DOSfont = new FontFace('modernDOS', 'url(./peripherals/modernDOS.ttf)');
+const canvas = document.getElementById("screen"); //This code is a mess, taken from 50 different websites. I have no idea how it works
+const ctx = canvas.getContext("2d");
+const DOSfont = new FontFace('modernDOS', 'url(./decorations/modernDOS.ttf)');
 
-var running;
+var powerOn = false;
 
 const charWidth = 18;
 const charHeight = 32;
@@ -34,6 +34,7 @@ const createScreenOutput = () => {
             const charY = Math.floor(address / charPerRow) + 1
             const char = String.fromCharCode(charValue);
 
+            ctx.fillStyle = 'rgb(0, 255, 0)'
             ctx.fillText(char, charX * charWidth, charY * charHeight)
         }
     }

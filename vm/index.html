@@ -7,14 +7,30 @@
       rel="preload"
       as="style"
       onload="this.rel = 'stylesheet'"
-      href='./peripherals/modernDOS.ttf'>
+      href='./decorations/modernDOS.ttf'>
   <style>
-    @font-face { font-family: modernDOS; src: url('./peripherals/modernDOS.ttf'); } 
+    @font-face { font-family: modernDOS; src: url('./decorations/modernDOS.ttf'); } 
+
+.button {
+  background-color: red;
+  position: absolute;
+  left: 1400px;
+  bottom: 10px; 
+  padding: 30px 30px;
+  border-radius: 100%;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  border: 2px solid #888888;
+}
 
     .slider {
   -webkit-appearance: none;
   width: 500px;
   height: 15px;
+  position: absolute;
+  left: 125px;
+  bottom: 45px; 
   border-radius: 5px;  
   background: #d3d3d3;
   outline: none;
@@ -42,6 +58,7 @@
 }
   </style> 
   <!--what the hell is css-->
+
 </head>
 
 <body style="background-color:rgb(0, 0, 0); font-family: modernDOS; color:rgb(0, 255, 0);"> <!--font from https://www.dafont.com/modern-dos.font -->
@@ -52,8 +69,12 @@
   <script src="./hardware/CPU.js"></script>
   <script src="./hardware/screenDevice.js"></script>
   <script src="./software/examplePrograms.js"></script>
+     <button class="button" onclick="powerToggle();" id="power"></button>
+  <script src="./decorations/aesthetics.js"></script>
   <script src="./hardware/machine.js"></script> 
+
   <div class="slidecontainer"> <!--https://www.w3schools.com/howto/howto_js_rangeslider.asp-->
+    <br>
     OVERCLOCK: <input type="range" min="1" max="10000" value="1" class="slider" id="myRange">
   </div>
 </body>

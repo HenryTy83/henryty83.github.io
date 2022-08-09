@@ -1,9 +1,9 @@
 //register addresses
 const IP  = 0x00;
 const ACC = 0x02;
-const X  = 0x04;
-const Y  = 0x06;
-const D  = 0x08;
+const X   = 0x04;
+const Y   = 0x06;
+const D   = 0x08;
 const R3  = 0x0a;
 const R4  = 0x0c;
 const R5  = 0x0e;
