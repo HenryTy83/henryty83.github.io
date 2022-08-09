@@ -28,6 +28,7 @@ const fadeIn = () => { // its 4am
 
 var button = document.getElementById('power')
 const powerToggle = () => { //its 3 AM
+    if (running == null) { return; }
     powerOn = !powerOn;
     button.style.backgroundColor = powerOn ? 'green' : 'red';
 

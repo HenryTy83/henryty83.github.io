@@ -9,20 +9,23 @@ const charHeight = 1600/72;
 
 const charPerRow = parseInt(canvas.width / charWidth) - 1
 
-console.log('LOADING')
+console.log('LOADING MACHINE...')
 DOSfont.load().then(function (font) { //what the hell is a promise
     document.fonts.add(font);
     ctx.font = `${charHeight}px modernDOS`
     ctx.fillStyle = 'rgb(0, 255, 0)'
     ctx.textAlign = "start"
 
-    console.log('LOADED')
     try {
+        console.log('LOAD SUCCESSFUL. POWERING ON...')
+
+        button.style.backgroundColor = 'rgb(255, 0, 0)'
+
         running = setInterval(runCPU, 0); //start the loop 
     }
 
     catch(notLoaded) {
-        console.error(`LOAD FAILEd. REBOOTING PAGE...`)
+        console.error(`LOAD FAILED. REBOOTING PAGE...`)
         window.location.reload();
     }
 }); 

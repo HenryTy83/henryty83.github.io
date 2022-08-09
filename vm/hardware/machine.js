@@ -17,7 +17,7 @@ writeableBytes[0] = HLT //immediately halts
 //ffBottlesOBeer(); // counts down from 0xffff to the screen
 //swapXY(); //loads 0x1234 to X and 0xabcd to Y, then swaps the values using the stack
 //stackTime(); //loads some values into memory, runs a subroutine, and returns with no changes
-displayText(`>> Hello World!_`, 0, 0); //writes 'Hello World!' to the screen
+//displayText(`>> Hello World!_`, 0, 0); //writes 'Hello World!' to the screen
 
 memoryMapper.map(memory, 0x0000, 0xffff) //all addresses default to ram
 memoryMapper.map(createScreenOutput(), 0x3000, 0x3000 + 79*24) // 0x3000 - 0x03769 talks to the screen
@@ -31,7 +31,7 @@ const runCPU = () => {
             if (!cpu.halted) { cpu.step(); }
             else {
                 clearTimeout(running) //stop looping when halted
-                console.log('DONE')
+                console.log('EXECUTION HALTED')
                 button.style.backgroundColor = 'rgb(255, 255, 0)'
                 break
             }

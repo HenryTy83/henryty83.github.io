@@ -12,10 +12,10 @@
     @font-face { font-family: modernDOS; src: url('./decorations/modernDOS.ttf'); } 
 
 .button {
-  background-color: red;
+  background-color: #777777;
   position: absolute;
-  left: 59%;
-  bottom: 3.5%; 
+  left: 900px;
+  top: 635px; 
   padding: 30px 30px;
   border-radius: 100%;
   text-align: center;
@@ -68,7 +68,9 @@
   <script src="./hardware/CPU.js"></script>
   <script src="./hardware/screenDevice.js"></script>
   <script src="./software/examplePrograms.js"></script>
-     <button class="button" onclick="powerToggle();" id="power"></button>
+  <script src="./software/compiler/parser.js"></script>
+
+  <button class="button" onclick="powerToggle();" id="power"></button>
   <script src="./decorations/aesthetics.js"></script>
   <script src="./hardware/machine.js"></script> 
 
