@@ -14,7 +14,7 @@ const fadeout = () => {
 }
 
 const fadeIn = () => { // its 4am
-    ctx.fillStyle = 'rgb(0, 100, 0, 0.01)';
+    ctx.fillStyle = 'rgb(0, 100, 0, 0.03)';
     ctx.beginPath();
     ctx.rect(0, 0, canvas.width, canvas.height)
     ctx.fill();
@@ -32,13 +32,13 @@ const powerToggle = () => { //its 3 AM
     button.style.backgroundColor = powerOn ? 'green' : 'red';
 
     if (!powerOn) {
-        fadeoutTime = 20
+        fadeoutTime = 15
         powerOff = setInterval(fadeout, 100);
     }
 
     else {
-        fadeInTime = 5
-        powerUp = setInterval(fadeIn, 150);
+        fadeInTime = 10
+        powerUp = setInterval(fadeIn, 100);
     }
 };
 
