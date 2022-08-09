@@ -17,7 +17,14 @@ DOSfont.load().then(function (font) { //what the hell is a promise
     ctx.textAlign = "start"
 
     console.log('LOADED')
-    running = setInterval(runCPU, 0); //start the loop 
+    try {
+        running = setInterval(runCPU, 0); //start the loop 
+    }
+
+    catch(notLoaded) {
+        console.error(`LOAD FAILEd. REBOOTING PAGE...`)
+        window.location.reload();
+    }
 }); 
 
 const createScreenOutput = () => { 
@@ -35,7 +42,7 @@ const createScreenOutput = () => {
             const char = String.fromCharCode(charValue);
 
             ctx.fillStyle = 'rgb(0, 255, 0)'
-            ctx.fillText(char, charX * charWidth, charY * charHeight)
+            ctx.fillText(char, charX * charWidth -3, charY * charHeight)
         }
     }
 }
