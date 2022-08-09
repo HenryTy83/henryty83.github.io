@@ -1,1 +1,0 @@
-const createMemory = sizeInBytes => { return new DataView(new ArrayBuffer(sizeInBytes)) };

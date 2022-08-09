@@ -22,14 +22,15 @@ const addTwoNumbers = (xHigh, xLow, yHigh, yLow) => {
     writeableBytes[i++] = HALT //halt
 }
 
-const ffBottlesOBeer = () => {
+const ffffBottlesOBeer = () => {
     var i = 0;
 
     writeableBytes[i++] = MOV_LIT_REG; //MOV 0x00ff ACC
-    writeableBytes[i++] = 0x00
+    writeableBytes[i++] = 0xff
     writeableBytes[i++] = 0xff
     writeableBytes[i++] = ACC
 
+    i = 0x0008
     writeableBytes[i++] = MOV_LIT_REG; //MOV 0x0001 X
     writeableBytes[i++] = 0x00
     writeableBytes[i++] = 0x01
@@ -39,11 +40,16 @@ const ffBottlesOBeer = () => {
     writeableBytes[i++] = ACC
     writeableBytes[i++] = X
 
+    writeableBytes[i++] = MOV_REG_MEM //MOV ACC 0x3000
+    writeableBytes[i++] = ACC
+    writeableBytes[i++] = 0x30
+    writeableBytes[i++] = 0x00
+
     writeableBytes[i++] = JNZ //JNZ 0x0008
     writeableBytes[i++] = 0x00
     writeableBytes[i++] = 0x08
 
-    writeableBytes[i++] = HALT //halt
+    writeableBytes[i++] = HLT //halt
 }
 
 const swapXY = () => { 
@@ -72,7 +78,7 @@ const swapXY = () => {
     writeableBytes[i++] = Y
 
     
-    writeableBytes[i++] = HALT //HALT
+    writeableBytes[i++] = HLT //HALT
 }
 
 const stackTime = () => { 
@@ -112,7 +118,7 @@ const stackTime = () => {
     writeableBytes[i++] = 0x44
     writeableBytes[i++] = 0x44
 
-    writeableBytes[i++] = HALT //HALT
+    writeableBytes[i++] = HLT //HALT
     
 
 
@@ -137,4 +143,24 @@ const stackTime = () => {
     writeableBytes[i++] = Y
 
     writeableBytes[i++] = RET //RET
+}
+
+const displayText = (text, posX=0, posY=0) => { // posX and Y are in character coordinates not pixel coordinates
+    var i = 0;
+
+    const writeCharToPosition = (char, pos) => { 
+        writeableBytes[i++] = MOV_LIT_REG //MOV 'H' X
+        writeableBytes[i++] = 0x00
+        writeableBytes[i++] = char.charCodeAt(0)
+        writeableBytes[i++] = X
+
+        writeableBytes[i++] = MOV_REG_MEM //MOV X 0x3000
+        writeableBytes[i++] = X
+        writeableBytes[i++] = 0xf7 + (((posX + pos + charPerRow * posY) & 0xff00) >> 8)
+        writeableBytes[i++] = (posX + pos + charPerRow * posY) & 0x00ff
+    }
+
+    text.split('').forEach((char, index) => {writeCharToPosition(char, index)})
+
+    writeableBytes[i++] = HLT
 }

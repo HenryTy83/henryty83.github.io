@@ -59,4 +59,4 @@ const POP     = 0x42 // REG
 const CAL_LIT = 0xf0 // LITERAL
 const CAL_REG = 0xf1 // REG
 const RET     = 0xf2
-const HALT    = 0xff;
+const HLT    = 0xff;

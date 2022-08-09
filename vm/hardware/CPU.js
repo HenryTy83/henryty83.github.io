@@ -9,8 +9,8 @@ class CPU {
         this.registers = createMemory(this.registerNames.length * 2); //16 bit registers
         this.registerMap = this.registerNames.reduce((map, name, i) => { map[name] = 2 * i; return map }, {}); //i kinda understand this
 
-        this.setRegister('sp', memory.byteLength - 1 - 1) //set the stack pointer to the end of memory
-        this.setRegister('fp', memory.byteLength - 1 - 1) //frame pointer too
+        this.setRegister('sp', 0xfffe) //set the stack pointer to the end of memory
+        this.setRegister('fp', 0xfffe) //frame pointer too
 
         this.stackFrameSize = 0;
     }
@@ -21,7 +21,7 @@ class CPU {
     }
 
     memoryDump(address, n=8) { 
-        const nextnBytes = Array.from({ length: Math.min(n, this.memory.byteLength - address) }, (_, i) => this.memory.getUint8(address + i)).map(value => `0x${value.toString(16).padStart(2, '0')}`) //is this english?
+        const nextnBytes = Array.from({ length: Math.min(n, 0xffff - address) }, (_, i) => this.memory.getUint8(address + i)).map(value => `0x${value.toString(16).padStart(2, '0')}`) //is this english?
         console.log(`Address 0x${address.toString(16).padStart(4, '0')}: ${nextnBytes.join(' ')}`)
     }
 
@@ -182,7 +182,7 @@ class CPU {
             case AND: { 
                 const r1 = this.fetchRegisterVal();
                 const r2 = this.fetchRegisterVal();
-                this.setRegister('acc', r1 && r2);
+                this.setRegister('acc', r1 & r2);
                 return;
             }
             case NOT: { 
@@ -241,12 +241,12 @@ class CPU {
                 this.popState();
                 return;
             }
-            case HALT: { this.halted = true; return; }
+            case HLT: { this.halted = true;  return; }
         }   
     }
 
     step() { 
         const instruction = this.fetch8();
-        return this.executeInstruction(instruction);
+        this.executeInstruction(instruction);
     }
 }
