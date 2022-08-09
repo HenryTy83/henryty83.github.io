@@ -1,24 +1,32 @@
-const memory = createMemory(256);
+/**
+    HENTAI: A 16-bit virtual machine running in JS
+    Made by Henry Ty on Aug, 2022
+    Following along from Low Level Javascript: https://www.youtube.com/playlist?list=PLP29wDx6QmW5DdwpdwHCRJsEubS5NrQ9b
+**/
+
+const memory = createMemory(256 * 256);
 const writeableBytes = new Uint8Array(memory.buffer);
 
 const cpu = new CPU(memory);
 
-writeableBytes[0] = LIT_X; // LDX 0x1234
-writeableBytes[1] = 0x12;
-writeableBytes[2] = 0x34;
+//write code here
+writeableBytes[0] = HALT //immediately halts
 
-writeableBytes[3] = LIT_Y; // LDY 0xABCD 
-writeableBytes[4] = 0xab;
-writeableBytes[5] = 0xcd;
+//addTwoNumbers(0x12, 0x34, 0xab, 0xcd); // halts with 0xbe01 at address 0x0100
+//ffBottlesOBeer(); // counts down from 0xff in ACC
+//swapXY(); //loads 0x1234 to X and 0xabcd to Y, then swaps the values using the stack
+stackTime(); //loads some values into memory, runs a subroutine, and returns with no changes
 
-writeableBytes[6] = ADD; // ADD X Y
-writeableBytes[7] = cpu.registerMap['x'];
-writeableBytes[8] = cpu.registerMap['y'];
+// execute the code
+while (!cpu.halted) { 
+    cpu.memoryDump(cpu.getRegister('ip'))
+    
+    cpu.step();
 
-cpu.hexDump();
-cpu.step();
-cpu.hexDump();
-cpu.step();
-cpu.hexDump();
-cpu.step();
-cpu.hexDump();
+    cpu.hexDump()
+    cpu.memoryDump(0xffff - 43, 44)
+    console.log('')
+
+}
+
+console.log('DONE')
