@@ -146,13 +146,9 @@ const displayText = (text, posX=0, posY=0) => { // posX and Y are in character c
     var i = 0;
 
     const writeCharToPosition = (char, pos) => { 
-        writeableBytes[i++] = MOV_LIT_REG //MOV 'H' X
+        writeableBytes[i++] = MOV_LIT_MEM //MOV 'H' pos
         writeableBytes[i++] = 0x00
         writeableBytes[i++] = char.charCodeAt(0)
-        writeableBytes[i++] = X
-
-        writeableBytes[i++] = MOV_REG_MEM //MOV X 0x3000
-        writeableBytes[i++] = X
         writeableBytes[i++] = 0x30 + (((posX + pos + charPerRow * posY) & 0xff00) >> 8)
         writeableBytes[i++] = (posX + pos + charPerRow * posY) & 0x00ff
     }

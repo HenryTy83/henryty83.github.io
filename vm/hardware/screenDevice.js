@@ -4,8 +4,8 @@ const DOSfont = new FontFace('modernDOS', 'url(./decorations/modernDOS.ttf)');
 
 var powerOn = false;
 
-const charWidth = 12;
-const charHeight = 21.3;
+const charWidth = 800/79;
+const charHeight = 1600/72;
 
 const charPerRow = parseInt(canvas.width / charWidth) - 1
 
