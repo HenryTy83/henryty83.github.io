@@ -26,7 +26,10 @@ const createScreenOutput = () => {
         getUint8: () => 0,
         setUint16: (address, data) => { 
             const charValue = data & 0x00ff
-            
+            const instruction = (data & 0xff00) >> 8
+
+            if (instruction == 0xff) { ctx.clearRect(0, 0, canvas.width, canvas.height); } //clear screen
+
             const charX = address % (charPerRow) + 1 //this makes sense, just convert the index number to x and y coordinates
             const charY = Math.floor(address / charPerRow) + 1
             const char = String.fromCharCode(charValue);

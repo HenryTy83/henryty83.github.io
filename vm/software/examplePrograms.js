@@ -22,7 +22,7 @@ const addTwoNumbers = (xHigh, xLow, yHigh, yLow) => {
     writeableBytes[i++] = HALT //halt
 }
 
-const ffffBottlesOBeer = () => {
+const ffBottlesOBeer = () => {
     var i = 0;
 
     writeableBytes[i++] = MOV_LIT_REG; //MOV 0x00ff ACC
@@ -40,12 +40,9 @@ const ffffBottlesOBeer = () => {
     writeableBytes[i++] = ACC
     writeableBytes[i++] = X
 
-    writeableBytes[i++] = MOV_REG_MEM //MOV ACC 0x3000
-    writeableBytes[i++] = ACC
-    writeableBytes[i++] = 0x30
+    writeableBytes[i++] = JNE_LIT //JNE 0xff00 0x0008
+    writeableBytes[i++] = 0xff
     writeableBytes[i++] = 0x00
-
-    writeableBytes[i++] = JNZ //JNZ 0x0008
     writeableBytes[i++] = 0x00
     writeableBytes[i++] = 0x08
 
@@ -156,7 +153,7 @@ const displayText = (text, posX=0, posY=0) => { // posX and Y are in character c
 
         writeableBytes[i++] = MOV_REG_MEM //MOV X 0x3000
         writeableBytes[i++] = X
-        writeableBytes[i++] = 0xf7 + (((posX + pos + charPerRow * posY) & 0xff00) >> 8)
+        writeableBytes[i++] = 0x30 + (((posX + pos + charPerRow * posY) & 0xff00) >> 8)
         writeableBytes[i++] = (posX + pos + charPerRow * posY) & 0x00ff
     }
 

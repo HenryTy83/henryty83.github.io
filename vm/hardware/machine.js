@@ -14,13 +14,13 @@ const writeableBytes = new Uint8Array(memory.buffer);
 writeableBytes[0] = HLT //immediately halts
 //example programs
 //addTwoNumbers(0x12, 0x34, 0xab, 0xcd); // halts with 0xbe01 at address 0x0100
-//ffffBottlesOBeer(); // counts down from 0xffff to the screen
+//ffBottlesOBeer(); // counts down from 0xffff to the screen
 //swapXY(); //loads 0x1234 to X and 0xabcd to Y, then swaps the values using the stack
 //stackTime(); //loads some values into memory, runs a subroutine, and returns with no changes
 displayText(`Hello World!`, 0, 0); //writes 'Hello World!' to the screen
 
 memoryMapper.map(memory, 0x0000, 0xffff) //all addresses default to ram
-memoryMapper.map(createScreenOutput(), 0xf800, 0xff67) // 0x3000 - 0x030ff talks to the screen
+memoryMapper.map(createScreenOutput(), 0x3000, 0x3000 + 79*24) // 0x3000 - 0x03769 talks to the screen
 
 const cpu = new CPU(memoryMapper);
 
