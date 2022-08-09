@@ -250,7 +250,7 @@ class CPU {
             }
             case NOT_REG: { 
                 const reg = this.fetch8();
-                this.registers.setRegister'acc', (~this.registers.getUint16(reg) & 0xffff));
+                this.registers.setRegister('acc', (~this.registers.getUint16(reg) & 0xffff));
                 return;
             }
             case INC_REG: { 
