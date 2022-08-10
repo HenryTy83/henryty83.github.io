@@ -84,7 +84,7 @@ const str = (s) => new Parser(function(parserState) {
 
     const slicedString = targetString.slice(index);
 
-    if (slicedString.length == 0) { return this.updateParserError(parserState), `str: tried matching '${s}' but got unexpected end of input` }
+    if (slicedString.length == 0) { return this.updateParserError(parserState, `str: tried matching '${s}' but got unexpected end of input`) }
 
     if (slicedString.startsWith(s)) {
         return this.updateParserState(parserState, s, index + s.length) //successful match
@@ -106,11 +106,11 @@ const letters = new Parser(function(parserState) {
 
     const slicedString = targetString.slice(index);
 
-    if (slicedString.length == 0) { return this.updateParserError(parserState), `letters: tried matching letters but got unexpected end of input` }
+    if (slicedString.length == 0) { return this.updateParserError(parserState, `letters: tried matching letters but got unexpected end of input`) }
 
     const regexMatch = slicedString.match(lettersRegex);
 
-    if (regexMatch) { // I dont trust typecasting
+    if (regexMatch != null) { // I dont trust typecasting
         return this.updateParserState(parserState, regexMatch[0], index + regexMatch[0].length) //successful match
     }
     return this.updateParserError(parserState, `letters: couldn't match letters @ index ${index}`);//failed match
@@ -127,11 +127,11 @@ const digits = new Parser(function(parserState) {
 
     const slicedString = targetString.slice(index);
 
-    if (slicedString.length == 0) { return this.updateParserError(parserState), `digits: tried matching digits but got unexpected end of input` }
+    if (slicedString.length == 0) { return this.updateParserError(parserState, `digits: tried matching digits but got unexpected end of input`)}
 
     const regexMatch = slicedString.match(digitsRegex);
 
-    if (regexMatch) { // I dont trust typecasting
+    if (regexMatch != null) { // I dont trust typecasting
         return this.updateParserState(parserState, regexMatch[0], index + regexMatch[0].length) //successful match
     }
     return this.updateParserError(parserState, `digits: couldn't match digits @ index ${index}`);//failed match
@@ -157,6 +157,7 @@ const choice = parsers => new Parser(function(parserState) {
     if (parserState.thrownError) { return parserState }; //bad input, return it unchanged
 
     for (let p of parsers) { 
+
         let nextState = p.parserStateTransformerFn(parserState);
         if (!nextState.thrownError) {
             return nextState
@@ -170,14 +171,12 @@ const choice = parsers => new Parser(function(parserState) {
 const many = parser => new Parser(function(parserState) { 
     if (parserState.thrownError) { return parserState }; //bad input, return it unchanged
 
-    let nextState = parserState
-    let testState = nextState
+    let nextState, testState = parserState
 
     const results = [];
 
-
     while (!testState.thrownError) {
-        testState = parser.parserStateTransformerFn(nextState)
+        testState = parser.parserStateTransformerFn(testState)
 
         if (!testState.thrownError) {
             results.push(testState);
@@ -189,52 +188,69 @@ const many = parser => new Parser(function(parserState) {
 })
 
 // get at least one match
-const many1 = parser => new Parser(function(parserState) { 
-    if (parserState.thrownError) { return parserState }; //bad input, return it unchanged
+const many1 = parser => new Parser(function(parserState) {
+    outputState = many(parser)(parserState)
 
-    let nextState = parserState
-    const results = [];
-    let thrown = false;
+    if (outputState.result.length == 0) {return this.updateParserError(parserState, `many1: couldn't match any parsers @ index ${parserState.index}`)}
 
-    while (!thrown) {
-        const nextState = (parser.parserStateTransformerFn(parserState))
-    
-        if (!nextState.thrownError) {
-            results.push(nextState);
-        }
-
-        thrown = nextState.thrownError
-    }
-
-    if (results.length == 0) { 
-        return this.updateParserError(parserState, `many1: unable to match any input @ index ${parserState.index}`)
-    }
-
-    return this.updateParserResult(nextState, results); //done
+    return outputState
 })
 
 //sandwich function
 const between = (leftParser, rightParser) => (contentParser) => sequenceOf([leftParser, contentParser, rightParser]).map(results => results[1]);
 
-//type parser
-const stringParser = letters.map(result => ({ type: 'string', value: result }))
-const numberParser = digits.map(result => ({ type: 'number', value: Number(result) }))
+//retrieve values separated by other values
+const sepBy = separatorParser => valueParser => new Parser(function(parserState) {
+    const results = [];
+    let nextState = parserState
+
+    while (true) {
+        const targetState = valueParser.parserStateTransformerFn(nextState)
+        if(targetState.thrownError) {
+            break;
+        }
+
+        results.push(targetState.result)
+        const separatorState = separatorParser.parserStateTransformerFn(nextState)
+
+        if (separatorState.thrownError) {
+            break;
+        }
+
+        nextState = separatorState;
+    }
+
+    return updateParserResult(nextState, results)
+})
+
+const sepBy1 = separatorParser => valueParser => new Parser(function(parserState) {
+    outputState = sepBy(separatorParser)(valueParser)(parserState)
+
+    if (outputState.result.length == 0) {return this.updateParserError(parserState, `sepby1: couldn't match any parsers @ index ${parserState.index}`)}
+
+    return outputState
+})
 
 
 /* test code */
-console.log(str('Hello').run('Hello world!'))
-console.log(str('Goodbye!').run('Hello world!'))
-console.log(sequenceOf([str('Hello'), str(' '), str('world!')]).run('Hello world!'))
-console.log(str('Hello').map(result => result.toUpperCase()).run('Hello world!'))
-console.log(str('Hello').errorMap((msg, index) => `Expected a greeting @ index ${index}`).run('Goodbye!'));
-console.log(letters.run('Thequickbrownfoxjumpsoverthelazydog'));
-console.log(letters.run('12346353'));
-console.log(letters.run('ascwe12346353asdge'));
-console.log(digits.run('Thequickbrownfoxjumpsoverthelazydog'));
-console.log(digits.run('12346353'));
-console.log(digits.run('ascwe12346353asdge'));
-console.log(choice([digits, letters, str(' ')]).run('The quick brown fox jumps over the lazy dog 12381075301'))
-console.log(many(choice([digits, letters, str(' ')])).run('The quick brown fox jumps over the lazy dog 12381075301'))
-console.log(between(str('('), str(')'))(letters).run('(hello)'))
-console.log(sequenceOf([letters, str(':')]).map(results => results[0]).chain(type => { switch (type) { case 'string': { return stringParser } case 'number': { return numberParser } } }).run('string:hello'));
-console.log(sequenceOf([letters, str(':')]).map(results => results[0]).chain(type => { switch (type) { case 'string': { return stringParser } case 'number': { return numberParser } } }).run('number:69420'));
+// console.log(str('Hello').run('Hello world!'))
+// console.log(str('Goodbye!').run('Hello world!'))
+// console.log(sequenceOf([str('Hello'), str(' '), str('world!')]).run('Hello world!'))
+// console.log(str('Hello').map(result => result.toUpperCase()).run('Hello world!'))
+// console.log(str('Hello').errorMap((msg, index) => `Expected a greeting @ index ${index}`).run('Goodbye!'));
+// console.log(letters.run('Thequickbrownfoxjumpsoverthelazydog'));
+// console.log(letters.run('12346353'));
+// console.log(letters.run('ascwe12346353asdge'));
+// console.log(digits.run('Thequickbrownfoxjumpsoverthelazydog'));
+// console.log(digits.run('12346353'));
+// console.log(digits.run('ascwe12346353asdge'));
+// console.log(choice([digits, letters, str(' ')]).run('The quick brown fox jumps over the lazy dog 12381075301'))
+// console.log(many(choice([digits, letters, str(' ')])).run('The quick brown fox jumps over the lazy dog 12381075301'))
+// console.log(between(str('('), str(')'))(letters).run('(hello)'))
+
+const betweenSquareBrak = between(str('[', str(']')))
+const commaSeparator = sepBy(str(','))
+const parser = betweenSquareBrak(sepBy(digits))
+const exampleString = '[1,2,3,4,5]'//'[1,2,[3],[4,[5,6]],7]'
+
+console.log(parser.run(exampleString))
