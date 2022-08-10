@@ -1,4 +1,4 @@
-/* following https://youtube.com/playlist?list=PLP29wDx6QmW5yfO1LAgO8kU3aQEj8SIrU (Low level javascript IS a good channel) */
+/* following https://youtube.com/playlist?list=PLP29wDx6QmW5yfO1LAgO8kU3aQEj8SIrU (Low level javascript is a good channel) */
 
 class Parser { 
     constructor(parserStateTransformerFn) { 
@@ -40,6 +40,12 @@ class Parser {
         }
     }
 
+    appendParserError = (state, append) => ({
+        ...state,
+        error: `${append}: ${state.error}`,
+        thrownError: true,
+    })
+
     map(fn) { 
         return new Parser( parserState => {
             const nextState = this.parserStateTransformerFn(parserState);
@@ -80,7 +86,7 @@ const str = (s) => new Parser(function(parserState) {
         index,
     } = parserState; //use parserState as input and break it apart, so we input and output the same thing
 
-    if (parserState.thrownError) { return parserState }; //bad input, return it unchanged
+    if (parserState.thrownError) { return this.appendParserError(parserState, `str`); }; //bad input, return it with a signature
 
     const slicedString = targetString.slice(index);
 
@@ -102,7 +108,7 @@ const letters = new Parser(function(parserState) {
         index,
     } = parserState; //use parserState as input and break it apart, so we input and output the same thing
 
-    if (parserState.thrownError) { return parserState }; //bad input, return it unchanged
+    if (parserState.thrownError) { return this.appendParserError(parserState, `letters`);  }; //bad input, return it unchanged
 
     const slicedString = targetString.slice(index);
 
@@ -123,7 +129,7 @@ const digits = new Parser(function(parserState) {
         index,
     } = parserState; //use parserState as input and break it apart, so we input and output the same thing
 
-    if (parserState.thrownError) { return parserState }; //bad input, return it unchanged
+    if (parserState.thrownError) { return this.appendParserError(parserState, `digits`); }; //bad input, return it unchanged
 
     const slicedString = targetString.slice(index);
 
@@ -139,13 +145,14 @@ const digits = new Parser(function(parserState) {
 
 //match a string for many small strings
 const sequenceOf = parsers => new Parser(function(parserState) { 
-    if (parserState.thrownError) { return parserState }; //bad input, return it unchanged
+    if (parserState.thrownError) { return this.appendParserError(parserState, `seqenceOf`);  }; //bad input, return it with a signature
 
     const results = [];
     let nextState = parserState; 
 
     for (let p of parsers) { 
         nextState = p.parserStateTransformerFn(nextState); //check each parser with the string
+
         results.push(nextState.result) //push successes to results
     }
 
@@ -154,10 +161,9 @@ const sequenceOf = parsers => new Parser(function(parserState) {
 
 //try matching many parsers
 const choice = parsers => new Parser(function(parserState) { 
-    if (parserState.thrownError) { return parserState }; //bad input, return it unchanged
+    if (parserState.thrownError) { return this.appendParserError(parserState, `choice`);  }; //bad input, return it unchanged
 
     for (let p of parsers) { 
-
         let nextState = p.parserStateTransformerFn(parserState);
         if (!nextState.thrownError) {
             return nextState
@@ -169,14 +175,14 @@ const choice = parsers => new Parser(function(parserState) {
 
 //do as many matches as possible
 const many = parser => new Parser(function(parserState) { 
-    if (parserState.thrownError) { return parserState }; //bad input, return it unchanged
+    if (parserState.thrownError) { return this.appendParserError(parserState, `many`);  }; //bad input, return it unchanged
 
     let nextState, testState = parserState
 
     const results = [];
 
     while (!testState.thrownError) {
-        testState = parser.parserStateTransformerFn(testState)
+        testState = parser.parserStateTransformerFn(nextState)
 
         if (!testState.thrownError) {
             results.push(testState);
@@ -189,7 +195,7 @@ const many = parser => new Parser(function(parserState) {
 
 // get at least one match
 const many1 = parser => new Parser(function(parserState) {
-    outputState = many(parser)(parserState)
+    outputState = many(parser).run(parserState)
 
     if (outputState.result.length == 0) {return this.updateParserError(parserState, `many1: couldn't match any parsers @ index ${parserState.index}`)}
 
@@ -204,14 +210,17 @@ const sepBy = separatorParser => valueParser => new Parser(function(parserState)
     const results = [];
     let nextState = parserState
 
+    if (parserState.thrownError) {return this.appendParserError(parserState, `sepBy`); }
+
     while (true) {
         const targetState = valueParser.parserStateTransformerFn(nextState)
         if(targetState.thrownError) {
             break;
         }
 
+        nextState = targetState
         results.push(targetState.result)
-        const separatorState = separatorParser.parserStateTransformerFn(nextState)
+        const separatorState = separatorParser.parserStateTransformerFn(targetState)
 
         if (separatorState.thrownError) {
             break;
@@ -220,37 +229,37 @@ const sepBy = separatorParser => valueParser => new Parser(function(parserState)
         nextState = separatorState;
     }
 
-    return updateParserResult(nextState, results)
+    return this.updateParserResult(nextState, results)
 })
 
 const sepBy1 = separatorParser => valueParser => new Parser(function(parserState) {
-    outputState = sepBy(separatorParser)(valueParser)(parserState)
+    outputState = sepBy(separatorParser)(valueParser).run(parserState)
 
     if (outputState.result.length == 0) {return this.updateParserError(parserState, `sepby1: couldn't match any parsers @ index ${parserState.index}`)}
 
     return outputState
 })
 
+//implement lazy evaluation
+const lazy = parserThunk =>  new Parser(parserState => parserThunk().parserStateTransformerFn(parserState));
 
-/* test code */
-// console.log(str('Hello').run('Hello world!'))
-// console.log(str('Goodbye!').run('Hello world!'))
-// console.log(sequenceOf([str('Hello'), str(' '), str('world!')]).run('Hello world!'))
-// console.log(str('Hello').map(result => result.toUpperCase()).run('Hello world!'))
-// console.log(str('Hello').errorMap((msg, index) => `Expected a greeting @ index ${index}`).run('Goodbye!'));
-// console.log(letters.run('Thequickbrownfoxjumpsoverthelazydog'));
-// console.log(letters.run('12346353'));
-// console.log(letters.run('ascwe12346353asdge'));
-// console.log(digits.run('Thequickbrownfoxjumpsoverthelazydog'));
-// console.log(digits.run('12346353'));
-// console.log(digits.run('ascwe12346353asdge'));
-// console.log(choice([digits, letters, str(' ')]).run('The quick brown fox jumps over the lazy dog 12381075301'))
-// console.log(many(choice([digits, letters, str(' ')])).run('The quick brown fox jumps over the lazy dog 12381075301'))
-// console.log(between(str('('), str(')'))(letters).run('(hello)'))
+/* test code (expected output commented) */
+// console.log(str('Hello').run('Hello world!')) // 'Hello'
+// console.log(str('Goodbye!').run('Hello world!')) // error: expected 'Hello'
+// console.log(sequenceOf([str('Hello'), str(' '), str('world!')]).run('Hello world!')) // 'Hello World!'
+// console.log(str('Hello').map(result => result.toUpperCase()).run('Hello world!')) // 'HELLO'
+// console.log(str('Hello').errorMap((msg, index) => `Expected a greeting @ index ${index}`).run('Goodbye!')); // error: expected a greeting 
+// console.log(letters.run('Thequickbrownfoxjumpsoverthelazydog')); // 'Thequickbrownfoxjumpsoverthelazydog'
+// console.log(letters.run('12346353'));  // '12346353'
+// console.log(letters.run('ascwe12346353asdge')); // 'ascwe'
+// console.log(digits.run('Thequickbrownfoxjumpsoverthelazydog')); //error: no matches
+// console.log(digits.run('12346353')); // '12346353'
+// console.log(digits.run('ascwe12346353asdge')); //error: no matches
+// console.log(choice([digits, letters, str(' ')]).run('The quick brown fox jumps over the lazy dog 12381075301')) // 'The'
+// console.log(many(choice([digits, letters, str(' ')])).run('The quick brown fox jumps over the lazy dog 12381075301')) //whole string verbatim
+// console.log(between(str('('), str(')'))(letters).run('(hello)')) // 'hello'
+// console.log(sepBy(str(','))(digits).run('1,2,3,4,5d')) // [1,2,3,4,5]
+// console.log(between(str('['), str(']'))((sepBy(str(',')))(digits)).run('[1,2,3,4,5]')); // [1,2,3,4,5] (these test cases are getting weird)
 
-const betweenSquareBrak = between(str('[', str(']')))
-const commaSeparator = sepBy(str(','))
-const parser = betweenSquareBrak(sepBy(digits))
-const exampleString = '[1,2,3,4,5]'//'[1,2,[3],[4,[5,6]],7]'
-
-console.log(parser.run(exampleString))
+// const arrayParser=between(str('['), str(']'))(sepBy(str(','))(lazy(() => choice([digits, arrayParser])))) // this is a mess
+// console.log(arrayParser.run('[1,2,[3,[4]],5]')) // whole string as an array 
