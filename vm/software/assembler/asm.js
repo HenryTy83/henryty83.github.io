@@ -1,6 +1,6 @@
-const A = new arKsecond();
+const A = new arKsecond;
 
-const upperOrLowerStr = s => choice([
+const upperOrLowerStr = s => A.choice([
     A.str(s.toLowerCase()),
     A.str(s.toUpperCase)
 ])
@@ -22,6 +22,6 @@ const register = A.choice([
     upperOrLowerStr('fp')
 ]).map(asType('REGISTER'))
 
-const hexDigit = regex(/^[0-9a-fA-F]+/);
-const hexPrefix = char('$')
-const hexLiteral = sequenceOf([hexPrefix, hexDigit]).map(asType('HEX_LITERAL'))
+const hexDigit = A.regex(/^[0-9a-fA-F]+/);
+const hexPrefix = A.char('$')
+const hexLiteral = A.sequenceOf([hexPrefix, hexDigit]).map(asType('HEX_LITERAL'))
