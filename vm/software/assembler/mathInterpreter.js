@@ -1,4 +1,6 @@
 // test out the parser
+// shouldn't be used for anything
+
 const simple = '(2 + 2)' // what do you think it evals to?
 const complicated = '((5 * (3 + ((6 / (2 - (8 / (4 + 4)))) - 3))) / 15)' // evals to 2
 
