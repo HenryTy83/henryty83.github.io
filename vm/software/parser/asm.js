@@ -44,61 +44,60 @@ const variable = A.char('!').chain(() => validIdentifier).map(asType('VARIABLE')
 
 const bracketExpr = A.contextual(function* () {
     const states = {
-        OPEN_BRACKET: 0,
-        OPERATOR_OR_CLOSING_BRACKET: 1,
-        ELEMENT_OR_OPENING_BRACKET: 2,
-        CLOSE_BRACKET: 3
+        OPERATOR_OR_CLOSING_BRACKET: 0,
+        ELEMENT_OR_OPENING_BRACKET: 1,
+        CLOSE_BRACKET: 2,
     }
 
     const expr = []
     const stack = []
     let currentState = states.ELEMENT_OR_OPENING_BRACKET
-    let done = false
 
-    yield A.char('(')
-    yield A.optionalWhitespace
-
-    while (!done) {
-        const nextChar = yield(peek)
+    while (true) {
+        const nextChar = yield peek
+        //console.log(expr, stack, nextChar)
         switch(currentState) {
-            case (states.OPEN_BRACKET): {
-                yield A.char('(')
-                expr.push([])
-                stack.push(last(expr))
-                yield optionalWhitespace
-                currentState = OPERATOR_OR_CLOSING_BRACKET
-                continue;
-            }
             case (states.OPERATOR_OR_CLOSING_BRACKET): {
-                if (nextChar == ')') {currentState = states.CLOSE_BRACKET;} 
-                else {last(stack).push(yield operator)
+                if (nextChar == ')') {currentState = states.CLOSE_BRACKET; } 
+                else {
+                    last(stack).push(yield operator)
                     yield A.optionalWhitespace
                     currentState = states.ELEMENT_OR_OPENING_BRACKET
                 }
-                continue
+
+                break;
             }
             case (states.ELEMENT_OR_OPENING_BRACKET): {
                 switch (nextChar) {
-                    case (')'): {yield A.fail('Unexpected end of expression'); continue}
-                    case ('('): {currentState = states.OPEN_BRACKET; continue}
+                    case (')'): {return yield A.fail('Unexpected end of expression');}
+                    case ('('): {
+                        yield A.char('(')
+                        yield A.optionalWhitespace
+        
+                        expr.push([])
+                        stack.push(last(expr))
+        
+                        currentState = states.ELEMENT_OR_OPENING_BRACKET
+                        break;
+                    }
                     default: {
                         last(stack).push(yield A.choice([hexLiteral, variable])); 
                         yield A.optionalWhitespace
                         currentState = states.OPERATOR_OR_CLOSING_BRACKET    
-                        continue
+                        break
                     }
                 }
+
+                break
             }
             case (states.CLOSE_BRACKET): {
                 yield A.char(')')
                 stack.pop()
-                if(stack.length == 0) {done = true}
-                continue;
+                if(stack.length == 0) { return typifyBracketedExpression(expr)}
+                break;
             }
         }
     }  
-
-    return typifyBracketedExpression(expr)
 }) 
 
 const squareBrakExpr = A.contextual(function* () {
@@ -112,15 +111,14 @@ const squareBrakExpr = A.contextual(function* () {
     }
 
     let currentState = states.EXPECT_ELEMENT
-    let done = false
 
-    while (!done) {
+    while (true) {
         switch(currentState) {
             case (states.EXPECT_ELEMENT): {
-                expr.push(A.choice([
-                    bracketExpr,
+                expr.push(yield A.choice([
                     hexLiteral,
                     variable,
+                    bracketExpr,
                 ]));
                 
                 currentState = states.EXPECT_OPERATOR;
@@ -128,12 +126,11 @@ const squareBrakExpr = A.contextual(function* () {
                 continue
             }
             case (states.EXPECT_OPERATOR): {
-                const nextChar = yield(peek);
+                const nextChar = yield peek;
                 if (nextChar == ']') {
                     yield A.char(']')
                     yield A.optionalWhitespace;
-                    done = true;
-                    continue
+                    return asType('SQAURE_BRACKET_EXPRESSION')(expr)
                 }
                 else {
                     expr.push(yield operator)
@@ -144,17 +141,15 @@ const squareBrakExpr = A.contextual(function* () {
             }
         }
     }  
-
-    return asType('SQUARE_BRACKET_EXPRESSION')(expr);
 }) 
 
 const movLitToRegister = A.contextual(function* () {
     yield upperOrLowerStr('mov');
-    yield A.whitespace;
+    yield A.whitespace
 
     const arg1 = yield A.choice([
+        hexLiteral,
         squareBrakExpr,
-        hexLiteral
     ])
 
     yield A.optionalWhitespace
@@ -171,7 +166,9 @@ const movLitToRegister = A.contextual(function* () {
 })
 
 const testInstruction = movLitToRegister.run('mov $12, acc')
-const nestedInstruction = movLitToRegister.run('mov [$42 + !loc - ($05 * ($31 + !var) - $07)], acc')
+const bracketInstruction = movLitToRegister.run('mov [$43 + !loc], x')
+const nestedInstruction = movLitToRegister.run('mov [$42 + !loc - ($05 * ($31 + !var) - $07)], y')
 
 console.log(JSON.stringify(testInstruction, null, 4))
-console.log(JSON.stringify(nestedInstruction, null, 4))
+// console.log(JSON.stringify(bracketInstruction, null, 4))
+// console.log(JSON.stringify(nestedInstruction, null, 4))

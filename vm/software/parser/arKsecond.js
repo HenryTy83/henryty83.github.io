@@ -52,13 +52,13 @@ class Parser {
     chain(fn) { 
         return new Parser(parserState => {
             const nextState = this.parserStateTransformerFn(parserState);
-
-            if (nextState.thrownError) {return nextState} //don't do chain on bad inputs
-
+    
+            if (nextState.isError) return nextState;
+    
             const nextParser = fn(nextState.result);
-
-            return nextParser.parserStateTransformerFn(nextState)
-        })
+    
+            return nextParser.parserStateTransformerFn(nextState);
+        });
     }
 
     map(fn) { 
@@ -136,43 +136,17 @@ class arKsecond { //don't sue pls
     lookAhead = parser => new Parser(parserState => {
         if (parserState.thrownError) { return parserState; } //`regex`);  }; //bad input, return it unchanged
 
-        const {
-            targetString,
-            index,
-        } = parserState; //use parserState as input and break it apart, so we input and output the same thing
+        const nextState = parser.parserStateTransformerFn(parserState)
 
-        if (index >= targetString.length) { return updateParserError(parserState, `lookAhead: tried matching regex but got unexpected end of input`) }
-
-        for(let i=index; i<targetString.length; i++) {
-            const slicedString = targetString.slice(index);
-            const nextState = parser.run(slicedString)
-
-            if (!nextState.thrownError) {
-                return nextState
-            }
-        }
-
-        return updateParserError(parserState, `lookAhead: couldn't find matches in input`);//failed match
+        return nextState.thrownError ? updateParserError(parserState, `lookAhead: couldn't find matches in input`) : updateParserResult(parserState, nextState.result)
     })
 
     possibly = parser => new Parser(parserState => {
         if (parserState.thrownError) { return parserState; } //`regex`);  }; //bad input, return it unchanged
 
-        const {
-            targetString,
-            index,
-        } = parserState; //use parserState as input and break it apart, so we input and output the same thing
+        const nextState = parser.parserStateTransformerFn(parserState)
 
-        if (index >= targetString.length) { return updateParserError(parserState, `possibly: tried matching regex but got unexpected end of input`) }
-
-            const slicedString = targetString.slice(index);
-            const nextState = parser.run(slicedString)
-
-            if (!nextState.thrownError) {
-                return nextState
-            }
-
-        return updateParserResult(parserState, null);//failed match
+        return nextState.thrownError ? updateParserResult(parserState, null) : nextState
     })
 
     //match a string for many small strings
@@ -221,7 +195,6 @@ class arKsecond { //don't sue pls
       
         while (!done) {
           let testState = parser.parserStateTransformerFn(nextState);
-      
           if (!testState.thrownError) {
             results.push(testState.result);
             nextState = testState;
@@ -335,29 +308,27 @@ class arKsecond { //don't sue pls
     succeed = (value) => new Parser(function(parserState) {return updateParserResult(parserState, value)});
 
     //contextual parsing
-    contextual = generatorFn => {
-        return this.succeed(null).chain(() => {
-            const iterator = generatorFn();
-    
-            const runStep = nextValue => {
-                const iteratorResult = iterator.next(nextValue);
-        
-                if (iteratorResult.done) {
-                    return this.succeed(iteratorResult.value);
-                }
-        
-                const nextParser = iteratorResult.value;
-        
-                if (!(nextParser instanceof Parser)) {
-                    throw new Error('contextual: yielded values must always be parsers!');
-                }
-            
-                return nextParser.chain(runStep);
-            };
-
-            return runStep();
-        })
-    } 
+    contextual = generatorFn => this.succeed(null).chain(() => {
+          const iterator = generatorFn();
+      
+          const runStep = nextValue => {
+            const iteratorResult = iterator.next(nextValue);
+      
+            if (iteratorResult.done) {
+              return this.succeed(iteratorResult.value);
+            }
+      
+            const nextParser = iteratorResult.value;
+      
+            if (!(nextParser instanceof Parser)) {
+              throw new Error('contextual: yielded values must always be parsers!');
+            }
+      
+            return nextParser.chain(runStep);
+          };
+      
+          return runStep();
+    })
 }
 
 
