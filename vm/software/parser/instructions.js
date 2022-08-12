@@ -121,4 +121,6 @@ const instructions = A.choice([
     cal,
     ret,
     hlt,
-  ]);
+]);
+
+const AST = A.many(instructions)
