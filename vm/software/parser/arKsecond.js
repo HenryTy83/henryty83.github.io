@@ -53,7 +53,7 @@ class Parser {
         return new Parser(parserState => {
             const nextState = this.parserStateTransformerFn(parserState);
     
-            if (nextState.isError) return nextState;
+            if (nextState.thrownError) return nextState;
     
             const nextParser = fn(nextState.result);
     
@@ -303,19 +303,19 @@ class arKsecond { //don't sue pls
     lazy = parserThunk =>  new Parser(parserState => parserThunk().parserStateTransformerFn(parserState));
 
     // promises
-    fail = (errMsg) => new Parser(function(parserState) {updateParserError(parserState, errMsg)});
+    fail = errMsg => new Parser(parserState => updateParserError(parserState, errMsg));
       
-    succeed = (value) => new Parser(function(parserState) {return updateParserResult(parserState, value)});
+    succeed = value => new Parser(parserState => updateParserResult(parserState, value));
 
     //contextual parsing
     contextual = generatorFn => this.succeed(null).chain(() => {
-          const iterator = generatorFn();
+        const iterator = generatorFn();
       
-          const runStep = nextValue => {
+        const runStep = nextValue => {
             const iteratorResult = iterator.next(nextValue);
       
             if (iteratorResult.done) {
-              return this.succeed(iteratorResult.value);
+                return this.succeed(iteratorResult.value);
             }
       
             const nextParser = iteratorResult.value;
@@ -361,3 +361,27 @@ const debug = new arKsecond;
 // console.log(debug.sequenceOf([debug.optionalWhitespace, debug.letters]).run('test'))
 // console.log(debug.sequenceOf([debug.str ('hello '),debug.lookAhead(debug.str('world')),debug.str('wor')]).run('hello world'))
 // console.log(debug.sequenceOf ([debug.possibly (debug.str ('Not Here')),debug.str ('Yep I am here')]).run('Yep I am here'))
+
+// const contextualParser = debug.contextual(function* () {
+//     // Capture some letters and assign them to a variable
+//     const name = yield debug.letters;
+  
+//     // Capture a space
+//     yield debug.char(' ');
+  
+//     const age = yield debug.digits.map(Number);
+  
+//     // Capture a space
+//     yield debug.char(' ');
+  
+//     if (age > 18) {
+//       yield debug.str('is an adult');
+//     } else {
+//       yield debug.str('is a child');
+//     }
+  
+//     return { name, age };
+//   });
+
+// console.log(contextualParser.run('Jim 19 is an adult'));
+// console.log(contextualParser.run('Jim 17 is an adult'));

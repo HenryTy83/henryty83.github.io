@@ -4,7 +4,7 @@ const asType = type => value => ({type, value});
 const mapJoin = parser => parser.map(items => items.join(''));
 const peek = A.lookAhead(A.regex(/^./))
 const last = a => a[a.length-1]
-const typifyBracketedExpression = expr => {asType('BRACKETED_EXPRESSION')(expr.map(element => Array.isArray(element) ? typifyBracketedExpression(element) : element))} //wtf
+const typifyBracketedExpression = expr => asType('BRACKETED_EXPRESSION')(expr.map(element => Array.isArray(element) ? typifyBracketedExpression(element) : element)) //wtf
 
 const upperOrLowerStr = s => A.choice([
     A.str(s.toLowerCase()),
@@ -46,30 +46,22 @@ const bracketExpr = A.contextual(function* () {
     const states = {
         OPERATOR_OR_CLOSING_BRACKET: 0,
         ELEMENT_OR_OPENING_BRACKET: 1,
-        CLOSE_BRACKET: 2,
     }
 
-    const expr = []
-    const stack = []
+    let expr = []
+    let stack = []
     let currentState = states.ELEMENT_OR_OPENING_BRACKET
 
     while (true) {
         const nextChar = yield peek
-        //console.log(expr, stack, nextChar)
+        console.log(`EXPR: ${JSON.stringify(expr, null, 4)}`)
+        console.log(`STACK: JSON.stringify(stack, null, 4)`)
+        console.log(nextChar)
+        
         switch(currentState) {
-            case (states.OPERATOR_OR_CLOSING_BRACKET): {
-                if (nextChar == ')') {currentState = states.CLOSE_BRACKET; } 
-                else {
-                    last(stack).push(yield operator)
-                    yield A.optionalWhitespace
-                    currentState = states.ELEMENT_OR_OPENING_BRACKET
-                }
-
-                break;
-            }
             case (states.ELEMENT_OR_OPENING_BRACKET): {
                 switch (nextChar) {
-                    case (')'): {return yield A.fail('Unexpected end of expression');}
+                    case (')'): {yield A.fail('Unexpected end of expression'); break;}
                     case ('('): {
                         yield A.char('(')
                         yield A.optionalWhitespace
@@ -83,22 +75,39 @@ const bracketExpr = A.contextual(function* () {
                     default: {
                         last(stack).push(yield A.choice([hexLiteral, variable])); 
                         yield A.optionalWhitespace
+
                         currentState = states.OPERATOR_OR_CLOSING_BRACKET    
                         break
                     }
                 }
-
                 break
             }
-            case (states.CLOSE_BRACKET): {
-                yield A.char(')')
-                stack.pop()
-                if(stack.length == 0) { return typifyBracketedExpression(expr)}
-                break;
+
+            case (states.OPERATOR_OR_CLOSING_BRACKET): {
+                switch(nextChar) {
+                    case(')'): {
+                        yield A.char(')')
+                        yield A.optionalWhitespace
+                        
+                        stack.pop()
+                        if(stack.length == 0) { return typifyBracketedExpression(expr)}
+
+                        currentState = states.OPERATOR_OR_CLOSING_BRACKET
+                        break;
+                    }
+
+                    default: {
+                        last(stack).push(yield operator)
+                        yield A.optionalWhitespace
+
+                        currentState = states.ELEMENT_OR_OPENING_BRACKET
+                        break;
+                    }
+                    }
+                }
             }
-        }
-    }  
-}) 
+        }  
+    }) 
 
 const squareBrakExpr = A.contextual(function* () {
     yield A.char('[')
@@ -166,9 +175,11 @@ const movLitToRegister = A.contextual(function* () {
 })
 
 const testInstruction = movLitToRegister.run('mov $12, acc')
-const bracketInstruction = movLitToRegister.run('mov [$43 + !loc], x')
-const nestedInstruction = movLitToRegister.run('mov [$42 + !loc - ($05 * ($31 + !var) - $07)], y')
+const bracketInstruction = movLitToRegister.run('mov [$43 + !loc - $07], x')
+const nestedInstruction = movLitToRegister.run('mov [$42 + !loc - ($05 * !var) - $07], y')
+const nestedHell = movLitToRegister.run('mov [$42 + (!loc - ($05 * ($31 + !var) - $07)], d')
 
 console.log(JSON.stringify(testInstruction, null, 4))
-// console.log(JSON.stringify(bracketInstruction, null, 4))
-// console.log(JSON.stringify(nestedInstruction, null, 4))
+console.log(JSON.stringify(bracketInstruction, null, 4))
+console.log(JSON.stringify(nestedInstruction, null, 4))
+console.log(JSON.stringify(nestedHell, null, 4))
