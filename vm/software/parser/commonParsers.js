@@ -1,11 +1,3 @@
-const A = new arKsecond;
-
-const asType = type => value => ({type, value});
-const mapJoin = parser => parser.map(items => items.join(''));
-const peek = A.lookAhead(A.regex(/^./))
-const last = a => a[a.length-1]
-const typifyBracketedExpression = expr => asType('BRACKETED_EXPRESSION')(expr.map(element => Array.isArray(element) ? typifyBracketedExpression(element) : element)); //wtf
-
 const upperOrLowerStr = s => A.choice([
     A.str(s.toLowerCase()),
     A.str(s.toUpperCase())
@@ -16,6 +8,7 @@ const operator = A.choice([
     A.char('-').map(asType('OP_SUB')),
     A.char('*').map(asType('OP_MUL'))
 ])
+const address = A.char('&').chain(() => mapJoin(A.many1(hexDigit))).map(asType('ADDRESS'))
 
 const validIdentifier = mapJoin(A.sequenceOf([
     A.regex(/^[a-zA-Z_]/),
@@ -36,46 +29,6 @@ const register = A.choice([
     upperOrLowerStr('sp'),
     upperOrLowerStr('fp')
 ]).map(asType('REGISTER'))
-
-const binaryOperation = asType('BINARY_OPERATION')
-const disambiguateOrderOfOperations = expr => {
-    if (expr.type != 'SQUARE_BRACKET_EXPRESSION' && expr.type != 'BRACKETED_EXPRESSION') {return expr}
-
-    if (expr.value.length == 1) {return expr.value[0]}
-
-    const priorities = {
-        OP_MUL: 2,
-        OP_ADD: 1,
-        OP_SUB: 1
-    }
-
-    let candidateExpression = {priority: -Infinity}
-
-    for (let i=1; i<expr.value.length; i+=2) {
-        const level = priorities[expr.value[i].type];
-
-        if (level > candidateExpression.priority) {
-            candidateExpression = {
-                priority: level,
-                a: i-1,
-                b: i+1,
-                op: expr.value[i]
-            }
-        }
-    }
-
-    const newExpression = asType('BRACKETED_EXPRESSION')([
-        ...expr.value.slice(0, candidateExpression.a),
-        binaryOperation({
-          a: disambiguateOrderOfOperations(expr.value[candidateExpression.a]),
-          b: disambiguateOrderOfOperations(expr.value[candidateExpression.b]),
-          op: candidateExpression.op
-        }),
-      ...expr.value.slice(candidateExpression.b + 1)
-      ]);
-
-      return disambiguateOrderOfOperations(newExpression)
-}
 
 const hexDigit = A.regex(/^[0-9A-Fa-f]/);
 const hexLiteral = A.char('$').chain(() => mapJoin(A.many1(hexDigit))).map(asType('HEX_LITERAL'))
@@ -187,35 +140,3 @@ const squareBrakExpr = A.contextual(function* () {
 
   return asType('SQUARE_BRACKET_EXPRESSION')(expr);
 }).map(disambiguateOrderOfOperations);
-
-const movLitToRegister = A.contextual(function* () {
-    yield upperOrLowerStr('mov');
-    yield A.whitespace
-
-    const arg1 = yield A.choice([
-        hexLiteral,
-        squareBrakExpr,
-    ])
-
-    yield A.optionalWhitespace
-    yield A.char(',')
-    yield A.optionalWhitespace
-
-    const arg2 = yield register
-    yield A.optionalWhitespace
-
-    return asType('INSTRUCTION')({
-        instruction: 'MOV_LIT_REG',
-        args: [arg1, arg2]
-    })
-})
-
-const testInstruction = movLitToRegister.run('mov $12, acc')
-const bracketInstruction = movLitToRegister.run('mov [$43 + !loc - $07], x')
-const nestedInstruction = movLitToRegister.run('mov [$42 + !loc - ($05 * !var) - $07], y')
-const nestedHell = movLitToRegister.run('mov [$42 + !loc - ($05 * ($31 + !var) - $07)], d')
-
-console.log(JSON.stringify(testInstruction, null, 1))
-console.log(JSON.stringify(bracketInstruction, null, 1))
-console.log(JSON.stringify(nestedInstruction, null, 1))
-console.log(JSON.stringify(nestedHell, null, 1))

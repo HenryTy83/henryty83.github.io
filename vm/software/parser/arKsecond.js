@@ -334,50 +334,50 @@ class arKsecond { //don't sue pls
 
 
 /* debug tests (expected values commented) */
-const debug = new arKsecond;
-// console.log(debug.str('Hello').run('Hello world!')) // 'Hello'
-// console.log(debug.str('Goodbye!').run('Hello world!')) // error: expected 'Hello'
-// console.log(debug.sequenceOf([debug.str('Hello'), debug.str(' '), debug.str('world!')]).run('Hello world!')) // 'Hello World!'
-// console.log(debug.str('Hello').map(result => result.toUpperCase()).run('Hello world!')) // 'HELLO'
-// console.log(debug.str('Hello').errorMap((msg, index) => `Expected a greeting @ index ${index}`).run('Goodbye!')); // error: expected a greeting 
-// console.log(debug.letters.run('Thequickbrownfoxjumpsoverthelazydog')); // 'Thequickbrownfoxjumpsoverthelazydog'
-// console.log(debug.letters.run('12346353'));  // '12346353'
-// console.log(debug.letters.run('ascwe12346353asdge')); // 'ascwe'
-// console.log(debug.digits.run('Thequickbrownfoxjumpsoverthelazydog')); //error: no matches
-// console.log(debug.digits.run('12346353')); // '12346353'
-// console.log(debug.digits.run('ascwe12346353asdge')); //error: no matches
-// console.log(debug.choice([debug.digits, debug.letters, debug.str(' ')]).run('The quick brown fox jumps over the lazy dog 12381075301')) // 'The'
-// console.log(debug.many(debug.choice([debug.digits, debug.letters, debug.str(' ')])).run('The quick brown fox jumps over the lazy dog 12381075301')) //whole string verbatim
-// console.log(debug.between(debug.str('('), debug.str(')'))(debug.letters).run('(hello)')) // 'hello'
-// console.log(debug.sepBy(debug.str(','))(debug.digits).run('1,2,3,4,5d')) // [1,2,3,4,5]
-// console.log(debug.between(debug.str('['), debug.str(']'))((debug.sepBy(debug.str(',')))(debug.digits)).run('[1,2,3,4,5]')); // [1,2,3,4,5] (these test cases are getting weird)
+const A = new arKsecond;
+// console.log(A.str('Hello').run('Hello world!')) // 'Hello'
+// console.log(A.str('Goodbye!').run('Hello world!')) // error: expected 'Hello'
+// console.log(A.sequenceOf([A.str('Hello'), A.str(' '), A.str('world!')]).run('Hello world!')) // 'Hello World!'
+// console.log(A.str('Hello').map(result => result.toUpperCase()).run('Hello world!')) // 'HELLO'
+// console.log(A.str('Hello').errorMap((msg, index) => `Expected a greeting @ index ${index}`).run('Goodbye!')); // error: expected a greeting 
+// console.log(A.letters.run('Thequickbrownfoxjumpsoverthelazydog')); // 'Thequickbrownfoxjumpsoverthelazydog'
+// console.log(A.letters.run('12346353'));  // '12346353'
+// console.log(A.letters.run('ascwe12346353asdge')); // 'ascwe'
+// console.log(A.digits.run('Thequickbrownfoxjumpsoverthelazydog')); //error: no matches
+// console.log(A.digits.run('12346353')); // '12346353'
+// console.log(A.digits.run('ascwe12346353asdge')); //error: no matches
+// console.log(A.choice([A.digits, A.letters, A.str(' ')]).run('The quick brown fox jumps over the lazy dog 12381075301')) // 'The'
+// console.log(A.many(A.choice([A.digits, A.letters, A.str(' ')])).run('The quick brown fox jumps over the lazy dog 12381075301')) //whole string verbatim
+// console.log(A.between(A.str('('), A.str(')'))(A.letters).run('(hello)')) // 'hello'
+// console.log(A.sepBy(A.str(','))(A.digits).run('1,2,3,4,5d')) // [1,2,3,4,5]
+// console.log(A.between(A.str('['), A.str(']'))((A.sepBy(A.str(',')))(A.digits)).run('[1,2,3,4,5]')); // [1,2,3,4,5] (these test cases are getting weird)
 
-// const arrayParser = debug.between(debug.str('['), debug.str(']'))(debug.sepBy(debug.str(','))(debug.lazy(() => debug.choice([debug.digits, arrayParser])))) // debug is a mess
+// const arrayParser = A.between(A.str('['), A.str(']'))(A.sepBy(A.str(','))(A.lazy(() => A.choice([A.digits, arrayParser])))) // A is a mess
 // console.log(arrayParser.run('[1,2,[3,[4]],5]')) // whole string as an array 
 
-// console.log(debug.whitespace.run('    test'))
-// console.log(debug.optionalWhitespace.run('   test'))
-// console.log(debug.optionalWhitespace.run('test'))
-// console.log(debug.sequenceOf([debug.optionalWhitespace, debug.letters]).run('test'))
-// console.log(debug.sequenceOf([debug.str ('hello '),debug.lookAhead(debug.str('world')),debug.str('wor')]).run('hello world'))
-// console.log(debug.sequenceOf ([debug.possibly (debug.str ('Not Here')),debug.str ('Yep I am here')]).run('Yep I am here'))
+// console.log(A.whitespace.run('    test'))
+// console.log(A.optionalWhitespace.run('   test'))
+// console.log(A.optionalWhitespace.run('test'))
+// console.log(A.sequenceOf([A.optionalWhitespace, A.letters]).run('test'))
+// console.log(A.sequenceOf([A.str ('hello '),A.lookAhead(A.str('world')),A.str('wor')]).run('hello world'))
+// console.log(A.sequenceOf ([A.possibly (A.str ('Not Here')),A.str ('Yep I am here')]).run('Yep I am here'))
 
-// const contextualParser = debug.contextual(function* () {
+// const contextualParser = A.contextual(function* () {
 //     // Capture some letters and assign them to a variable
-//     const name = yield debug.letters;
+//     const name = yield A.letters;
   
 //     // Capture a space
-//     yield debug.char(' ');
+//     yield A.char(' ');
   
-//     const age = yield debug.digits.map(Number);
+//     const age = yield A.digits.map(Number);
   
 //     // Capture a space
-//     yield debug.char(' ');
+//     yield A.char(' ');
   
 //     if (age > 18) {
-//       yield debug.str('is an adult');
+//       yield A.str('is an adult');
 //     } else {
-//       yield debug.str('is a child');
+//       yield A.str('is a child');
 //     }
   
 //     return { name, age };
