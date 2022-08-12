@@ -11,7 +11,7 @@ const memory = createMemory(256 * 256); //init memory
 const writeableBytes = new Uint8Array(memory.buffer);
 
 //write code here
-writeableBytes[0] = 0xff //immediately halts
+writeableBytes[0] = HLT //immediately halts
 //example programs
 //addTwoNumbers(0x12, 0x34, 0xab, 0xcd); // halts with 0xbe01 at address 0x0100
 //ffBottlesOBeer(); // counts down from 0xffff to the screen
