@@ -37,6 +37,46 @@ const register = A.choice([
     upperOrLowerStr('fp')
 ]).map(asType('REGISTER'))
 
+const binaryOperation = asType('BINARY_OPERATION')
+const disambiguateOrderOfOperations = expr => {
+    if (expr.type != 'SQUARE_BRACKET_EXPRESSION' && expr.type != 'BRACKETED_EXPRESSION') {return expr}
+
+    if (expr.value.length == 1) {return expr.value[0]}
+
+    const priorities = {
+        OP_MUL: 2,
+        OP_ADD: 1,
+        OP_SUB: 1
+    }
+
+    let candidateExpression = {priority: -Infinity}
+
+    for (let i=1; i<expr.value.length; i+=2) {
+        const level = priorities[expr.value[i].type];
+
+        if (level > candidateExpression.priority) {
+            candidateExpression = {
+                priority: level,
+                a: i-1,
+                b: i+1,
+                op: expr.value[i]
+            }
+        }
+    }
+
+    const newExpression = asType('BRACKETED_EXPRESSION')([
+        ...expr.value.slice(0, candidateExpression.a),
+        binaryOperation({
+          a: disambiguateOrderOfOperations(expr.value[candidateExpression.a]),
+          b: disambiguateOrderOfOperations(expr.value[candidateExpression.b]),
+          op: candidateExpression.op
+        }),
+      ...expr.value.slice(candidateExpression.b + 1)
+      ]);
+
+      return disambiguateOrderOfOperations(newExpression)
+}
+
 const hexDigit = A.regex(/^[0-9A-Fa-f]/);
 const hexLiteral = A.char('$').chain(() => mapJoin(A.many1(hexDigit))).map(asType('HEX_LITERAL'))
 
@@ -106,50 +146,47 @@ const bracketExpr = A.contextual(function* () {
   
     }
     return typifyBracketedExpression(expr);
-  });
+  })
 
 const squareBrakExpr = A.contextual(function* () {
-    yield A.char('[')
-    yield A.optionalWhitespace
+    yield A.char('[');
+  yield A.optionalWhitespace;
 
-    const expr = []
-    const states = {
-        EXPECT_ELEMENT: 0,
-        EXPECT_OPERATOR: 1
+  const states = {
+    EXPECT_ELEMENT: 0,
+    EXPECT_OPERATOR: 1,
+  };
+
+  const expr = [];
+  let state = states.EXPECT_ELEMENT;
+
+  while (true) {
+    if (state === states.EXPECT_ELEMENT) {
+      const result = yield A.choice([
+        bracketExpr,
+        hexLiteral,
+        variable
+      ]);
+      expr.push(result);
+      state = states.EXPECT_OPERATOR;
+      yield A.optionalWhitespace;
+    } else if (state === states.EXPECT_OPERATOR) {
+      const nextChar = yield peek;
+      if (nextChar === ']') {
+        yield A.char(']');
+        yield A.optionalWhitespace;
+        break;
+      }
+
+      const result = yield operator;
+      expr.push(result);
+      state = states.EXPECT_ELEMENT;
+      yield A.optionalWhitespace;
     }
+  }
 
-    let currentState = states.EXPECT_ELEMENT
-
-    while (true) {
-        switch(currentState) {
-            case (states.EXPECT_ELEMENT): {
-                expr.push(yield A.choice([
-                    hexLiteral,
-                    variable,
-                    bracketExpr,
-                ]));
-                yield A.optionalWhitespace;
-                currentState = states.EXPECT_OPERATOR;
-
-                break;
-            }
-            case (states.EXPECT_OPERATOR): {
-                const nextChar = yield peek;
-                if (nextChar == ']') {
-                    yield A.char(']')
-                    yield A.optionalWhitespace;
-                    return asType('SQUARE_BRACKET_EXPRESSION')(expr)
-                }
-                else {
-                    expr.push(yield operator)
-                    currentState = states.EXPECT_ELEMENT
-                    yield A.optionalWhitespace
-                }
-                break;
-            }
-        }
-    }  
-}) 
+  return asType('SQUARE_BRACKET_EXPRESSION')(expr);
+}).map(disambiguateOrderOfOperations);
 
 const movLitToRegister = A.contextual(function* () {
     yield upperOrLowerStr('mov');
@@ -178,7 +215,7 @@ const bracketInstruction = movLitToRegister.run('mov [$43 + !loc - $07], x')
 const nestedInstruction = movLitToRegister.run('mov [$42 + !loc - ($05 * !var) - $07], y')
 const nestedHell = movLitToRegister.run('mov [$42 + !loc - ($05 * ($31 + !var) - $07)], d')
 
-console.log(JSON.stringify(testInstruction, null, 4))
-console.log(JSON.stringify(bracketInstruction, null, 4))
-console.log(JSON.stringify(nestedInstruction, null, 4))
-console.log(JSON.stringify(nestedHell, null, 4))
+console.log(JSON.stringify(testInstruction, null, 1))
+console.log(JSON.stringify(bracketInstruction, null, 1))
+console.log(JSON.stringify(nestedInstruction, null, 1))
+console.log(JSON.stringify(nestedHell, null, 1))
