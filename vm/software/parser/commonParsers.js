@@ -8,7 +8,6 @@ const operator = A.choice([
     A.char('-').map(asType('OP_SUB')),
     A.char('*').map(asType('OP_MUL'))
 ])
-const address = A.char('&').chain(() => mapJoin(A.many1(hexDigit))).map(asType('ADDRESS'))
 
 const validIdentifier = mapJoin(A.sequenceOf([
     A.regex(/^[a-zA-Z_]/),
@@ -28,12 +27,15 @@ const register = A.choice([
     upperOrLowerStr('r7'),
     upperOrLowerStr('sp'),
     upperOrLowerStr('fp')
-]).map(asType('REGISTER'))
+]).map(registerType)
+
+const address = A.char('&').chain(() => mapJoin(A.many1(hexDigit))).map(addressType)
+const label = A.sequenceOf([validIdentifier, A.char(':'), A.optionalWhitespace]).map(result => result[0]).map(labelType)
 
 const hexDigit = A.regex(/^[0-9A-Fa-f]/);
-const hexLiteral = A.char('$').chain(() => mapJoin(A.many1(hexDigit))).map(asType('HEX_LITERAL'))
+const hexLiteral = A.char('$').chain(() => mapJoin(A.many1(hexDigit))).map(literalType)
 
-const variable = A.char('!').chain(() => validIdentifier).map(asType('VARIABLE'))
+const variable = A.char('!').chain(() => validIdentifier).map(variableType)
 
 const bracketExpr = A.contextual(function* () {
     const states = {
@@ -138,5 +140,5 @@ const squareBrakExpr = A.contextual(function* () {
     }
   }
 
-  return asType('SQUARE_BRACKET_EXPRESSION')(expr);
+  return squareBracketExprType(expr);
 }).map(disambiguateOrderOfOperations);

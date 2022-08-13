@@ -2,14 +2,19 @@ const asType = type => value => ({type, value});
 
 const binaryOperation = asType('BINARY_OPERATION')
 const bracketedExpression = asType('BRACKETED_EXPRESSION')
-
+const labelType = asType('LABEL')
+const registerType = asType('REGISTER')
+const literalType = asType('HEX_LITERAL')
+const squareBracketExprType = asType('SQUARE_BRACKET_EXPRESSION')
+const addressType = asType('ADDRESS')
+const instructionType = asType('INSTRUCTION')
+const variableType = asType('VARIABLE')
 
 const mapJoin = parser => parser.map(items => items.join(''));
 const peek = A.lookAhead(A.regex(/^./))
 const last = a => a[a.length-1]
+
 const typifyBracketedExpression = expr => bracketedExpression(expr.map(element => Array.isArray(element) ? typifyBracketedExpression(element) : element)); //wtf
-
-
 
 const disambiguateOrderOfOperations = expr => {
     if (expr.type != 'SQUARE_BRACKET_EXPRESSION' && expr.type != 'BRACKETED_EXPRESSION') {return expr}

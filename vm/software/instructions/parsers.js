@@ -62,6 +62,11 @@ const mov = A.choice([
     litMem('jne', 'JMP_NOT_EQ'),
   ]);
   
+  const jez = singleMem('jez', 'JEZ');
+  const jlz = singleMem('jlz', 'JLZ');
+  const jgz = singleMem('jgz', 'JGZ');
+  const jnz = singleMem('jnz', 'JNZ');
+
   const jlt = A.choice([
     regMem('jlt', 'JLT_REG'),
     litMem('jlt', 'JLT_LIT'),
@@ -97,7 +102,7 @@ const mov = A.choice([
   const ret = noArgs('ret', 'RET');
   const hlt = noArgs('hlt', 'HLT');
 
-const instructions = A.choice([
+  const mnemonicParser = A.choice([
     mov,
     add,
     sub,
@@ -110,6 +115,10 @@ const instructions = A.choice([
     or,
     xor,
     not,
+    jnz,
+    jgz,
+    jlz,
+    jez,
     jne,
     jeq,
     jlt,
@@ -121,4 +130,9 @@ const instructions = A.choice([
     cal,
     ret,
     hlt,
-  ]);
+  ])
+
+const instructionParser = A.many(A.choice([
+  mnemonicParser,
+  label
+]));
