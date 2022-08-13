@@ -22,6 +22,13 @@ const fadeIn = () => { // its 4am
     fadeInTime -= 1;
 
     if (fadeInTime < 0) { 
+        ctx.clearRect(0, 0, canvas.width, canvas.height); 
+        ctx.fillStyle = 'rgb(0, 100, 0, 0.27)';
+        ctx.beginPath();
+        ctx.rect(0, 0, canvas.width, canvas.height)
+        ctx.fill();
+        ctx.closePath();  
+
         clearTimeout(powerUp)
     }
 }

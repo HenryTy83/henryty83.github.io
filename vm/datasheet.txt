@@ -1,0 +1,65 @@
+//////// JS-DOS: The Javascript Disk Operating System
+
+
+By Henry Ty, Aug 1X 2022
+Following along (and partially copying) from Low Level Javascript's LLJS VM:  https://github.com/LowLevelJavaScript/16-Bit-Virtual-Machine
+
+
+//// Hardware specs:
+16-bit big endian Von Neumann architecture processor
+registers:
+    instruction pointer
+    accumulator
+    x, y, d, r3-r7 general purpose registers
+    stack pointer
+    frame pointer
+65536 ($ffff) unique addresses (not including bank-switching)
+Memory Mapped IO
+
+//// Memory Mapping:
+0x0000-0xffff: RAM:
+    all values default to being saved and loaded from RAM
+0x7000-0x7fff: Peripherals: 
+    screen is mapped in rows from top to bottom, each row goes from left to right. each byte corresponds to a character 
+    useable address space: 0x7000-0x7769
+    starting rows: 0x7000, 0x704e, 0x709c, 0x70ea
+    high byte: 
+        0xff: clear screen before writing
+        0x01: bold text
+        0x02: italic text
+        0x03: bold and italic text
+
+ 
+
+//// Assembly documentation:
+nop                                         do nothing
+mov reg/$lit/&[addr], reg/&[addr]           mov value in first operand to location in second operand
+
+add reg/$lit, reg                           add two operands, store result to acc
+sub reg/$lit, reg                           sub second operand from the first operand, store result to acc
+mul reg/$lit, reg                           multiply two operands, store result to acc
+and reg/$lit, reg                           bitwise AND two operands, store result to acc
+or reg/$lit, reg                            bitwise OR two operands, store result to acc
+xor reg/$lit, reg                           bitwise XOR two operands, store result to acc
+not reg                                     bitwise NOT selected register 
+inc reg                                     increment selected register
+dec reg                                     decrement selected register
+
+jmp &[addr]                                 jump to operand
+jgz &[addr]                                 jump to operand if acc > 0
+jlz &[addr]                                 jump to operand if acc < 0
+jez &[addr]                                 jump to operand if acc == 0
+jnz &[addr]                                 jump to operand if acc != 0
+
+jgt $lit/reg &[addr]                        jump to second operand if acc > first operand
+jlt $lit/reg &[addr]                        jump to second operand if acc < first operand
+jeq $lit/reg &[addr]                        jump to second operand if acc == first operand
+jne $lit/reg &[addr]                        jump to second operand if acc != first operand
+
+push $lit/reg                               push the operand to the stack
+pop reg                                     pop a value from the stack, store to selected regester
+
+cal $lit/reg                                jump to subroutine at operand
+ret                                         return from subroutine
+
+hlt                                         halt execution

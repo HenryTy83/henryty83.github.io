@@ -19,7 +19,7 @@ assembleAndLoadProgram(helloWorld)
 // assembleAndLoadProgram(hundredBottlesOfBeer)
 
 memoryMapper.map(memory, 0x0000, 0xffff) //all addresses default to ram
-memoryMapper.map(createScreenOutput(), 0x3000, 0x3000 + 79*24) // 0x3000 - 0x03769 talks to the screen
+memoryMapper.map(createScreenOutput(), 0x7000, 0x7fff) // 0x7000 - 0x07769 talks to the screen
 
 const cpu = new CPU(memoryMapper);
 
