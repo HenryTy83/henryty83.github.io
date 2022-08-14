@@ -14,7 +14,7 @@ registers:
     stack pointer
     frame pointer
 65536 ($ffff) unique addresses (not including bank-switching)
-Memory Mapped IO
+Memory Mapped I/O
 
 //// Memory Mapping:
 0x0000-0xffff: RAM:
@@ -27,11 +27,11 @@ Memory Mapped IO
         0xff: clear screen before writing
         0x01: bold text
         0x02: italic text
-        0x03: bold and italic text
-
- 
+        0x03: bold and italic text 
 
 //// Assembly documentation:
+Programs must be inputted in the form of a long string with commands separated by whitespace
+
 nop                                         do nothing
 mov reg/$lit/&[addr], reg/&[addr]           mov value in first operand to location in second operand
 

@@ -1,9 +1,7 @@
 class CPU {
     constructor(memory) {
         this.memory = memory;
-        this.registerNames = [
-            'ip', 'acc', 'x', 'y', 'd', 'r3', 'r4', 'r5', 'r6', 'r7', 'sp', 'fp'
-        ];
+        this.registerNames = registerNames
 
         this.halted = false;
         this.registers = createMemory(this.registerNames.length * 2); //16 bit registers
