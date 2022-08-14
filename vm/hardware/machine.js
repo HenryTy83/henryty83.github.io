@@ -7,7 +7,7 @@
 //boilerplate. dont touch
 const memoryMapper = new memoryMap()
 
-const createBankedMemory (n, bankSize, cpu) => {
+const createBankedMemory = (n, bankSize, cpu) => {
     const bankBuffers = Array.from({length: n}, () => new ArrayBuffer(bankSize))
     const banks = bankBuffers.map(aB => new DataView(aB))
 }
