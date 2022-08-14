@@ -7,8 +7,8 @@ class CPU {
         this.registers = createMemory(this.registerNames.length * 2); //16 bit registers
         this.registerMap = this.registerNames.reduce((map, name, i) => { map[name] = 2 * i; return map }, {}); //i kinda understand this
 
-        this.setRegister('sp', 0xfffe) //set the stack pointer to the end of memory
-        this.setRegister('fp', 0xfffe) //frame pointer too
+        this.setRegister('sp', 0x7ffe) //set the stack pointer
+        this.setRegister('fp', 0x7ffe) //frame pointer too
 
         this.stackFrameSize = 0;
     }

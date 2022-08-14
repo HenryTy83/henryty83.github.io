@@ -1,4 +1,4 @@
-//////// JS-DOS: The Javascript Disk Operating System
+//////// TJSVMTDHAA: The Javascript Virtual Machine That Doesn't Have An Acronym
 
 
 By Henry Ty, Aug 1X 2022
@@ -13,21 +13,26 @@ registers:
     x, y, d, r3-r7 general purpose registers
     stack pointer
     frame pointer
+    memory bank
 65536 ($ffff) unique addresses (not including bank-switching)
 Memory Mapped I/O
 
 //// Memory Mapping:
-0x0000-0xffff: RAM:
-    all values default to being saved and loaded from RAM
-0x7000-0x7fff: Peripherals: 
-    screen is mapped in rows from top to bottom, each row goes from left to right. each byte corresponds to a character 
-    useable address space: 0x7000-0x7769
-    starting rows: 0x7000, 0x704e, 0x709c, 0x70ea
-    high byte: 
-        0xff: clear screen before writing
-        0x01: bold text
-        0x02: italic text
-        0x03: bold and italic text 
+0x0000-0x3fff: program memory
+0x4000-0x7fff: general purpose use
+< 0x7fff: stack
+0x8000-0xbfff: Peripherals 
+    0x8000-0x8769: screen display
+        screen is mapped in rows from top to bottom, each row goes from left to right. each byte corresponds to a character 
+        useable address space: 
+        starting rows: 0x8000, 0x804e, 0x809c, 0x80ea
+        high byte: 
+            0xff: clear screen before writing
+            0x01: bold text
+            0x02: italic text
+            0x03: bold and italic text 
+0xb000-0xffff: memory bank
+    mb = 0: VRAM
 
 //// Assembly documentation:
 Programs must be inputted in the form of a long string with commands separated by whitespace

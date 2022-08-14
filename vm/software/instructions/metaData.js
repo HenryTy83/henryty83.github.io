@@ -30,7 +30,7 @@ const instructionTypeSizes = {
     singleMem: 3,
 };
 
-const registerNames = ['ip', 'acc',  'x', 'y', 'd', 'r3', 'r4', 'r5', 'r6', 'r7', 'sp', 'fp']
+const registerNames = ['ip', 'acc',  'x', 'y', 'd', 'r3', 'r4', 'r5', 'r6', 'r7', 'sp', 'fp', 'mb']
 
 const registerMap = registerNames.reduce((map, regName, index) => {map[regName] = index * 2; return map;}, {})
 

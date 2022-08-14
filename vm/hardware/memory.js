@@ -15,7 +15,7 @@ class memoryMap {
     }
 
     findRegion(address) {
-        const region = this.regions.find(r => address >= r.startAd && address <= r.endAd)
+        const region = this.regions.find(r => (address >= r.startAd && address <= r.endAd))
         if (!region) { 
             throw new Error(`Unmapped memory: No mapped memory found for address ${address}`)
         }
