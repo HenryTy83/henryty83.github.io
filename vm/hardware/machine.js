@@ -7,6 +7,11 @@
 //boilerplate. dont touch
 const memoryMapper = new memoryMap()
 
+const createBankedMemory (n, bankSize, cpu) => {
+    const bankBuffers = Array.from({length: n}, () => new ArrayBuffer(bankSize))
+    const banks = bankBuffers.map(aB => new DataView(aB))
+}
+
 const memory = createMemory(256 * 256); //init memory
 const writeableBytes = new Uint8Array(memory.buffer);
 
