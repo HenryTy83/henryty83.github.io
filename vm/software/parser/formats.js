@@ -63,7 +63,7 @@ const memReg = (mnemonic, type) => A.contextual(function* () {
     yield upperOrLowerStr(mnemonic);
     yield A.whitespace
 
-    const mem = yield A.choice([address, A.char('&').chain(() => squareBracketExpr)])
+    const mem = yield A.choice([address, A.char('&').chain(() => squareBrakExpr)])
 
     yield A.optionalWhitespace
     yield A.char(',')
@@ -102,17 +102,11 @@ const litMem = (mnemonic, type) => A.contextual(function* () {
     })
 })
 
-const regPtrReg = (mnemonic, type) => A.contextual(function* () {
+const ptrReg = (mnemonic, type) => A.contextual(function* () {
     yield upperOrLowerStr(mnemonic);
     yield A.whitespace
 
-    const mem = yield A.choice([address, A.char('&').chain(() => register)])
-
-    yield A.optionalWhitespace
-    yield A.char(',')
-    yield A.optionalWhitespace
-
-    const r1 = yield register
+    const mem = yield A.char('&').chain(() => register)
 
     yield A.optionalWhitespace
     yield A.char(',')
@@ -124,7 +118,27 @@ const regPtrReg = (mnemonic, type) => A.contextual(function* () {
 
     return instructionType({
         instruction: type,
-        args: [mem, r1, r2]
+        args: [mem, r2]
+    })
+})
+
+const regPtr = (mnemonic, type) => A.contextual(function* () {
+    yield upperOrLowerStr(mnemonic);
+    yield A.whitespace
+
+    const r2= yield register
+
+    yield A.optionalWhitespace
+    yield A.char(',')
+    yield A.optionalWhitespace
+
+    const mem = yield A.char('&').chain(() => register)
+
+    yield A.optionalWhitespace
+
+    return instructionType({
+        instruction: type,
+        args: [r2, mem]
     })
 })
 
@@ -141,7 +155,7 @@ const litOffReg = (mnemonic, type) => A.contextual(function* () {
     yield A.char(',')
     yield A.optionalWhitespace
 
-    const r1 = yield A.choice([address, A.char('&').chain(() => squareBracketExpr)])
+    const r1 = yield A.choice([address, A.char('&').chain(() => squareBrakExpr)])
 
     yield A.optionalWhitespace
     yield A.char(',')
@@ -191,6 +205,8 @@ const singleLit = (mnemonic, type) => A.contextual(function* () {
         squareBrakExpr,
     ])
 
+    yield A.optionalWhitespace
+
     return instructionType({
         instruction: type,
         args: [arg1]
@@ -202,6 +218,8 @@ const singleMem = (mnemonic, type) => A.contextual(function* () {
     yield A.whitespace
 
     const mem = yield A.choice([address, A.char('&').chain(() => squareBrakExpr)])
+
+    yield A.optionalWhitespace
 
     return instructionType({
         instruction: type,

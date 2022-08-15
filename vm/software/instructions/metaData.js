@@ -30,7 +30,10 @@ const instructionTypeSizes = {
     singleMem: 3,
 };
 
-const registerNames = ['ip', 'acc',  'x', 'y', 'd', 'r3', 'r4', 'r5', 'r6', 'r7', 'sp', 'fp', 'mb']
+const registerNames = [
+    'ip', 'acc',  
+    'x', 'y', 'd', 'r3', 'r4', 'r5', 'r6', 'r7', 
+    'sp', 'fp', 'mb', 'im']
 
 const registerMap = registerNames.reduce((map, regName, index) => {map[regName] = index * 2; return map;}, {})
 
@@ -48,19 +51,19 @@ const meta = //this is worst-formatted variable you've ever
 }, {instruction: 'MOV_PTR_REG' , opcode:  0x14, type: instructionTypes.regReg, size: instructionTypeSizes.regReg, mnemonic: 'mov'  // REG REG
 }, {instruction: 'MOV_REG_PTR' , opcode:  0x15, type: instructionTypes.regReg, size: instructionTypeSizes.regReg, mnemonic: 'mov'  // REG REG
 }, {instruction: 'MOV_LIT_MEM' , opcode:  0x16, type: instructionTypes.litMem, size: instructionTypeSizes.litMem, mnemonic: 'mov'  // LITERAL ADDRESS
-}, {instruction: 'MOV_LOF_REG' , opcode:  0x17, type: instructionTypes.litREg // LITERAL REG
+}, {instruction: 'MOV_LOF_REG' , opcode:  0x17, type: instructionTypes.litReg, size: instructionTypeSizes.litReg, mnemonic: 'mov' // LITERAL REG
 
 //0x1d-0x2f ALU operations
 }, {instruction: 'ADD_REG_REG' , opcode:  0x1d, type: instructionTypes.regReg, size: instructionTypeSizes.regReg, mnemonic: 'add'  // REG REG
-}, {instruction: 'ADD_REG_LIT' , opcode:  0x1e, type: instructionTypes.regLit, size: instructionTypeSizes.regLit, mnemonic: 'add'  // REG LITERAL
+}, {instruction: 'ADD_LIT_REG' , opcode:  0x1e, type: instructionTypes.regLit, size: instructionTypeSizes.regLit, mnemonic: 'add'  // REG LITERAL
 }, {instruction: 'SUB_REG_REG' , opcode:  0x1f, type: instructionTypes.regReg, size: instructionTypeSizes.regReg, mnemonic: 'sub' // REG REG
 }, {instruction: 'SUB_REG_LIT' , opcode:  0x20, type: instructionTypes.regLit, size: instructionTypeSizes.regLit, mnemonic: 'sub'  // REG LITERAL
 }, {instruction: 'MUL_REG_REG' , opcode:  0x21, type: instructionTypes.regReg, size: instructionTypeSizes.regReg, mnemonic: 'mul'  // REG REG
 }, {instruction: 'MUL_LIT_REG' , opcode:  0x22, type: instructionTypes.regLit, size: instructionTypeSizes.regLit, mnemonic: 'mul'  // REG LITERAL
-}, {instruction: 'SHL_REG_LIT' , opcode:  0x23, type: instructionTypes.regLit, size: instructionTypeSizes.regLit, mnemonic: 'shl'  // REG LITERAL
-}, {instruction: 'SHR_REG_LIT' , opcode:  0x24, type: instructionTypes.regLit, size: instructionTypeSizes.regLit, mnemonic: 'shr'  // REG LITERAL
-}, {instruction: 'SHL_REG_REG' , opcode:  0x25, type: instructionTypes.regReg, size: instructionTypeSizes.regReg, mnemonic: 'shl'  // REG REG
-}, {instruction: 'SHR_REG_REG' , opcode:  0x26, type: instructionTypes.regReg, size: instructionTypeSizes.regReg, mnemonic: 'shr'  // REG REG
+}, {instruction: 'SHL_REG_LIT' , opcode:  0x23, type: instructionTypes.regLit, size: instructionTypeSizes.regLit, mnemonic: 'lsh'  // REG LITERAL
+}, {instruction: 'SHR_REG_LIT' , opcode:  0x24, type: instructionTypes.regLit, size: instructionTypeSizes.regLit, mnemonic: 'rsh'  // REG LITERAL
+}, {instruction: 'SHL_REG_REG' , opcode:  0x25, type: instructionTypes.regReg, size: instructionTypeSizes.regReg, mnemonic: 'lsh'  // REG REG
+}, {instruction: 'SHR_REG_REG' , opcode:  0x26, type: instructionTypes.regReg, size: instructionTypeSizes.regReg, mnemonic: 'rsh'  // REG REG
 }, {instruction: 'OR_REG_REG'  , opcode:  0x27, type: instructionTypes.regReg, size: instructionTypeSizes.regReg, mnemonic: 'or'  // REG REG
 }, {instruction: 'AND_REG_REG' , opcode:  0x28, type: instructionTypes.regReg, size: instructionTypeSizes.regReg, mnemonic: 'and'  // REG REG
 }, {instruction: 'OR_REG_LIT'  , opcode:  0x29, type: instructionTypes.regLit, size: instructionTypeSizes.regLit, mnemonic: 'or'  // REG LITERAL 
@@ -96,6 +99,8 @@ const meta = //this is worst-formatted variable you've ever
 }, {instruction: 'CAL_LIT'     , opcode:  0xf0, type: instructionTypes.singleLit, size: instructionTypeSizes.singleLit, mnemonic: 'cal'  // LITERAL
 }, {instruction: 'CAL_REG'     , opcode:  0xf1, type: instructionTypes.singleReg, size: instructionTypeSizes.singleReg, mnemonic: 'cal'  // REG
 }, {instruction: 'RET'         , opcode:  0xf2, type: instructionTypes.noArgs, size: instructionTypeSizes.noArgs, mnemonic: 'ret' 
+}, {instruction: 'INT'         , opcode:  0xf3, type: instructionTypes.singleLit, size: instructionTypeSizes.singleLit, mnemonic: 'int' // LITERAL
+}, {instruction: 'RET_INT'     , opcode:  0xf4, type: instructionTypes.noArgs, size: instructionTypeSizes.noArgs, mnemonic: 'rti'  // LITERAL
 }, {instruction: 'HLT'         , opcode:  0xff, type: instructionTypes.noArgs, size: instructionTypeSizes.noArgs, mnemonic: 'hlt' 
 }]
 

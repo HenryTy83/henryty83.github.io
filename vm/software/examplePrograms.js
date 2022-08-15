@@ -6,7 +6,7 @@ const hundredBottlesOfBeer = [
     'sub acc, x',
     'jgz &[!loop]',
     'hlt'
-].join('    ')
+].join(' ')
 
 const helloWorld = [
     //3E 3E 20 48 65 6C 6C 6F 20 57 6F 72 6C 64 21
@@ -77,10 +77,38 @@ const helloWorld = [
     //'mov $ff20, &[$7000]',
 
     'hlt',
-].join('    ')
+].join(' ')
+
+const interruptTest = [
+    'mov [!int], &[$3ff6]',
+
+    'before_int:',
+    '   mov $01, x',
+    '   mov $02, y',
+    '   psh $03',
+    
+    'call_int:',
+    '   int $03',
+
+    'mask_int:',
+    '   mov $0f, acc',
+    '   not acc',
+    '   and acc, im',
+    '   mov acc, im',
+
+    'call_int_again: ',
+    '   int $03',
+    '   mov $05, d',
+    '   hlt',
+
+    'int:',
+        'mov $6969, x',
+        'mov $4200, y',
+        'rti'
+].join(' ')
 
 // deprecated, not compatible
-// const addTwoNumbers = (xHigh, xLow, yHigh, yLow) => {    
+// const addTwoNumbers = (xHigh, xLow, yHigh, yLow)  {    
 //     var i = 0;
 //     writeableBytes[i++] = MOV_LIT_REG // MOV 0x1234 X
 //     writeableBytes[i++] = xHigh;

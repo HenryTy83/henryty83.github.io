@@ -42,6 +42,7 @@ const powerToggle = () => { //its 3 AM
     if (!powerOn) {
         fadeoutTime = 15
         powerOff = setInterval(fadeout, 100);
+        cpu.running = false;
     }
 
     else {

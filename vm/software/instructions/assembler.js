@@ -1,10 +1,9 @@
+const labels = {}
+
 const assemble = code => {
     const parsedOutput = instructionParser.run(code)
 
-    if (parsedOutput.index != code.length) {throw new Error(`could not parse program at index ${parsedOutput.index}: ${parsedOutput.targetString.slice(parsedOutput.index, parsedOutput.index + 20)}`)}
-
     const machineCode = []
-    const labels = {}
     let currentAddress = 0;
 
     const encodeLitOrMem = lit => {
@@ -110,7 +109,10 @@ const assemble = code => {
     }
     });
 
-return machineCode
+
+    if (parsedOutput.index != code.length) {throw new Error(`could not parse program at index ${parsedOutput.index}: ${parsedOutput.targetString.slice(parsedOutput.index, parsedOutput.index + 20)}`)}
+
+    return machineCode
 }
 
 const writeTo = (source, target, address=0) => {i=0; source.forEach(byte => target[address + i++] = byte)}

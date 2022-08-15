@@ -114,9 +114,6 @@ class arKsecond { //don't sue pls
             index,
         } = parserState; //use parserState as input and break it apart, so we input and output the same thing
 
-
-        if (index >= targetString.length) { return updateParserError(parserState, `regex: tried matching regex but got unexpected end of input`) }
-
     
         const slicedString = targetString.slice(index);
         const regexMatch = slicedString.match(r);
@@ -237,9 +234,9 @@ class arKsecond { //don't sue pls
             return updateParserResult(nextState, results);
     })
 
-    whitespace = this.many1(this.char(' ')).map(results => results.join(''))
+    whitespace = this.regex(/\s+/)
 
-    optionalWhitespace = this.many(this.char(' ')).map(results => results.join(''))
+    optionalWhitespace = this.regex(/\s*/)
 
     //sandwich function
     between = (leftParser, rightParser) => (contentParser) => this.sequenceOf([leftParser, contentParser, rightParser]).map(results => results[1]);

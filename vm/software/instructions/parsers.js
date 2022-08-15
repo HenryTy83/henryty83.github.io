@@ -1,10 +1,11 @@
 const mov = A.choice([
     regReg('mov', 'MOV_REG_REG'),
     litReg('mov', 'MOV_LIT_REG'),
+    regPtr('mov', 'MOV_REG_PTR'),
+    ptrReg('mov', 'MOV_PTR_REG'),
     memReg('mov', 'MOV_MEM_REG'),
     regMem('mov', 'MOV_REG_MEM'),
     litMem('mov', 'MOV_LIT_MEM'),
-    regPtrReg('mov', 'MOV_REG_PTR_REG'),
     litOffReg('mov', 'MOV_LIT_OFF_REG')
   ]);
   
@@ -50,7 +51,7 @@ const mov = A.choice([
   
   const inc = singleReg('inc', 'INC_REG');
   const dec = singleReg('dec', 'DEC_REG');
-  const not = singleReg('not', 'NOT');
+  const not = singleReg('not', 'NOT_REG');
   
   const jeq = A.choice([
     regMem('jeq', 'JEQ_REG'),
@@ -62,6 +63,7 @@ const mov = A.choice([
     litMem('jne', 'JMP_NOT_EQ'),
   ]);
   
+  const jmp = singleMem('jmp', 'JMP')
   const jez = singleMem('jez', 'JEZ');
   const jlz = singleMem('jlz', 'JLZ');
   const jgz = singleMem('jgz', 'JGZ');
@@ -98,7 +100,10 @@ const mov = A.choice([
     singleLit('cal', 'CAL_LIT'),
     singleReg('cal', 'CAL_REG'),
   ]);
-  
+
+  const int = singleLit('int', 'INT')
+  const rti = noArgs('rti', 'RET_INT')
+
   const ret = noArgs('ret', 'RET');
   const hlt = noArgs('hlt', 'HLT');
 
@@ -115,6 +120,7 @@ const mov = A.choice([
     or,
     xor,
     not,
+    jmp,
     jnz,
     jgz,
     jlz,
@@ -128,11 +134,14 @@ const mov = A.choice([
     psh,
     pop,
     cal,
+    int,
+    rti,
     ret,
     hlt,
   ])
 
-const instructionParser = A.many(A.choice([
+const instructionParser = A.sequenceOf([A.optionalWhitespace, A.many(A.choice([
+  label,
   mnemonicParser,
-  label
-]));
+
+]))]).map(result => result[1]);

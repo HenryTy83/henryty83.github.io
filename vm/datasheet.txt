@@ -14,23 +14,28 @@ registers:
     stack pointer
     frame pointer
     memory bank
+    interupt mask
 65536 ($ffff) unique addresses (not including bank-switching)
 Memory Mapped I/O
 
 //// Memory Mapping:
-0x0000-0x3fff: program memory
+0x0000-0x3ff0: program memory
+0x3fee: Hardware interrupt address
+0x3ff0-0x3fff: interrupt vector addresses
 0x4000-0x7fff: general purpose use
 < 0x7fff: stack
-0x8000-0xbfff: Peripherals 
-    0x8000-0x8769: screen display
+0x8000-0xafff: Peripherals 
+    0x8000-0x87b7: screen display
         screen is mapped in rows from top to bottom, each row goes from left to right. each byte corresponds to a character 
         useable address space: 
         starting rows: 0x8000, 0x804e, 0x809c, 0x80ea
+        the row at 0x8769 is cut off of the bottom. This place is where commands can be sent without messing with the picture
         high byte: 
             0xff: clear screen before writing
             0x01: bold text
             0x02: italic text
             0x03: bold and italic text 
+    0x8800: io
 0xb000-0xffff: memory bank
     mb = 0: VRAM
 
@@ -46,7 +51,9 @@ mul reg/$lit, reg                           multiply two operands, store result 
 and reg/$lit, reg                           bitwise AND two operands, store result to acc
 or reg/$lit, reg                            bitwise OR two operands, store result to acc
 xor reg/$lit, reg                           bitwise XOR two operands, store result to acc
-not reg                                     bitwise NOT selected register 
+not reg                                     bitwise NOT selected register  
+lsh reg                                     left shift selected register
+rsh reg                                     right shift selected register
 inc reg                                     increment selected register
 dec reg                                     decrement selected register
 

@@ -1,5 +1,5 @@
 class CPU {
-    constructor(memory) {
+    constructor(memory, interruptVectorAddress = 0x3ff0) {
         this.memory = memory;
         this.registerNames = registerNames
 
@@ -7,15 +7,25 @@ class CPU {
         this.registers = createMemory(this.registerNames.length * 2); //16 bit registers
         this.registerMap = this.registerNames.reduce((map, name, i) => { map[name] = 2 * i; return map }, {}); //i kinda understand this
 
+        this.interruptVectorAddress = interruptVectorAddress
+        this.nmiAddress = interruptVectorAddress - 2
+        this.isInInterruptHandler = false;
+        this.interruptRequest = false;
+
+        this.setRegister('im', 0xffff)
+
         this.setRegister('sp', 0x7ffe) //set the stack pointer
         this.setRegister('fp', 0x7ffe) //frame pointer too
 
         this.stackFrameSize = 0;
     }
 
+    createInterruptHandler = (index, label) => {
+        this.memory.setUint16(this.interruptVectorAddress + index * 2, labels[label])
+    }
+
     hexDump() {
         this.registerNames.forEach(r => console.log(`${r}: 0x${this.getRegister(r).toString(16).padStart(4, '0')}`));
-
     }
 
     memoryDump(address, n = 8) {
@@ -80,6 +90,7 @@ class CPU {
         this.push(this.getRegister('r5'))
         this.push(this.getRegister('r6'))
         this.push(this.getRegister('r7'))
+        this.push(this.getRegister('mb'))
 
         this.push(this.getRegister('ip')) //return address
         this.push(this.stackFrameSize + 2) //end of stack frame
@@ -96,6 +107,7 @@ class CPU {
 
         this.setRegister('ip', this.pop()) //pop values back from stack in reverse order
 
+        this.setRegister('mb', this.pop())
         this.setRegister('r7', this.pop())
         this.setRegister('r6', this.pop())
         this.setRegister('r5', this.pop())
@@ -108,6 +120,35 @@ class CPU {
         const argumentCount = this.pop(); //pop the argument count
         this.setRegister('sp', this.getRegister('sp') + argumentCount); //get rid of the arguments
         this.setRegister('fp', fpAddress + stackFrameSize)
+    }
+
+    handleHardwareInterrupt() {
+        const address = this.memory.getUint16(this.nmiAddress);
+        
+        this.push(0);
+        this.pushState();
+
+        this.isInInterruptHandler = true
+        this.setRegister('ip', address)
+    }
+
+    handleInterrupt(value) {
+        const interuptVectorIndex = value % 0x000f
+
+        const isUnmasked = Boolean((1 << interuptVectorIndex)) & this.getRegister('im')
+
+        if (!isUnmasked) {return}
+
+        const addressPointer = this.interruptVectorAddress + interuptVectorIndex * 2
+        const address = this.memory.getUint16(addressPointer)
+
+        if (!this.isInInterruptHandler) {
+            this.push(0);
+            this.pushState();
+        }
+
+        this.isInInterruptHandler = true
+        this.setRegister('ip', address)
     }
 
     executeInstruction(instruction) {
@@ -183,7 +224,7 @@ class CPU {
                 this.setRegister('acc', r1 * r2);
                 return;
             }
-            case instructionSet.ADD_REG_LIT.opcode: {
+            case instructionSet.ADD_LIT_REG.opcode: {
                 const literal = this.fetch16();
                 const r2 = this.fetchRegisterVal();
                 this.setRegister('acc', literal + r2);
@@ -248,7 +289,7 @@ class CPU {
             }
             case instructionSet.NOT_REG.opcode: {
                 const reg = this.fetch8();
-                this.registers.setRegister('acc', (~this.registers.getUint16(reg) & 0xffff));
+                this.setRegister('acc', (~this.registers.getUint16(reg) & 0xffff));
                 return;
             }
             case instructionSet.INC_REG.opcode: {
@@ -317,15 +358,29 @@ class CPU {
                 this.popState();
                 return;
             }
+            case instructionSet.INT.opcode: {
+                const interuptValue = this.fetch16();
+                this.handleInterrupt(interuptValue)
+                return
+            }
+            case instructionSet.RET_INT.opcode: {
+                this.isInInterruptHandler = false;
+                this.popState();
+                return
+            }
             case instructionSet.HLT.opcode: { this.halted = true; return; }
         }
     }
 
     step() {
+        if (this.interruptRequest && !this.isInInterruptHandler) {this.handleHardwareInterrupt()} //hardware interrupt
+
         const instruction = this.fetch8();
         this.executeInstruction(instruction);
 
         //this.hexDump();
-        // console.log(this.getRegister('acc'))
+        //this.memoryDump(this.getRegister('sp'))
+        // this.memoryDump(0xb000, 4)
+        // console.log(String.fromCharCode(this.getRegister('d')))
     }
 }

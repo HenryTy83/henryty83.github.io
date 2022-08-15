@@ -32,6 +32,7 @@ const createBankedMemory = (n, bankSize, cpu) => {
     return interface
 }
 
+const VRAM = createMemory(0x800);
 const memory = createMemory(0x10000); //init memory
 const writeableBytes = new Uint8Array(memory.buffer);
 
@@ -41,32 +42,46 @@ const nBanks = 8
 
 const cpu = new CPU(memoryMapper);
 
+
 memoryMapper.map(memory, 0x0000, 0xffff) //all addresses default to ram
-memoryMapper.map(createScreenOutput(), 0x8000, 0x8769) // 0x8000 - 0x8769 talks to the screen
-memoryMapper.map(createBankedMemory(nBanks, bankSize, cpu), 0xc000, 0xffff, true) // 0xb001 - 0xffff is a memory bank
-
-
-
+memoryMapper.map(createScreenOutput(), 0x8000, 0x87ff) // 0x8000 - 0x8769 talks to the screen (the extra row can't be seen)
+memoryMapper.map(createPeripherals(), peripheralMap.currentInterrupt, 0x8806)
+memoryMapper.map(createBankedMemory(nBanks, bankSize, cpu), 0xc000, 0xffff) // 0xb001 - 0xffff is a memory bank
 
 
 const assembleAndLoadProgram = code => assembleToVM(code, writeableBytes)
 
 //write code here
 writeableBytes[0] = instructionSet.HLT.opcode //immediately halts
+
+//import main code
+
+async function loadProgram(path) {
+    const loading = await fetch(path)
+    const program = (await loading.text()).split(/\r|\n/).join(' ')
+    console.log(instructionParser.run(program))
+    writeTo(assemble(program), writeableBytes)
+}
+loadProgram('./software/JSDOS.txt')
+
 //example programs
-assembleAndLoadProgram(helloWorld)
+//assembleAndLoadProgram(helloWorld)
 // assembleAndLoadProgram(hundredBottlesOfBeer)
 
 const runCPU = () => {
-    if (fadeInTime < 0) {
+    if (fadeInTime < 0 && cpu.running) {
         const speedUp = document.getElementById("myRange").value;
         for (i = 0; i < speedUp; i++) {
-            if (!cpu.halted) { cpu.step(); }
-            else {
+            if (cpu.running) { cpu.step(); }
+            else if (cpu.halted) {
                 clearTimeout(running) //stop looping when halted
                 console.log('EXECUTION HALTED')
                 button.style.backgroundColor = 'rgb(255, 255, 0)'
-                break
+                return
+            }
+
+            else {
+                return;
             }
         }
     }

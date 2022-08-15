@@ -14,23 +14,12 @@ const validIdentifier = mapJoin(A.sequenceOf([
     A.possibly(A.regex(/^[a-zA-Z0-9_]+/)).map(x => x == null ? '' : x)
 ]))
 
-const register = A.choice([
-    upperOrLowerStr('acc'),
-    upperOrLowerStr('ip'),
-    upperOrLowerStr('x'),
-    upperOrLowerStr('y'),
-    upperOrLowerStr('d'),
-    upperOrLowerStr('r3'),
-    upperOrLowerStr('r4'),
-    upperOrLowerStr('r5'),
-    upperOrLowerStr('r6'),
-    upperOrLowerStr('r7'),
-    upperOrLowerStr('sp'),
-    upperOrLowerStr('fp')
-]).map(registerType)
+const register = A.choice(registerNames.flatMap(r => upperOrLowerStr(r), {})).map(registerType)
 
 const address = A.char('&').chain(() => mapJoin(A.many1(hexDigit))).map(addressType)
 const label = A.sequenceOf([validIdentifier, A.char(':'), A.optionalWhitespace]).map(result => result[0]).map(labelType)
+//const findNewLine = A.sequenceOf([A.regex(/.+/), A.optionalWhitespace])
+//const comment = A.sequenceOf([A.char(';'), A.many(A.regex(/[^;]./)), A.optionalWhitespace]);
 
 const hexDigit = A.regex(/^[0-9A-Fa-f]/);
 const hexLiteral = A.char('$').chain(() => mapJoin(A.many1(hexDigit))).map(literalType)
