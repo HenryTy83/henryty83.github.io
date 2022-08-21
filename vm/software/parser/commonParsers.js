@@ -18,8 +18,8 @@ const register = A.choice(registerNames.flatMap(r => upperOrLowerStr(r), {})).ma
 
 const address = A.char('&').chain(() => mapJoin(A.many1(hexDigit))).map(addressType)
 const label = A.sequenceOf([validIdentifier, A.char(':'), A.optionalWhitespace]).map(result => result[0]).map(labelType)
-//const findNewLine = A.sequenceOf([A.regex(/.+/), A.optionalWhitespace])
-//const comment = A.sequenceOf([A.char(';'), A.many(A.regex(/[^;]./)), A.optionalWhitespace]);
+const betweenSlash = A.between(A.char('/'), A.char('/'))
+const comment = A.sequenceOf([betweenSlash(A.regex(/[^\/]+/)), A.optionalWhitespace]).map(commentType);
 
 const hexDigit = A.regex(/^[0-9A-Fa-f]/);
 const hexLiteral = A.char('$').chain(() => mapJoin(A.many1(hexDigit))).map(literalType)

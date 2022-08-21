@@ -42,6 +42,9 @@ Memory Mapped I/O
 //// Assembly documentation:
 Programs must be inputted in the form of a long string with commands separated by whitespace
 
+label:                                      referenced by [!label]
+/ comment /                                 any text surrounded by / will be ignored
+
 nop                                         do nothing
 mov reg/$lit/&[addr], reg/&[addr]           mov value in first operand to location in second operand
 

@@ -141,6 +141,7 @@ const mov = A.choice([
   ])
 
 const instructionParser = A.sequenceOf([A.optionalWhitespace, A.many(A.choice([
+  comment,
   label,
   mnemonicParser,
 

@@ -52,7 +52,7 @@ const assemble = code => {
             labels[instructionOrLabel.value] = currentAddress
         }
 
-        else {
+        else if (instructionOrLabel.type != 'COMMENT') {
             const metaData = instructionSet[instructionOrLabel.value.instruction]
             currentAddress += metaData.size
         }

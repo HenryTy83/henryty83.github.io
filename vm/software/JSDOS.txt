@@ -1,3 +1,4 @@
+/ this is a comment /
 start_up:
     mov [!hardware_int], &[$3fee]
     mov $0020, d

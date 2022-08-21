@@ -9,6 +9,7 @@ const squareBracketExprType = asType('SQUARE_BRACKET_EXPRESSION')
 const addressType = asType('ADDRESS')
 const instructionType = asType('INSTRUCTION')
 const variableType = asType('VARIABLE')
+const commentType = asType('COMMENT')
 
 const mapJoin = parser => parser.map(items => items.join(''));
 const peek = A.lookAhead(A.regex(/^./))
