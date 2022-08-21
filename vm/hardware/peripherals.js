@@ -8,31 +8,55 @@ const peripheralSizes = {
 }
 
 const currentInterrupt = createMemory(2)
+const interruptQueue = []
 
-const awaitInterruptFlag = (interruptAddress) => {
-    if (cpu.interruptRequest) {
-        window.requestAnimationFrame(awaitInterruptFlag(interruptAddress))
-    }
+const requestInterrupt = (addr) => {
+    interruptQueue.push(addr)
 
-    currentInterrupt.setUint16(0, interruptAddress)
-    cpu.interruptRequest = true
+    if (interruptQueue.length == 1) {currentInterrupt.setUint16(0, addr)}
+
+    cpu.interruptRequest = true;
 }
 
+const clearInterrupt = () => {
+    interruptQueue.shift();
+    if (interruptQueue.length > 0) {currentInterrupt.setUint16(0, interruptQueue[0])}
+
+    else {cpu.interruptRequest = false}    
+}
 
 //keyboard stuff
-var currentKeyPressed;
+const addCharTointerrupt = (char) => {
+    keyQueue.unshift(char.charCodeAt(0))
+    requestInterrupt(peripheralMap.keyboard);
+}
+
+const addValTointerrupt = (val) => {
+    keyQueue.unshift(val)
+    requestInterrupt(peripheralMap.keyboard);
+}
+
+const keyQueue = [];
 window.addEventListener('keydown', function (event) {
     if (powerOn) {
-        currentKeyPressed = event.key.charCodeAt(0)
-        awaitInterruptFlag(peripheralMap.keyboard);
+        if (event.key.length == 1) {
+            addCharTointerrupt(event.key)
+            return
+        }   
+
+        switch(event.key) {
+            case 'Backspace': {addValTointerrupt(8); return}
+            case 'Enter': {addCharTointerrupt('\n'); return}
+            default: {return}
+        }
     }
 }, false);
 
 const createKeyboardInput = () => { 
     return {
-        getUint16: () => currentKeyPressed,
+        getUint16: () => keyQueue.pop(),
         getUint8: () => 0,
-        setUint16: () => {cpu.interruptRequest = false},
+        setUint16: () => {clearInterrupt()},
     }
 }
 
