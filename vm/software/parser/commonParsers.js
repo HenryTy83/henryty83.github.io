@@ -19,7 +19,7 @@ const register = A.choice(registerNames.flatMap(r => upperOrLowerStr(r), {})).ma
 const address = A.char('&').chain(() => mapJoin(A.many1(hexDigit))).map(addressType)
 const label = A.sequenceOf([validIdentifier, A.char(':'), A.optionalWhitespace]).map(result => result[0]).map(labelType)
 const betweenSlash = A.between(A.char('/'), A.char('/'))
-const comment = A.sequenceOf([betweenSlash(A.regex(/[^\/]+/)), A.optionalWhitespace]).map(commentType);
+const comment = A.sequenceOf([betweenSlash(A.regex(/[^\/]+/)), A.optionalWhitespace]).map(result => result[0]).map(commentType);
 
 const hexDigit = A.regex(/^[0-9A-Fa-f]/);
 const hexLiteral = A.char('$').chain(() => mapJoin(A.many1(hexDigit))).map(literalType)
@@ -131,3 +131,57 @@ const squareBrakExpr = A.contextual(function* () {
 
   return squareBracketExprType(expr);
 }).map(disambiguateOrderOfOperations);
+
+const optionalWhitespaceSurrounded = A.between(A.optionalWhitespace, A.optionalWhitespace)
+const commaSeparated = A.sepBy(optionalWhitespaceSurrounded(A.char(',')))
+
+const dataParser = size => A.contextual(function* () {
+  const isExport = Boolean(yield A.possibly(A.char('+')))
+  yield A.str(`data${size}`)
+
+  yield A.whitespace;
+
+  const name = yield validIdentifier;
+  yield A.whitespace;
+  yield A.char('=');
+  yield A.whitespace;
+  yield A.char('{');
+  yield A.optionalWhitespace;
+
+  const values = yield commaSeparated(hexLiteral);
+
+  yield A.optionalWhitespace;
+  yield A.char('}')
+  yield A.optionalWhitespace;
+
+  return dataType({
+    size,
+    isExport, 
+    name,
+    values,
+  })
+})
+
+const data8 = dataParser(8)
+const data16 = dataParser(16)
+
+const constantParser = A.contextual(function* () {
+  const isExport = Boolean(yield A.possibly(A.char('+')))
+  
+  yield A.str('constant');
+  yield A.whitespace;
+  
+  const name = yield validIdentifier;
+  yield A.whitespace;
+  yield A.char('=');
+  yield A.whitespace;
+  
+  const value = yield hexLiteral
+  yield A.optionalWhitespace;
+
+  return constantType({
+    isExport,
+    name,
+    value,
+  })
+})

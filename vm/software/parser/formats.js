@@ -204,7 +204,7 @@ const litOffReg = (mnemonic, type) => A.contextual(function* () {
     yield A.char(',')
     yield A.optionalWhitespace
 
-    const r1 = yield A.choice([address, A.char('&').chain(() => squareBrakExpr)])
+    const r1 = yield A.char('&').chain(() => register)
 
     yield A.optionalWhitespace
     yield A.char(',')

@@ -54,9 +54,9 @@ window.addEventListener('keydown', function (event) {
 
 const createKeyboardInput = () => { 
     return {
-        getUint16: () => keyQueue.pop(),
+        getUint16: () => {clearInterrupt(); return keyQueue.pop()},
         getUint8: () => 0,
-        setUint16: () => {clearInterrupt()},
+        setUint16: () => 0,
     }
 }
 

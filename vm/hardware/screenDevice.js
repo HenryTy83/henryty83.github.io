@@ -61,12 +61,6 @@ const displayScreen = () => {
                 setTimeout(()=>{cpu.running = true}, pauseLength)
                 break
             }
-            case (0xff): { 
-                //delete the canvas
-                VRAMinstructions.length = 0
-                return
-
-            }
             default: {ctx.font = defaultFont}
         }
 
@@ -94,7 +88,9 @@ const createScreenOutput = () => {
         getUint16: () =>  0,
         getUint8: () => 0,
         setUint16: (address, data) => { 
+            if ((data & 0xff00) == 0xff00) {VRAMinstructions.length = 0; return;}
             VRAMinstructions.push([address, data])
+            if (VRAMinstructions.length > 0xffff) {throw new Error('Screen device: out of allotted VRAM')} // something is looping
         }
     }
 }
