@@ -11,11 +11,11 @@ registers:
     instruction pointer
     accumulator
     x, y, d, r3-r7 general purpose registers
-    stack pointer
+    stack pointer (descending stack)
     frame pointer
     memory bank
     interupt mask
-65536 ($ffff) unique addresses (not including bank-switching)
+65536 ($ffff + 1) unique addresses (not including bank-switching)
 Memory Mapped I/O
 
 //// Memory Mapping:
@@ -40,7 +40,7 @@ Memory Mapped I/O
         Write a 16 bit value (x) to the timer and it will immediately begin counting down (x*10 ms)
         After the timer expires, reading from the timer will yield the value x (if the timer is still running, reading will yield 0)
 0xb000-0xffff: memory bank
-    mb = 0: VRAM
+    currently unused
 
 
 
@@ -52,6 +52,7 @@ label:                                      referenced by [!label]
 
 nop                                         do nothing
 mov reg/$lit/&[addr], reg/&[addr]           mov value in first operand to location in second operand
+mov $lit reg reg                            mov memory value at address &[lit + reg1] to reg2
 
 add reg, reg/$lit                           add two operands, store result to acc
 sub reg, reg/$lit                           sub second operand from the first operand, store result to acc
@@ -79,7 +80,7 @@ jne $lit/reg [!label]                       jump to second operand if acc != fir
 push $lit/reg                               push the operand to the stack
 pop reg                                     pop a value from the stack, store to selected regester
 
-cal $lit/reg                                jump to subroutine at operand. Before calling, push any parameters, followed by the number of parameters to stack. All registers are preserved except for acc. In subroutine, address of parameters can be popped, but remember to reset the stack pointer to the value of the frame pointer before RET-ing
+cal $lit/reg                                jump to subroutine at operand. All registers are accessible from the subroutine. When RET-ing, all registers except for acc are restored to previous values
 ret                                         return from subroutine
 
 hlt                                         halt execution
