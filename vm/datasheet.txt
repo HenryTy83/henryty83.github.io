@@ -1,7 +1,7 @@
 //////// TJSVMTDHAA: The Javascript Virtual Machine That Doesn't Have An Acronym
 
 
-By Henry Ty, Aug 1X 2022
+By Henry Ty, Aug 8-2X 2022
 Following along (and partially copying) from Low Level Javascript's LLJS VM:  https://github.com/LowLevelJavaScript/16-Bit-Virtual-Machine
 
 
@@ -36,8 +36,13 @@ Memory Mapped I/O
             0x02: italic text
             0x03: bold and italic text 
     0x8800: io
+    0x8ffe-0x8fff: sleep timer
+        Write a 16 bit value (x) to the timer and it will immediately begin counting down (x*10 ms)
+        After the timer expires, reading from the timer will yield the value x (if the timer is still running, reading will yield 0)
 0xb000-0xffff: memory bank
     mb = 0: VRAM
+
+
 
 //// Assembly documentation:
 Programs must be inputted in the form of a long string with commands separated by whitespace
@@ -48,33 +53,33 @@ label:                                      referenced by [!label]
 nop                                         do nothing
 mov reg/$lit/&[addr], reg/&[addr]           mov value in first operand to location in second operand
 
-add reg/$lit, reg                           add two operands, store result to acc
-sub reg/$lit, reg                           sub second operand from the first operand, store result to acc
-mul reg/$lit, reg                           multiply two operands, store result to acc
-and reg/$lit, reg                           bitwise AND two operands, store result to acc
-or reg/$lit, reg                            bitwise OR two operands, store result to acc
-xor reg/$lit, reg                           bitwise XOR two operands, store result to acc
+add reg, reg/$lit                           add two operands, store result to acc
+sub reg, reg/$lit                           sub second operand from the first operand, store result to acc
+mul reg, reg/$lit                           multiply two operands, store result to acc
+and reg, reg/$lit                           bitwise AND two operands, store result to acc
+or reg, reg/$lit                            bitwise OR two operands, store result to acc
+xor reg, reg/$lit                           bitwise XOR two operands, store result to acc
 not reg                                     bitwise NOT selected register  
-lsh reg                                     left shift selected register
-rsh reg                                     right shift selected register
+shl reg reg/$lit                            left shift selected register [second operator] times
+shr reg reg/$lit                            right shift selected register [second operator] times
 inc reg                                     increment selected register
 dec reg                                     decrement selected register
 
-jmp &[addr]                                 jump to operand
-jgz &[addr]                                 jump to operand if acc > 0
-jlz &[addr]                                 jump to operand if acc < 0
-jez &[addr]                                 jump to operand if acc == 0
-jnz &[addr]                                 jump to operand if acc != 0
+jmp $addr/[!label]                          jump to operand
+jgz $addr/[!label]                          jump to operand if acc > 0
+jlz $addr/[!label]                          jump to operand if acc < 0
+jez $addr/[!label]                          jump to operand if acc == 0
+jnz $addr/[!label]                          jump to operand if acc != 0
 
-jgt $lit/reg &[addr]                        jump to second operand if acc > first operand
-jlt $lit/reg &[addr]                        jump to second operand if acc < first operand
-jeq $lit/reg &[addr]                        jump to second operand if acc == first operand
-jne $lit/reg &[addr]                        jump to second operand if acc != first operand
+jgt $lit/reg [!label]                       jump to second operand if acc > first operand
+jlt $lit/reg [!label]                       jump to second operand if acc < first operand
+jeq $lit/reg [!label]                       jump to second operand if acc == first operand
+jne $lit/reg [!label]                       jump to second operand if acc != first operand
 
 push $lit/reg                               push the operand to the stack
 pop reg                                     pop a value from the stack, store to selected regester
 
-cal $lit/reg                                jump to subroutine at operand
+cal $lit/reg                                jump to subroutine at operand. Before calling, push any parameters, followed by the number of parameters to stack. All registers are preserved except for acc. In subroutine, address of parameters can be popped, but remember to reset the stack pointer to the value of the frame pointer before RET-ing
 ret                                         return from subroutine
 
 hlt                                         halt execution

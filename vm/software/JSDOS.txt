@@ -1,12 +1,9 @@
 / this is a comment /
 start_up:
     mov [!hardware_int], &[$3fee]
-    mov $0020, d
-    mov $00, mb
-    mov $b000, acc
 
 main:
-    jmp &[!main]
+    jmp [!main]
     hlt
 
 hardware_int:
@@ -24,3 +21,21 @@ hardware_int:
     mov y, &[$4000]
     mov d, &x
     rti
+
+sleep: / 1 parameter: time to sleep in 0.01s /
+    mov &sp, acc
+    add acc, $02     / fetch the parameters / 
+    mov acc, sp
+    
+    mov &sp, acc     / sleep time -> acc /
+
+    mov fp, sp      / reset /
+
+    mov acc, &[$8ffe] / prime the timer /
+
+    wait:
+        mov &[$8ffe], acc
+        jez [!wait]
+
+        mov $00, &[$8ffe] / clear the timer /
+        ret

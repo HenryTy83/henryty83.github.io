@@ -20,6 +20,55 @@ const litReg = (mnemonic, type) => A.contextual(function* () {
     })
 })
 
+const regLit = (mnemonic, type) => A.contextual(function* () {
+    yield upperOrLowerStr(mnemonic);
+    yield A.whitespace
+
+    const arg1 = yield register
+    yield A.optionalWhitespace
+
+    yield A.optionalWhitespace
+    yield A.char(',')
+    yield A.optionalWhitespace
+
+    const arg2 = yield A.choice([
+        hexLiteral,
+        squareBrakExpr,
+    ])
+    yield A.optionalWhitespace
+
+    return instructionType({
+        instruction: type,
+        args: [arg1, arg2]
+    })
+})
+
+const litLit = (mnemonic, type) => A.contextual(function* () {
+    yield upperOrLowerStr(mnemonic);
+    yield A.whitespace
+
+    const arg1 = yield A.choice([
+        hexLiteral,
+        squareBrakExpr,
+    ])
+    yield A.optionalWhitespace
+
+    yield A.optionalWhitespace
+    yield A.char(',')
+    yield A.optionalWhitespace
+
+    const arg2 = yield A.choice([
+        hexLiteral,
+        squareBrakExpr,
+    ])
+    yield A.optionalWhitespace
+
+    return instructionType({
+        instruction: type,
+        args: [arg1, arg2]
+    })
+})
+
 const regReg = (mnemonic, type) => A.contextual(function* () {
     yield upperOrLowerStr(mnemonic);
     yield A.whitespace

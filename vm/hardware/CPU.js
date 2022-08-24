@@ -4,6 +4,8 @@ class CPU {
         this.registerNames = registerNames
 
         this.halted = false;
+        this.running = false;
+
         this.registers = createMemory(this.registerNames.length * 2); //16 bit registers
         this.registerMap = this.registerNames.reduce((map, name, i) => { map[name] = 2 * i; return map }, {}); //i kinda understand this
 
@@ -16,8 +18,6 @@ class CPU {
 
         this.setRegister('sp', 0x7ffe) //set the stack pointer
         this.setRegister('fp', 0x7ffe) //frame pointer too
-
-        this.stackFrameSize = 0;
     }
 
     createInterruptHandler = (index, label) => {
@@ -69,14 +69,11 @@ class CPU {
         const spAddress = this.getRegister('sp')
         this.memory.setUint16(spAddress, value);
         this.setRegister('sp', spAddress - 2);
-
-        this.stackFrameSize += 2;
     }
 
     pop() {
         const spAddress = this.getRegister('sp');
         this.setRegister('sp', spAddress + 2);
-        this.stackFrameSize -= 2;
 
         return this.memory.getUint16(spAddress + 2);
     }
@@ -93,18 +90,16 @@ class CPU {
         this.push(this.getRegister('mb'))
 
         this.push(this.getRegister('ip')) //return address
-        this.push(this.stackFrameSize + 2) //end of stack frame
+        this.push(this.getRegister('fp')) //end of stack frame
 
         this.setRegister('fp', this.getRegister('sp')) //move frame pointer to where stack pointer is
-        this.stackFrameSize = 0; //new stack frame
     }
 
     popState() {
         const fpAddress = this.getRegister('fp');
         this.setRegister('sp', fpAddress);
-        this.stackFrameSize = this.pop();
-        const stackFrameSize = this.stackFrameSize;
 
+        this.setRegister('fp', this.pop())
         this.setRegister('ip', this.pop()) //pop values back from stack in reverse order
 
         this.setRegister('mb', this.pop())
@@ -119,7 +114,6 @@ class CPU {
 
         const argumentCount = this.pop(); //pop the argument count
         this.setRegister('sp', this.getRegister('sp') + argumentCount); //get rid of the arguments
-        this.setRegister('fp', fpAddress + stackFrameSize)
     }
 
     handleHardwareInterrupt() {
@@ -224,9 +218,9 @@ class CPU {
                 this.setRegister('acc', r1 * r2);
                 return;
             }
-            case instructionSet.ADD_LIT_REG.opcode: {
-                const literal = this.fetch16();
+            case instructionSet.ADD_REG_LIT.opcode: {
                 const r2 = this.fetchRegisterVal();
+                const literal = this.fetch16();
                 this.setRegister('acc', literal + r2);
                 return;
             }
@@ -349,7 +343,7 @@ class CPU {
                 return;
             }
             case instructionSet.CAL_REG.opcode: {
-                const jmpAddress = this.fetch16();
+                const jmpAddress = this.fetchRegisterVal();
                 this.pushState();
                 this.setRegister('ip', jmpAddress) //jump to sub routine
                 return;

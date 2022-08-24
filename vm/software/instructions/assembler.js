@@ -46,7 +46,7 @@ const assemble = code => {
     const encodeReg = reg => {
         machineCode.push(registerMap[reg.value])
     }
-
+    
     parsedOutput.result.forEach(instructionOrLabel => {
         if (instructionOrLabel.type == 'LABEL') {
             labels[instructionOrLabel.value] = currentAddress
@@ -54,7 +54,13 @@ const assemble = code => {
 
         else if (instructionOrLabel.type != 'COMMENT') {
             const metaData = instructionSet[instructionOrLabel.value.instruction]
-            currentAddress += metaData.size
+
+            try {
+                currentAddress += metaData.size
+            }
+            catch(err) {
+                throw new Error(`Unknown instruction: ${instructionOrLabel.value.instruction}`)
+            }
         }
     })
 

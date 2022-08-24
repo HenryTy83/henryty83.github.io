@@ -11,42 +11,42 @@ const mov = A.choice([
   
   const add = A.choice([
     regReg('add', 'ADD_REG_REG'),
-    litReg('add', 'ADD_LIT_REG'),
+    regLit('add', 'ADD_REG_LIT'),
   ]);
   
   const sub = A.choice([
     regReg('sub', 'SUB_REG_REG'),
-    litReg('sub', 'SUB_LIT_REG'),
+    regLit('sub', 'SUB_REG_LIT'),
   ]);
   
   const mul = A.choice([
     regReg('mul', 'MUL_REG_REG'),
-    litReg('mul', 'MUL_LIT_REG'),
+    regLit('mul', 'MUL_REG_LIT'),
   ]);
   
-  const lsf = A.choice([
-    regReg('lsf', 'LSF_REG_REG'),
-    litReg('lsf', 'LSF_LIT_REG'),
+  const shl = A.choice([
+    regReg('shl', 'SHL_REG_REG'),
+    regLit('shl', 'SHL_REG_LIT'),
   ]);
   
-  const rsf = A.choice([
+  const shr = A.choice([
     regReg('rsf', 'RSF_REG_REG'),
-    litReg('rsf', 'RSF_LIT_REG'),
+    regLit('rsf', 'RSF_REG_LIT'),
   ]);
   
   const and = A.choice([
     regReg('and', 'AND_REG_REG'),
-    litReg('and', 'AND_LIT_REG'),
+    regLit('and', 'AND_REG_LIT'),
   ]);
   
   const or = A.choice([
     regReg('or', 'OR_REG_REG'),
-    litReg('or', 'OR_LIT_REG'),
+    regLit('or', 'OR_REG_LIT'),
   ]);
   
   const xor = A.choice([
     regReg('xor', 'XOR_REG_REG'),
-    litReg('xor', 'XOR_LIT_REG'),
+    regLit('xor', 'XOR_REG_LIT'),
   ]);
   
   const inc = singleReg('inc', 'INC_REG');
@@ -54,39 +54,39 @@ const mov = A.choice([
   const not = singleReg('not', 'NOT_REG');
   
   const jeq = A.choice([
-    regMem('jeq', 'JEQ_REG'),
-    litMem('jeq', 'JEQ_LIT'),
+    regLit('jeq', 'JEQ_REG'),
+    litLit('jeq', 'JEQ_LIT'),
   ]);
   
   const jne = A.choice([
-    regMem('jne', 'JNE_REG'),
-    litMem('jne', 'JMP_NOT_EQ'),
+    regLit('jne', 'JNE_REG'),
+    litLit('jne', 'JMP_NOT_EQ'),
   ]);
   
-  const jmp = singleMem('jmp', 'JMP')
-  const jez = singleMem('jez', 'JEZ');
-  const jlz = singleMem('jlz', 'JLZ');
-  const jgz = singleMem('jgz', 'JGZ');
-  const jnz = singleMem('jnz', 'JNZ');
+  const jmp = singleLit('jmp', 'JMP')
+  const jez = singleLit('jez', 'JEZ');
+  const jlz = singleLit('jlz', 'JLZ');
+  const jgz = singleLit('jgz', 'JGZ');
+  const jnz = singleLit('jnz', 'JNZ');
 
   const jlt = A.choice([
-    regMem('jlt', 'JLT_REG'),
-    litMem('jlt', 'JLT_LIT'),
+    regLit('jlt', 'JLT_REG'),
+    litLit('jlt', 'JLT_LIT'),
   ]);
   
   const jgt = A.choice([
-    regMem('jgt', 'JGT_REG'),
-    litMem('jgt', 'JGT_LIT'),
+    regLit('jgt', 'JGT_REG'),
+    litLit('jgt', 'JGT_LIT'),
   ]);
   
   const jle = A.choice([
-    regMem('jle', 'JLE_REG'),
-    litMem('jle', 'JLE_LIT'),
+    regLit('jle', 'JLE_REG'),
+    litLit('jle', 'JLE_LIT'),
   ]);
   
   const jge = A.choice([
-    regMem('jge', 'JGE_REG'),
-    litMem('jge', 'JGE_LIT'),
+    regLit('jge', 'JGE_REG'),
+    litLit('jge', 'JGE_LIT'),
   ]);
   
   const psh = A.choice([
@@ -114,8 +114,8 @@ const mov = A.choice([
     inc,
     dec,
     mul,
-    lsf,
-    rsf,
+    shl,
+    shr,
     and,
     or,
     xor,

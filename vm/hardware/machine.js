@@ -32,6 +32,13 @@ const createBankedMemory = (n, bankSize, cpu) => {
     return interface
 }
 
+var timerVal;
+const createSleepTimer = () => ({
+    getUint16: () =>  timerVal,
+    getUint8: () => 0,
+    setUint16: (_, data) => {timerVal = 0; setTimeout(() => {timerVal = data}, data*10)}
+})
+
 const VRAM = createMemory(0x800);
 const memory = createMemory(0x10000); //init memory
 const writeableBytes = new Uint8Array(memory.buffer);
@@ -46,6 +53,7 @@ const cpu = new CPU(memoryMapper);
 memoryMapper.map(memory, 0x0000, 0xffff) //all addresses default to ram
 memoryMapper.map(createScreenOutput(), 0x8000, 0x87ff) // 0x8000 - 0x8769 talks to the screen (the extra row can't be seen)
 memoryMapper.map(createPeripherals(), peripheralMap.currentInterrupt, 0x8806)
+memoryMapper.map(createSleepTimer(), 0x8ffe, 0x8fff)
 memoryMapper.map(createBankedMemory(nBanks, bankSize, cpu), 0xc000, 0xffff) // 0xb001 - 0xffff is a memory bank
 
 
@@ -56,17 +64,30 @@ writeableBytes[0] = instructionSet.HLT.opcode //immediately halts
 
 //import main code
 
-async function loadProgram(path) {
+async function loadProgram(path, index=0) {
     const loading = await fetch(path)
     const program = (await loading.text()).split(/\r|\n/).join(' ')
-    console.log(instructionParser.run(program))
-    writeTo(assemble(program), writeableBytes)
+    // console.log(instructionParser.run(program))
+    writeTo(assemble(program), writeableBytes, index)
 }
-loadProgram('./software/JSDOS.txt')
+
+async function bootUp(files) {
+    for (let file of files) {
+        loadProgram(file[0], file[1])
+    }
+
+    cpu.running = true
+}
+
+const programs = [
+    ['./software/JSDOS.txt', 0x0000]
+]
+
+bootUp(programs)
 
 //example programs
 //assembleAndLoadProgram(helloWorld)
-// assembleAndLoadProgram(hundredBottlesOfBeer)
+//assembleAndLoadProgram(hundredBottlesOfBeer)
 
 const runCPU = () => {
     if (fadeInTime < 0 && cpu.running) {
