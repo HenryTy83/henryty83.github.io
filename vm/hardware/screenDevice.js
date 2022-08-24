@@ -35,6 +35,24 @@ DOSfont.load().then(function (font) { //what the hell is a promise
 }); 
 
 const VRAMinstructions = [];
+var unicodeMode = false;
+
+const drawChar = (char, address) => {
+    const charX = (address % charPerRow) + 1 //this makes sense, just convert the index number to x and y coordinates
+    const charY = Math.floor(address / charPerRow) + 1
+
+    const randomFlicker = Math.random() < 0.0025 ? Math.random() : 0;
+
+    ctx.fillStyle = `rgb(0, 255, 0, ${1-0.75*randomFlicker}`
+    ctx.fillText(char, charX * charWidth -3, charY * charHeight-5)
+
+    ctx.fillStyle = `rgb(0, 255, 0, ${0.05-0.035*randomFlicker}`
+    for (let i=-2; i<=2; i++) {
+        for (let j=-2; j<=2; j++) {
+            ctx.fillText(char, charX * charWidth -3 + i, charY * charHeight + j - 5)
+        }
+    }
+}
 
 const displayScreen = () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height); //clear the screen
@@ -46,10 +64,12 @@ const displayScreen = () => {
 
     for (let currentChar of VRAMinstructions) {
         var [address, data] = currentChar
+        
+        if (currentChar[1] == 0xffff) {unicodeMode = !unicodeMode; continue}
+        if (unicodeMode) {drawChar(String.fromCharCode(data), address); continue;}
+
         const charValue = data & 0x00ff
         const instruction = (data & 0xff00) >> 8
-
-
 
         switch (instruction) {
             case (0x01): { ctx.font = `bold ${defaultFont}`; break} // font changes
@@ -64,33 +84,37 @@ const displayScreen = () => {
             default: {ctx.font = defaultFont}
         }
 
-
-        const charX = (address % charPerRow) + 1 //this makes sense, just convert the index number to x and y coordinates
-        const charY = Math.floor(address / charPerRow) + 1
-        const char = String.fromCharCode(charValue);
-
-        const randomFlicker = Math.random() < 0.0025 ? Math.random() : 0;
-
-        ctx.fillStyle = `rgb(0, 255, 0, ${1-0.75*randomFlicker}`
-        ctx.fillText(char, charX * charWidth -3, charY * charHeight-5)
-
-        ctx.fillStyle = `rgb(0, 255, 0, ${0.05-0.035*randomFlicker}`
-        for (let i=-2; i<=2; i++) {
-            for (let j=-2; j<=2; j++) {
-                ctx.fillText(char, charX * charWidth -3 + i, charY * charHeight + j - 5)
-            }
-        }
-    }
+        drawChar(String.fromCharCode(charValue), address);
+}
 }
 
 const createScreenOutput = () => { 
     return {
-        getUint16: () =>  0,
+        getUint16: (address) =>  VRAM.getUint16(address),
         getUint8: () => 0,
         setUint16: (address, data) => { 
-            if ((data & 0xff00) == 0xff00) {VRAMinstructions.length = 0; return;}
+            if (address >= 0x8769 || data == 0xffff) {
+                VRAMinstructions.push([address, data]);
+                return
+            }
+            if ((data & 0xff00) == 0xff00) {
+                VRAMinstructions.length = 0; 
+                return;
+            }
+            
+            VRAM.setUint16(address, data)
+
+            for (let i in VRAMinstructions) {
+                let char = VRAMinstructions[i]
+                if (char[0] == address) {
+                    VRAMinstructions.splice(i, 1);
+                    break;
+                }
+            }
+
             VRAMinstructions.push([address, data])
-            if (VRAMinstructions.length > 0xffff) {throw new Error('Screen device: out of allotted VRAM')} // something is looping
+
+            // console.log(VRAMinstructions)
         }
     }
 }
