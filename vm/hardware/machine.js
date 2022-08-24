@@ -32,12 +32,11 @@ const createBankedMemory = (n, bankSize, cpu) => {
     return interface
 }
 
-//sleep timer
-var timerVal = 0xffff;
+var timerVal;
 const createSleepTimer = () => ({
     getUint16: () =>  timerVal,
     getUint8: () => 0,
-    setUint16: (_, data) => {if (data > 0) {timerVal = 0; setTimeout(() => {timerVal = data}, data*10)}}
+    setUint16: (_, data) => {timerVal = 0; setTimeout(() => {timerVal = data}, data*10)}
 })
 
 const VRAM = createMemory(0x800);
@@ -54,7 +53,7 @@ const cpu = new CPU(memoryMapper);
 memoryMapper.map(memory, 0x0000, 0xffff) //all addresses default to ram
 memoryMapper.map(createScreenOutput(), 0x8000, 0x87ff) // 0x8000 - 0x8769 talks to the screen (the extra row can't be seen)
 memoryMapper.map(createPeripherals(), peripheralMap.currentInterrupt, 0x8806)
-//memoryMapper.map(createSleepTimer(), 0xaffe, 0xafff)
+memoryMapper.map(createSleepTimer(), 0x8ffe, 0x8fff)
 memoryMapper.map(createBankedMemory(nBanks, bankSize, cpu), 0xc000, 0xffff) // 0xb001 - 0xffff is a memory bank
 
 
@@ -68,8 +67,7 @@ writeableBytes[0] = instructionSet.HLT.opcode //immediately halts
 async function loadProgram(path, index=0) {
     const loading = await fetch(path)
     const program = (await loading.text()).split(/\r|\n/).join(' ')
-    console.log(instructionParser.run(program))
-    // console.log(assemble(program).map(x => `$${x.toString(16).padStart(2, '0')}`).join(' '))
+    // console.log(instructionParser.run(program))
     writeTo(assemble(program), writeableBytes, index)
 }
 

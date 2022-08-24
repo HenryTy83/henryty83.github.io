@@ -10,8 +10,6 @@ const addressType = asType('ADDRESS')
 const instructionType = asType('INSTRUCTION')
 const variableType = asType('VARIABLE')
 const commentType = asType('COMMENT')
-const dataType = asType('DATA')
-const constantType = asType('CONSTANT')
 
 const mapJoin = parser => parser.map(items => items.join(''));
 const peek = A.lookAhead(A.regex(/^./))

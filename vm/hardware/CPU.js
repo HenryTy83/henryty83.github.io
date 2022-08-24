@@ -10,7 +10,6 @@ class CPU {
         this.registerMap = this.registerNames.reduce((map, name, i) => { map[name] = 2 * i; return map }, {}); //i kinda understand this
 
         this.interruptVectorAddress = interruptVectorAddress
-
         this.nmiAddress = interruptVectorAddress - 2
         this.isInInterruptHandler = false;
         this.interruptRequest = false;
@@ -89,7 +88,6 @@ class CPU {
         this.push(this.getRegister('r6'))
         this.push(this.getRegister('r7'))
         this.push(this.getRegister('mb'))
-        this.push(this.getRegister('im'))
 
         this.push(this.getRegister('ip')) //return address
         this.push(this.getRegister('fp')) //end of stack frame
@@ -98,13 +96,12 @@ class CPU {
     }
 
     popState() {
-        this.setRegister('sp', this.getRegister('fp'));
-
+        const fpAddress = this.getRegister('fp');
+        this.setRegister('sp', fpAddress);
 
         this.setRegister('fp', this.pop())
         this.setRegister('ip', this.pop()) //pop values back from stack in reverse order
 
-        this.setRegister('im', this.pop())
         this.setRegister('mb', this.pop())
         this.setRegister('r7', this.pop())
         this.setRegister('r6', this.pop())
@@ -114,11 +111,15 @@ class CPU {
         this.setRegister('d', this.pop())
         this.setRegister('y', this.pop())
         this.setRegister('x', this.pop())
+
+        const argumentCount = this.pop(); //pop the argument count
+        this.setRegister('sp', this.getRegister('sp') + argumentCount); //get rid of the arguments
     }
 
     handleHardwareInterrupt() {
         const address = this.memory.getUint16(this.nmiAddress);
         
+        this.push(0);
         this.pushState();
 
         this.isInInterruptHandler = true
@@ -136,6 +137,7 @@ class CPU {
         const address = this.memory.getUint16(addressPointer)
 
         if (!this.isInInterruptHandler) {
+            this.push(0);
             this.pushState();
         }
 
@@ -150,10 +152,7 @@ class CPU {
             case instructionSet.NOP.opcode: { return; }
 
             // 0x1X: register logistics
-            case instructionSet.MOV_LIT_REG.opcode: { 
-                const literal = this.fetch16(); this.registers.setUint16(this.fetch8(), literal); 
-                return; 
-            };
+            case instructionSet.MOV_LIT_REG.opcode: { const literal = this.fetch16(); this.registers.setUint16(this.fetch8(), literal); return; };
             case instructionSet.MOV_REG_REG.opcode: {
                 const regFrom = this.fetchRegisterVal();
                 const regTo = this.fetch8();
@@ -194,10 +193,9 @@ class CPU {
             }
 
             case instructionSet.MOV_LOF_REG.opcode: {
-                const literal = this.fetch16();
+                const literal = this.fetch16;
                 const offset = this.fetchRegisterVal();
                 const toReg = this.fetch8();
-                
                 this.registers.setUint16(toReg, this.memory.getUint16(literal + offset));
             }
 
@@ -329,7 +327,7 @@ class CPU {
             //0x4X: Stack operations
             case instructionSet.PSH_LIT.opcode: { this.push(this.fetch16()); return; }
             case instructionSet.PSH_REG.opcode: { this.push(this.fetchRegisterVal()); return; }
-            case instructionSet.POP_REG.opcode: {
+            case instructionSet.POP.opcode: {
                 const toReg = this.fetch8();
                 const value = this.pop();
                 this.registers.setUint16(toReg, value);

@@ -6,13 +6,12 @@ const instructionTypes = {
     regMem: 4,
     memReg: 5,
     litMem: 6,
-    litOffReg: 7,
-    noArgs: 8,
-    singleReg: 9,
-    singleLit: 10,
-    singleMem: 11,
-    ptrReg: 12,
-    regPtr: 13,
+    regPtrReg: 7,
+    litOffReg: 8,
+    noArgs: 9,
+    singleReg: 10,
+    singleLit: 11,
+    singleMem: 12,
 };
 
 const instructionTypeSizes = {
@@ -23,13 +22,12 @@ const instructionTypeSizes = {
     regMem: 4,
     memReg: 4,
     litMem: 5,
+    regPtrReg: 3,
     litOffReg: 5,
     noArgs: 1,
     singleReg: 2,
     singleLit: 3,
     singleMem: 3,
-    ptrReg: 3,
-    regPtr: 3,
 };
 
 const registerNames = [
@@ -48,8 +46,8 @@ const meta = //this is worst-formatted variable you've ever seen
 }, {instruction: 'MOV_REG_REG' , opcode:  0x11, type: instructionTypes.regReg, size: instructionTypeSizes.regReg, mnemonic: 'mov'  // REG REG
 }, {instruction: 'MOV_REG_MEM' , opcode:  0x12, type: instructionTypes.regMem, size: instructionTypeSizes.regMem, mnemonic: 'mov' // REG ADDRESS
 }, {instruction: 'MOV_MEM_REG' , opcode:  0x13, type: instructionTypes.memReg, size: instructionTypeSizes.memReg, mnemonic: 'mov' // ADDRESS REG
-}, {instruction: 'MOV_PTR_REG' , opcode:  0x14, type: instructionTypes.ptrReg, size: instructionTypeSizes.ptrReg, mnemonic: 'mov'  // REG REG
-}, {instruction: 'MOV_REG_PTR' , opcode:  0x15, type: instructionTypes.regPtr, size: instructionTypeSizes.regPtr, mnemonic: 'mov'  // REG REG
+}, {instruction: 'MOV_PTR_REG' , opcode:  0x14, type: instructionTypes.regPtrReg, size: instructionTypeSizes.regPtrReg, mnemonic: 'mov'  // REG REG
+}, {instruction: 'MOV_REG_PTR' , opcode:  0x15, type: instructionTypes.regPtrReg, size: instructionTypeSizes.regPtrReg, mnemonic: 'mov'  // REG REG
 }, {instruction: 'MOV_LIT_MEM' , opcode:  0x16, type: instructionTypes.litMem, size: instructionTypeSizes.litMem, mnemonic: 'mov'  // LITERAL ADDRESS
 }, {instruction: 'MOV_LOF_REG' , opcode:  0x17, type: instructionTypes.litOffReg, size: instructionTypeSizes.litOffReg, mnemonic: 'mov' // LITERAL REG
 
@@ -92,7 +90,7 @@ const meta = //this is worst-formatted variable you've ever seen
 // 0x4X: Stack operations
 }, {instruction: 'PSH_LIT'     , opcode:  0x40, type: instructionTypes.singleLit, size: instructionTypeSizes.singleLit, mnemonic: 'psh'  // LITERAL
 }, {instruction: 'PSH_REG'     , opcode:  0x41, type: instructionTypes.singleReg, size: instructionTypeSizes.singleReg, mnemonic: 'psh'  // REG
-}, {instruction: 'POP_REG'     , opcode:  0x42, type: instructionTypes.singleReg, size: instructionTypeSizes.singleReg, mnemonic: 'pop'  // REG
+}, {instruction: 'POP'         , opcode:  0x42, type: instructionTypes.singleReg, size: instructionTypeSizes.singleReg, mnemonic: 'pop'  // REG
 
 
 //0xFX: control flow

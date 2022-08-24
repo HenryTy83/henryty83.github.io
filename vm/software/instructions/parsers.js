@@ -1,12 +1,12 @@
 const mov = A.choice([
-    litOffReg('mov', 'MOV_LOF_REG'),
-    litMem('mov', 'MOV_LIT_MEM'),
-    memReg('mov', 'MOV_MEM_REG'),
-    regMem('mov', 'MOV_REG_MEM'),
-    litReg('mov', 'MOV_LIT_REG'),
     regReg('mov', 'MOV_REG_REG'),
+    litReg('mov', 'MOV_LIT_REG'),
     regPtr('mov', 'MOV_REG_PTR'),
     ptrReg('mov', 'MOV_PTR_REG'),
+    memReg('mov', 'MOV_MEM_REG'),
+    regMem('mov', 'MOV_REG_MEM'),
+    litMem('mov', 'MOV_LIT_MEM'),
+    litOffReg('mov', 'MOV_LIT_OFF_REG')
   ]);
   
   const add = A.choice([
@@ -107,10 +107,7 @@ const mov = A.choice([
   const ret = noArgs('ret', 'RET');
   const hlt = noArgs('hlt', 'HLT');
 
-  const nop = noArgs('nop', 'NOP');
-
   const mnemonicParser = A.choice([
-    nop,
     mov,
     add,
     sub,
@@ -145,9 +142,6 @@ const mov = A.choice([
 
 const instructionParser = A.sequenceOf([A.optionalWhitespace, A.many(A.choice([
   comment,
-  data8,
-  data16,
-  constantParser,
   label,
   mnemonicParser,
 

@@ -1,32 +1,41 @@
-/ JS-DOS: essentially an operating system for the VM. Mostly just loops and responds to inputs /
-jmp [!start_up]
-
-/+data16 hello_world = {$48, $65, $6C, $6C, $6F, $20, $57, $6F, $72, $6C, $64, $21, $00} /
-/ I hate how I'm wasting half of the bits /
-
-/constant screen_addr = $8000
-constant sleep_timer = $affe
-constant peripherals = $8800
-constant hardware_vector = $3fee/
-
+/ this is a comment /
 start_up:
-    mov [!hardware_int], &[$3fee]  / hardware interrupts /
-    mov $64, d
+    mov [!hardware_int], &[$3fee]
 
 main:
     jmp [!main]
+    hlt
 
 hardware_int:
     mov &[$8800], x
     mov &x, d
-    and d, $00ff
+    mov $00ff, acc
+    and d, acc
     mov acc, d
     mov $00, mb
     mov &[$4000], y
-    mov &[$8000], acc
+    mov $8000, acc
     add acc, y
     mov d, &acc
     inc y
     mov y, &[$4000]
     mov d, &x
     rti
+
+sleep: / 1 parameter: time to sleep in 0.01s /
+    mov &sp, acc
+    add acc, $02     / fetch the parameters / 
+    mov acc, sp
+    
+    mov &sp, acc     / sleep time -> acc /
+
+    mov fp, sp      / reset /
+
+    mov acc, &[$8ffe] / prime the timer /
+
+    wait:
+        mov &[$8ffe], acc
+        jez [!wait]
+
+        mov $00, &[$8ffe] / clear the timer /
+        ret

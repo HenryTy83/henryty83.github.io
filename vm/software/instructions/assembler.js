@@ -1,10 +1,7 @@
-const symbolicNames = {}
+const labels = {}
 
 const assemble = code => {
     const parsedOutput = instructionParser.run(code)
-
-    if (parsedOutput.thrownError) {throw new Error(parsedOutput.error)}
-    if (parsedOutput.index != code.length) {throw new Error(`could not parse program at index ${parsedOutput.index}: ${parsedOutput.targetString.slice(parsedOutput.index, parsedOutput.index + 20)}`)}
 
     const machineCode = []
     let currentAddress = 0;
@@ -13,12 +10,12 @@ const assemble = code => {
         let hexVal;
 
         if (lit.type == 'VARIABLE') {
-            if (!(lit.value in symbolicNames)) {
+            if (!(lit.value in labels)) {
                 throw new Error(`label ${lit.value} not defined`)
             }
 
             else {
-                hexVal = symbolicNames[lit.value] 
+                hexVal = labels[lit.value] 
             }
         }
 
@@ -32,12 +29,12 @@ const assemble = code => {
     const encodeLit8 = lit => {    
         let hexVal;
         if (lit.type == 'LABEL') {
-            if (!(lit.value in symbolicNames)) {
+            if (!(lit.value in labels)) {
                 throw new Error(`label ${lit.value} not defined`)
             }
 
             else {
-                hexVal = symbolicNames[lit.value]
+                hexVal = labels[lit.value]
             }
         }
 
@@ -49,112 +46,77 @@ const assemble = code => {
     const encodeReg = reg => {
         machineCode.push(registerMap[reg.value])
     }
+    
+    parsedOutput.result.forEach(instructionOrLabel => {
+        if (instructionOrLabel.type == 'LABEL') {
+            labels[instructionOrLabel.value] = currentAddress
+        }
 
-    parsedOutput.result.forEach(node => {
-        switch (node.type) {
-            case ('LABEL'): {
-                symbolicNames[node.value] = currentAddress; 
-                break;
+        else if (instructionOrLabel.type != 'COMMENT') {
+            const metaData = instructionSet[instructionOrLabel.value.instruction]
+
+            try {
+                currentAddress += metaData.size
             }
-            case ('DATA'): {
-                symbolicNames[node.value.name] = currentAddress
-                
-                const elementSize = node.value.size == 16 ? 2 : 1
-                const totalSize = node.value.values.length * elementSize
-
-                currentAddress += totalSize
-
-                break;
-            }
-            case ('CONSTANT'): {
-                symbolicNames[node.value.name] = parseInt(node.value.value.value, 16) & 0xffff
-                break;
-            }
-            case ('INSTRUCTION'): { 
-                const metaData = instructionSet[node.value.instruction]
-
-                try {
-                    currentAddress += metaData.size
-                }
-                catch(err) {
-                    throw new Error(`Unknown instruction: ${node.value.instruction}`)
-                }
-
-                break;
+            catch(err) {
+                throw new Error(`Unknown instruction: ${instructionOrLabel.value.instruction}`)
             }
         }
     })
 
-    const encodeData8 = node => {
-        for (let byte of node.value.values) {
-            const parsed = parseInt(byte.value, 16) & 0x00ff
-            machineCode.push(parsed)
-        }
-    }
+    parsedOutput.result.forEach(instruction => {
+        if (instruction.type != 'INSTRUCTION') {return}
 
-    const encodeData16 = node => {
-        for (let byte of node.value.values) {
-            const parsed = parseInt(byte.value, 16) & 0xffff
-            machineCode.push((parsed & 0xff00) >> 8)
-            machineCode.push(parsed & 0xff) 
-        }
-    }
-
-    parsedOutput.result.forEach(node => {
-        if (node.type == 'LABEL' || node.type == 'CONSTANT' || node.type == 'COMMENT') {return}
-        if (node.type == 'DATA') {
-            if (node.value.size == 8) {encodeData8(node)}
-            else {encodeData16(node)}
-            return
-        }
-
-        const metaData = instructionSet[node.value.instruction]
+        const metaData = instructionSet[instruction.value.instruction]
 
         machineCode.push(metaData.opcode)
 
     if ([instructionTypes.litReg, instructionTypes.memReg].includes(metaData.type)) {
-        encodeLitOrMem(node.value.args[0]);
-        encodeReg(node.value.args[1]);
+        encodeLitOrMem(instruction.value.args[0]);
+        encodeReg(instruction.value.args[1]);
     }
 
     if (instructionTypes.regLit8 === metaData.type) {
-        encodeReg(node.value.args[0]);
-        encodeLit8(node.value.args[1]);
+        encodeReg(instruction.value.args[0]);
+        encodeLit8(instruction.value.args[1]);
     }
 
     if ([instructionTypes.regLit, instructionTypes.regMem].includes(metaData.type)) {
-        encodeReg(node.value.args[0]);
-        encodeLitOrMem(node.value.args[1]);
+        encodeReg(instruction.value.args[0]);
+        encodeLitOrMem(instruction.value.args[1]);
     }
 
     if (instructionTypes.litMem === metaData.type) {
-        encodeLitOrMem(node.value.args[0]);
-        encodeLitOrMem(node.value.args[1]);
+        encodeLitOrMem(instruction.value.args[0]);
+        encodeLitOrMem(instruction.value.args[1]);
     }
 
     if ([instructionTypes.regReg, instructionTypes.regPtrReg].includes(metaData.type)) {
-        encodeReg(node.value.args[0]);
-        encodeReg(node.value.args[1]);
+        encodeReg(instruction.value.args[0]);
+        encodeReg(instruction.value.args[1]);
     }
 
     if (instructionTypes.litOffReg === metaData.type) {
-        encodeLitOrMem(node.value.args[0]);
-        encodeReg(node.value.args[1]);
-        encodeReg(node.value.args[2]);
+        encodeLitOrMem(instruction.value.args[0]);
+        encodeReg(instruction.value.args[1]);
+        encodeReg(instruction.value.args[2]);
     }
 
     if (instructionTypes.singleReg === metaData.type) {
-        encodeReg(node.value.args[0]);
+        encodeReg(instruction.value.args[0]);
     }
 
     if (instructionTypes.singleLit === metaData.type) {
-        encodeLitOrMem(node.value.args[0]);
+        encodeLitOrMem(instruction.value.args[0]);
     }
 
     if (instructionTypes.singleMem=== metaData.type) {
-        encodeLitOrMem(node.value.args[0]);
+        encodeLitOrMem(instruction.value.args[0]);
     }
     });
+
+
+    if (parsedOutput.index != code.length) {throw new Error(`could not parse program at index ${parsedOutput.index}: ${parsedOutput.targetString.slice(parsedOutput.index, parsedOutput.index + 20)}`)}
 
     return machineCode
 }
