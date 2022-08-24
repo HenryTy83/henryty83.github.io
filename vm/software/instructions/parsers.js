@@ -107,7 +107,10 @@ const mov = A.choice([
   const ret = noArgs('ret', 'RET');
   const hlt = noArgs('hlt', 'HLT');
 
+  const nop = noArgs('nop', 'NOP');
+
   const mnemonicParser = A.choice([
+    nop,
     mov,
     add,
     sub,
@@ -142,6 +145,9 @@ const mov = A.choice([
 
 const instructionParser = A.sequenceOf([A.optionalWhitespace, A.many(A.choice([
   comment,
+  data8,
+  data16,
+  constantParser,
   label,
   mnemonicParser,
 

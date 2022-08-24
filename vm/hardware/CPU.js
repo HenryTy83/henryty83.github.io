@@ -111,15 +111,11 @@ class CPU {
         this.setRegister('d', this.pop())
         this.setRegister('y', this.pop())
         this.setRegister('x', this.pop())
-
-        const argumentCount = this.pop(); //pop the argument count
-        this.setRegister('sp', this.getRegister('sp') + argumentCount); //get rid of the arguments
     }
 
     handleHardwareInterrupt() {
         const address = this.memory.getUint16(this.nmiAddress);
         
-        this.push(0);
         this.pushState();
 
         this.isInInterruptHandler = true
@@ -137,7 +133,6 @@ class CPU {
         const address = this.memory.getUint16(addressPointer)
 
         if (!this.isInInterruptHandler) {
-            this.push(0);
             this.pushState();
         }
 
@@ -193,7 +188,7 @@ class CPU {
             }
 
             case instructionSet.MOV_LOF_REG.opcode: {
-                const literal = this.fetch16;
+                const literal = this.fetch16();
                 const offset = this.fetchRegisterVal();
                 const toReg = this.fetch8();
                 this.registers.setUint16(toReg, this.memory.getUint16(literal + offset));
@@ -270,14 +265,14 @@ class CPU {
                 return;
             }
             case instructionSet.OR_REG_LIT.opcode: {
-                const literal = this.fetch16();
                 const r2 = this.fetchRegisterVal();
+                const literal = this.fetch16();
                 this.setRegister('acc', literal | r2);
                 return;
             }
             case instructionSet.AND_REG_LIT.opcode: {
-                const literal = this.fetch16()
                 const r2 = this.fetchRegisterVal();
+                const literal = this.fetch16()
                 this.setRegister('acc', literal & r2);
                 return;
             }
@@ -360,6 +355,7 @@ class CPU {
             case instructionSet.RET_INT.opcode: {
                 this.isInInterruptHandler = false;
                 this.popState();
+                this.setRegister('ip', this.getRegister('ip')-1)
                 return
             }
             case instructionSet.HLT.opcode: { this.halted = true; return; }
@@ -373,7 +369,7 @@ class CPU {
         this.executeInstruction(instruction);
 
         //this.hexDump();
-        //this.memoryDump(this.getRegister('sp'))
+        //this.memoryDump(0x4000)
         // this.memoryDump(0xb000, 4)
         // console.log(String.fromCharCode(this.getRegister('d')))
     }

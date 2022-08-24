@@ -94,7 +94,7 @@ const meta = //this is worst-formatted variable you've ever seen
 
 
 //0xFX: control flow
-}, {instruction: 'CAL_LIT'     , opcode:  0xf0, type: instructionTypes.singleLit, size: instructionTypeSizes.singleMem, mnemonic: 'cal'  // LITERAL
+}, {instruction: 'CAL_LIT'     , opcode:  0xf0, type: instructionTypes.singleLit, size: instructionTypeSizes.singleLit, mnemonic: 'cal'  // LITERAL
 }, {instruction: 'CAL_REG'     , opcode:  0xf1, type: instructionTypes.singleReg, size: instructionTypeSizes.singleReg, mnemonic: 'cal'  // REG
 }, {instruction: 'RET'         , opcode:  0xf2, type: instructionTypes.noArgs, size: instructionTypeSizes.noArgs, mnemonic: 'ret' 
 }, {instruction: 'INT'         , opcode:  0xf3, type: instructionTypes.singleLit, size: instructionTypeSizes.singleLit, mnemonic: 'int' // LITERAL

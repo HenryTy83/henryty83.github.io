@@ -1,41 +1,123 @@
 / this is a comment /
 start_up:
-    mov [!hardware_int], &[$3fee]
+    mov [!hardware_int], &[!hardware_int_add]
+
+title_screen:
+    mov [!title], d
+    mov $00, y
+    cal [!draw_word_to_screen]
+
+    mov $b8, acc
+    cal [!sleep_acc]
+    nop
+
+    mov $50, &[!cursor_loc]
+
+    mov [!TJSVMTDHAA], d
+    mov $04, y
+    cal [!draw_word_to_screen]
+
+    mov $3b, acc
+    cal [!sleep_acc]
+
+    mov $9e, &[!cursor_loc]
+    mov [!author], d
+    mov $00, y
+    cal [!draw_word_to_screen]
+
+    mov $ff, acc
+    cal [!sleep_acc]
+
+    mov $ff00, &[!screen_control]
+    mov $0000, &[!cursor_loc]
+    mov $ffff, &[!keyboard_enable]
 
 main:
+    mov &[!cursor_loc], x
+    add x, [!screen_addr]
+
+    mov $2588, d
+    mov $ffff, &[!screen_control]
+    mov d, &acc
+    mov $ffff, &[!screen_control]
+
+    mov $30, acc
+    cal [!sleep_acc]
+
+    mov &[!cursor_loc], x
+    add x, [!screen_addr]
+    mov $0020, d 
+    mov d, &acc
+
+    mov $30, acc
+    cal [!sleep_acc]
+
     jmp [!main]
-    hlt
 
 hardware_int:
-    mov &[$8800], x
+    mov &[!peripheral_addr], x
     mov &x, d
-    mov $00ff, acc
-    and d, acc
+    
+    mov &[!keyboard_enable], acc
+    jez [!clear_interrupt]
+
+    and d, $00ff
     mov acc, d
-    mov $00, mb
-    mov &[$4000], y
-    mov $8000, acc
-    add acc, y
+    mov &[!cursor_loc], y
+    add y, [!screen_addr]
     mov d, &acc
     inc y
-    mov y, &[$4000]
-    mov d, &x
+    mov y, &[!cursor_loc]
     rti
 
-sleep: / 1 parameter: time to sleep in 0.01s /
-    mov &sp, acc
-    add acc, $02     / fetch the parameters / 
-    mov acc, sp
+clear_interrupt:
+    rti
+
+draw_word_to_screen: / word address in d, sleep time in y/
+    mov &[!cursor_loc], x
+    add x, [!screen_addr]
+    mov acc, x
+draw_loop:
+    mov &d, acc
+    jez [!end_draw]
+    mov acc, &x
+    inc d
+    inc d
+    inc x
     
-    mov &sp, acc     / sleep time -> acc /
+    mov y, acc
+    cal [!sleep_acc]
 
-    mov fp, sp      / reset /
+    jmp [!draw_loop]
 
-    mov acc, &[$8ffe] / prime the timer /
+
+end_draw:
+    sub x, [!screen_addr]
+    mov acc, &[!cursor_loc]
+    ret
+
+sleep_acc: / sleep for [acc]*10 ms /
+    mov acc, &[!sleep_timer] / prime the timer /
 
     wait:
-        mov &[$8ffe], acc
+        mov &[!sleep_timer], acc
         jez [!wait]
 
-        mov $00, &[$8ffe] / clear the timer /
-        ret
+    mov $00, &[!sleep_timer] / clear the timer /
+    ret
+
+/ DATA: SHOULD NOT BE EXECUTED / 
+constant hardware_int_add = $3fee
+constant peripheral_addr = $8800
+constant screen_addr = $8000
+constant screen_control = $8769
+
+constant cursor_loc = $4000
+constant keyboard_enable = $4002
+
+constant sleep_timer = $affe
+
+constant bytes_per_row = $7f
+data16 title = {$0154, $014A, $0153, $0156, $014D, $0154, $0144, $0148, $0141, $0141, $013A, $00}
+data16 TJSVMTDHAA = {$0254, $0268, $0265, $0220, $024A, $0261, $0276, $0261, $0273, $0263, $0272, $0269, $0270, $0274, $0220, $0256, $0269, $0272, $0274, $0275, $0261, $026C, $0220, $024D, $0261, $0263, $0268, $0269, $026E, $0265, $0220, $0254, $0268, $0261, $0274, $0220, $0244, $026F, $0265, $0273, $026E, $0227, $0274, $0220, $0248, $0261, $0276, $0265, $0220, $0241, $026E, $0220, $0241, $0263, $0272, $026F, $026E, $0279, $026D, $00}
+data16 author = { $A9, $20, $48, $65, $6E, $72, $79, $20, $54, $79, $2C, $20, $41, $75, $67, $20, $32, $30, $32, $32, $00 }
