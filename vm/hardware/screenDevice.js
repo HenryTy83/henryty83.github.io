@@ -26,6 +26,7 @@ DOSfont.load().then(function (font) { //what the hell is a promise
 
         cpu.running = true;
         running = setInterval(runCPU, 0); //start the loop
+        displayScreen();
     }
 
     catch(notLoaded) {
@@ -86,6 +87,8 @@ const displayScreen = () => {
 
         drawChar(String.fromCharCode(charValue), address);
 }
+
+    requestAnimationFrame(displayScreen)
 }
 
 const createScreenOutput = () => { 

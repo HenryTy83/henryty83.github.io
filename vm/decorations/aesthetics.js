@@ -30,7 +30,6 @@ const fadeIn = () => { // its 4am
         ctx.closePath();  
 
         clearTimeout(powerUp)
-        setInterval(displayScreen, 10) //draw to screen
     }
 }
 
