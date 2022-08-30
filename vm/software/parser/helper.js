@@ -26,6 +26,7 @@ const disambiguateOrderOfOperations = expr => {
 
     const priorities = {
         OP_MUL: 2,
+        OP_DIV: 2,
         OP_ADD: 1,
         OP_SUB: 1
     }

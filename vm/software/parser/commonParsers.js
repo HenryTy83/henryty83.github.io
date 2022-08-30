@@ -6,7 +6,8 @@ const upperOrLowerStr = s => A.choice([
 const operator = A.choice([
     A.char('+').map(asType('OP_ADD')),
     A.char('-').map(asType('OP_SUB')),
-    A.char('*').map(asType('OP_MUL'))
+    A.char('*').map(asType('OP_MUL')),
+    A.char('/').map(asType('OP_DIV'))
 ])
 
 const validIdentifier = mapJoin(A.sequenceOf([

@@ -12,22 +12,44 @@ const assemble = code => {
     const encodeLitOrMem = lit => {
         let hexVal;
 
-        if (lit.type == 'VARIABLE') {
-            if (!(lit.value in symbolicNames)) {
-                throw new Error(`label ${lit.value} not defined`)
-            }
+        switch (lit.type) { 
+            case ('VARIABLE'): { 
+                if (!(lit.value in symbolicNames)) {
+                    throw new Error(`label ${lit.value} not defined`)
+                }
 
-            else {
-                hexVal = symbolicNames[lit.value] 
+                else {
+                    return symbolicNames[lit.value] 
+                }
+            
+            break
+            }
+                
+            case ('HEX_LITERAL'): { 
+                return parseInt(lit.value, 16)
+            }
+                
+            case ('BRACKETED_EXPRESSION'): { 
+                const evaluate = node => {
+                    switch (node.type) {
+                        case 'number': {return node.value}
+                        case 'operation': {
+                            switch(node.value.op) {
+                                case ('+'): {return evaluate(node.value.a) + evaluate(node.value.b)}
+                                case ('-'): {return evaluate(node.value.a) - evaluate(node.value.b)}
+                                case ('*'): {return evaluate(node.value.a) * evaluate(node.value.b)}
+                                case ('/'): {return evaluate(node.value.a) / evaluate(node.value.b)}
+                            }
+                            break;
+                        }
+                    }   
+
+                console.error(`MATH ERROR: COULD NOT INTERPERET BRACKETED EXPRESSION AT ${JSON.stringify(node, null, '   ')}`)
+                }
+
+                return evaluate(lit.value)
             }
         }
-
-        else {hexVal = parseInt(lit.value, 16)}
-
-        const highByte = (hexVal & 0xff00) >> 8
-        const lowByte = hexVal & 0xff
-
-        machineCode.push(highByte, lowByte)
     }
     const encodeLit8 = lit => {    
         let hexVal;
@@ -98,6 +120,10 @@ const assemble = code => {
             machineCode.push((parsed & 0xff00) >> 8)
             machineCode.push(parsed & 0xff) 
         }
+    }
+
+    const pushMachineCode = data => {
+        data.forEach(x => machineCode.push(x), {})
     }
 
     parsedOutput.result.forEach(node => {
