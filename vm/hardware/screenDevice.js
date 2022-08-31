@@ -1,5 +1,5 @@
 const canvas = document.getElementById("screen"); //This code is a mess, taken from 50 different websites. I have no idea how it works
-const ctx = canvas.getContext("2d");
+var ctx = canvas.getContext("2d");
 const DOSfont = new FontFace('modernDOS', 'url(./decorations/modernDOS.ttf)');
 
 var powerOn = false;
@@ -26,7 +26,6 @@ DOSfont.load().then(function (font) { //what the hell is a promise
 
         cpu.running = true;
         running = setInterval(runCPU, 0); //start the loop
-        displayScreen();
     }
 
     catch(notLoaded) {
@@ -55,13 +54,14 @@ const drawChar = (char, address) => {
     }
 }
 
-const displayScreen = () => {
+const background = () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height); //clear the screen
-    ctx.fillStyle = 'rgb(0, 100, 0, 0.27)';
-    ctx.beginPath();
-    ctx.rect(0, 0, canvas.width, canvas.height)
-    ctx.fill();
-    ctx.closePath(); 
+    ctx.fillStyle = 'rgb(0, 100, 0, 0.4)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
+}
+
+const displayScreen = () => {
+    background()
 
     for (let currentChar of VRAMinstructions) {
         var [address, data] = currentChar
@@ -86,9 +86,15 @@ const displayScreen = () => {
         }
 
         drawChar(String.fromCharCode(charValue), address);
-}
+    }
 
-    requestAnimationFrame(displayScreen)
+    if (powerOff == null) {
+        requestAnimationFrame(displayScreen)
+    }
+
+    else {
+        background()
+    }
 }
 
 const createScreenOutput = () => { 

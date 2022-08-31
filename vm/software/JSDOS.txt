@@ -9,7 +9,6 @@ title_screen:
 
     mov $b8, acc
     cal [!sleep_acc]
-    nop
 
     mov [(!bytes_per_row * $01 + !screen_addr)], &[!cursor_loc]
 
@@ -55,6 +54,7 @@ main:
     jmp [!main]
 
 hardware_int:
+    psh acc
     mov &[!peripheral_addr], x
     mov &x, d
     
@@ -68,9 +68,8 @@ hardware_int:
     mov d, &acc
     inc y
     mov y, &[!cursor_loc]
-    rti
-
 clear_interrupt:
+    pop acc
     rti
 
 draw_word_to_screen: / word address in d, sleep time in y/

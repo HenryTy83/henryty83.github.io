@@ -322,7 +322,7 @@ class CPU {
             //0x4X: Stack operations
             case instructionSet.PSH_LIT.opcode: { this.push(this.fetch16()); return; }
             case instructionSet.PSH_REG.opcode: { this.push(this.fetchRegisterVal()); return; }
-            case instructionSet.POP.opcode: {
+            case instructionSet.POP_REG.opcode: {
                 const toReg = this.fetch8();
                 const value = this.pop();
                 this.registers.setUint16(toReg, value);

@@ -9,9 +9,7 @@ const assemble = code => {
     const machineCode = []
     let currentAddress = 0;
 
-    const encodeLitOrMem = lit => {
-        let hexVal;
-
+    const evaluateLitOrMem = lit => {
         switch (lit.type) { 
             case ('VARIABLE'): { 
                 if (!(lit.value in symbolicNames)) {
@@ -19,20 +17,20 @@ const assemble = code => {
                 }
 
                 else {
-                    return symbolicNames[lit.value] 
+                    hexVal = symbolicNames[lit.value] 
                 }
-            
-            break
+                break;
             }
                 
             case ('HEX_LITERAL'): { 
-                return parseInt(lit.value, 16)
+                hexVal =  parseInt(lit.value, 16)
+                break;
             }
                 
             case ('BRACKETED_EXPRESSION'): { 
-                const evaluate = node => {
+                const evaluate = rawNode => {
+                    const node = disambiguateOrderOfOperations(rawNode)
                     switch (node.type) {
-                        case 'number': {return node.value}
                         case 'operation': {
                             switch(node.value.op) {
                                 case ('+'): {return evaluate(node.value.a) + evaluate(node.value.b)}
@@ -42,14 +40,27 @@ const assemble = code => {
                             }
                             break;
                         }
+
+                        default: {
+                            return encodeLitOrMem(node.value)
+                        }
                     }   
 
-                console.error(`MATH ERROR: COULD NOT INTERPERET BRACKETED EXPRESSION AT ${JSON.stringify(node, null, '   ')}`)
+                    console.error(`MATH ERROR: COULD NOT INTERPERET BRACKETED EXPRESSION AT ${JSON.stringify(node, null, '   ')}`)
                 }
 
-                return evaluate(lit.value)
+                hexVal = evaluate(lit.value[0])
             }
         }
+
+        return hexVal
+    }
+
+    const encodeLitOrMem = lit => {
+        let hexVal = evaluateLitOrMem(lit)
+        
+        machineCode.push((hexVal & 0xff00) >> 8)
+        machineCode.push(hexVal & 0xff);
     }
     const encodeLit8 = lit => {    
         let hexVal;
@@ -120,10 +131,6 @@ const assemble = code => {
             machineCode.push((parsed & 0xff00) >> 8)
             machineCode.push(parsed & 0xff) 
         }
-    }
-
-    const pushMachineCode = data => {
-        data.forEach(x => machineCode.push(x), {})
     }
 
     parsedOutput.result.forEach(node => {

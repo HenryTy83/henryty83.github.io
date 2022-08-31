@@ -81,7 +81,7 @@ jlt $lit/reg [!label]                       jump to second operand if acc < firs
 jeq $lit/reg [!label]                       jump to second operand if acc == first operand
 jne $lit/reg [!label]                       jump to second operand if acc != first operand
 
-push $lit/reg                               push the operand to the stack
+psh $lit/reg                               push the operand to the stack
 pop reg                                     pop a value from the stack, store to selected regester
 
 cal $lit/reg                                jump to subroutine at operand. Upon RET, every register except acc will be restored to previous value

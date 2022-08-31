@@ -90,7 +90,7 @@ const meta = //this is worst-formatted variable you've ever seen
 // 0x4X: Stack operations
 }, {instruction: 'PSH_LIT'     , opcode:  0x40, type: instructionTypes.singleLit, size: instructionTypeSizes.singleLit, mnemonic: 'psh'  // LITERAL
 }, {instruction: 'PSH_REG'     , opcode:  0x41, type: instructionTypes.singleReg, size: instructionTypeSizes.singleReg, mnemonic: 'psh'  // REG
-}, {instruction: 'POP'         , opcode:  0x42, type: instructionTypes.singleReg, size: instructionTypeSizes.singleReg, mnemonic: 'pop'  // REG
+}, {instruction: 'POP_REG'         , opcode:  0x42, type: instructionTypes.singleReg, size: instructionTypeSizes.singleReg, mnemonic: 'pop'  // REG
 
 
 //0xFX: control flow
