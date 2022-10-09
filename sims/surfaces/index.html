@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.10.2/p5.js"></script>
+</head>
+
+<body>
+  <a href="../">BACK</a>
+  <br>
+  <br>
+  <script>
+    /* rotating sphere */
+    function sphereCartesian([rho, theta, phi]) {
+        return [rho*cos(theta)*sin(phi), rho*sin(theta)*sin(phi), rho*cos(phi)] //calc is actually helpful
+    }
+
+    let minD = Infinity
+    let maxD = -Infinity
+
+    function drawPoint(currentPoint) {
+        const distance = 2
+        const fov = 250
+        const projectPoint = ([x, y, z]) => [fov*x/(distance + z), fov*y/(distance + z)]
+
+        projectedPoint = projectPoint(currentPoint)
+
+        fill(255)
+        //fill(map(distance + currentPoint[2], distance - 1, distance + 1, 0, 255))
+        square(projectedPoint[0], projectedPoint[1], 1)
+    }
+
+    var rxt = 0
+    var ryt = 0
+    var rzt = 0
+
+    function generateSphere(r=1, dt=0.06, dp=0.06) {
+        let points = []
+        for (let theta = 0; theta < 2*PI; theta += dt) {
+            for (let phi = 0; phi < PI; phi += dp) {
+                currentPoint = sphereCartesian([r, theta, phi]) // find the current point
+                // each point is also its own surface normal (it's centered at the origin)
+
+                const rx = ([x, y, z]) => [x, y*cos(rxt)-z*sin(rxt), y*sin(rxt)+z*cos(rxt)]
+                const ry = ([x, y, z]) => [x*cos(ryt)+z*sin(ryt), y, -x*sin(ryt)+z*cos(ryt)]
+                const rz = ([x, y, z]) => [x*cos(rzt)-y*sin(rzt), x*sin(rzt)+y*cos(rzt), z]
+
+                currentPoint = rz(rx(currentPoint))
+                drawPoint(currentPoint)
+            }
+        }
+    }
+
+    function setup() {
+        createCanvas(400, 400)
+        angleMode(RADIANS)
+        noStroke()
+    }
+
+    function draw() {
+        background(0)
+
+        push()
+        translate(width/2, height/2)
+        generateSphere()
+        pop()
+
+        rxt += 0.01
+        rzt += 0.05
+    }
+  </script>
+</body>
+
+</html>

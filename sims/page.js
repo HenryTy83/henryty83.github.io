@@ -218,6 +218,7 @@ function setup() {
     buttons.push(new button(width * 0.05, height * 0.75, width / 80, height * 0.04, "./sorting", "Sorting: A visualization of many sorting algorithms"))
     buttons.push(new button(width * 0.05, height * 0.85, width / 80, height * 0.04, "./tsm", "Travelling Salesman Problem: Brute force solution"))
     buttons.push(new button(width * 0.05, height*0.65, width/80, height * 0.04, "./mandelbrot", "Mandelbrot Set: Interactive Explorer"))
+    buttons.push(new button(width * 0.05, height*0.75, width/80, height * 0.04, "./surfaces", "Some 3D Surfaces I made when I was bored and supposed to do homework"))
 
 }
 
