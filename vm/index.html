@@ -25,7 +25,6 @@
 }
 
     .slider {
-  -webkit-appearance: none;
   width: 500px;
   height: 15px;
   left: 125px;
@@ -62,26 +61,15 @@
 
 <body style="background-color:rgb(0, 0, 0); font-family: modernDOS; color:rgb(0, 255, 0);"> <!--font from https://www.dafont.com/modern-dos.font -->
   <h1>TJSVMTDHAA: The Javascript Virtual Machine That Doesn't Have An Acronym</h1> 
+ 
+  <script src="./software/instructionSet.js"></script>
 
-  <script src="./software/instructions/metaData.js"></script>
-
-  <script src="./software/parser/arKsecond.js"></script>
-  <script src="./software/parser/helper.js"></script>
-  <script src="./software/parser/commonParsers.js"></script>
-  <script src="./software/parser/formats.js"></script>
-  
-  <script src="./software/instructions/parsers.js"></script>
-
-  <script src="./software/instructions/assembler.js"></script>
-  <script src="./software/examplePrograms.js"></script>
-  
   <canvas id="screen" width="960", height="533.33", style="border:10px solid rgb(25, 25, 22); background-color: rgba(0, 0, 0, 255);"></canvas>
-  <script src="./hardware/memory.js"></script>
+  <script src="./hardware/memoryMapping.js"></script>
   <script src="./hardware/CPU.js"></script>
 
   <script src="./hardware/screenDevice.js"></script>
-  <script src="./hardware/peripherals.js"></script>
-  
+
   <button class="button" onclick="powerToggle();" id="power"></button>
   <div class="slidecontainer"> <!--https://www.w3schools.com/howto/howto_js_rangeslider.asp-->
     <br>
@@ -91,6 +79,9 @@
   <script src="./decorations/aesthetics.js"></script>
 
   <script src="./hardware/machine.js"></script> 
+
+  <br>
+  <button onclick="window.location.href='../'">BACK</button>
 </body>
 
 </html>
