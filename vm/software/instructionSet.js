@@ -55,8 +55,20 @@ instructionSet = {
         mnemonic: "mov"
     },
 
+    mov_indirect_reg_reg_literal_offset: { // copy the memory value at the address in the register + the offset to the register
+        opcode: 0x18,
+        length: 4,
+        mnemonic: "mov"
+    },
+
+    mov_reg_indirect_reg_literal_offset: { // copy the register to memory at the address in the register + the offset
+        opcode: 0x19,
+        length: 4,
+        mnemonic: "mov"
+    },
+
     mov_lit_mem: { // copy $lit to &memory address 
-        opcode: 0x17,
+        opcode: 0x1a,
         length: 5,
         mnemonic: "mov"
     },

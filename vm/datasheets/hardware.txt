@@ -1,8 +1,8 @@
 //////// TJSVMTDHAA: The Javascript Virtual Machine That Doesn't Have An Acronym
 By Henry Ty, XX November 2022
+//////// Hardware specs:
 
-//// Hardware specs:
-16-bit big endian Von Neumann architecture processor
+//// 16-bit big endian Von Neumann architecture processor
 registers:
     PC: program counter*
     SP: stack pointer*
