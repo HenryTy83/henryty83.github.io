@@ -1,0 +1,59 @@
+//////// TJSVMTDHAA: CPU OPCODES
+By Henry Ty, XX November 2022
+
+//// GENERAL INFO
+All opcodes are 1 btye (total of $ff+1=256)
+Commands consist of a 1 byte opcode + X bytes of arguments
+
+// Kinds of arguments:
+[REG] Register: 1 byte- 0bXXXX0000 defines one register, A indexed by XXXX
+[R2G] 2 Registers: 1 byte- 0bXXXXYYYY, defines two registers, A and B where A = XXXX and B = YYYY 
+[MEM] [ORY] Memory address: 2 bytes (ADDRES)
+[LIT] [ERL] Hex literal: 2 bytes ($LITERL)
+
+// Prefix meanings:
+&: value of something
+[X]: memory at address X
+$: literal
+
+//// ALL OPCODES
+// $0X: Control flow 
+
+halt: $00
+    halts execution
+
+noop: $01
+    does nothing
+
+
+// $1X: Data logistics
+mov_reg_reg: $10 [R2G]
+    B = A 
+
+mov_reg_indirect_reg: $11 [R2G]
+    &[&B] = &A
+
+mov_indirect_reg_reg: $12 [R2G]
+    B = &[&A]
+
+mov_lit_reg: $13 [LIT] [ERL] [REG]
+    A = $LITERL 
+
+mov_reg_mem: $14 [REG] [MEM] [ORY]
+    [ADDRES] = &A
+
+mov_mem_reg: $15 [MEM] [ORY] [REG]
+    A = &[ADDRES]
+
+mov_indirect_reg_reg_literal_offset: $16 [R2G] [LIT] [ERL]
+    B = &[&A + $LITERL]
+
+mov_reg_indirect_reg_literal_offset: $17 [R2G] [LIT] [ERL]
+    [&B + $LITERL] = &A
+
+mov_lit_indirect_reg: $18 [LIT] [ERL] [REG]
+    [&A] = $LITERL
+
+mov_lit_mem: $19 [LIT] [ERL] [ADD] [RES]
+    [ADDRES] = $LITERL
+    

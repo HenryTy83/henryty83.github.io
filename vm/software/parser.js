@@ -6,17 +6,22 @@ class Arksecond {
     santize(raw) {
         var sanitized = []
         for (var line of raw) {
-            var cleanLine = ""
-            console
+            var cleanLine = line
 
-            for (var char of line) {
-                if (char == " " || char == "\r") {
-                }
-
-                else {
-                    cleanLine += char
+            for (var i in cleanLine) {
+                if (cleanLine[cleanLine.length-1-i] != " ") {
+                    cleanLine = cleanLine.slice(0, cleanLine.length-i)
+                    break
                 }
             }
+
+            for (var i in cleanLine) {
+                if (cleanLine[0] != " ") {
+                    cleanLine = cleanLine.slice(i)
+                    break
+                }
+            }
+
             sanitized.push(cleanLine)
         }
 
@@ -24,30 +29,35 @@ class Arksecond {
     }
 
     parse(line) {
-        if () {}
-        var type = this.classify(line)
+        var name = line[0]
+        var type = this.classify(name)
 
-        var name = ""
-
-        if (type == "INSTRUCTION") {}
-        else if (type == "LABEL") {
-            name = line[0].slice(0, -1)
+        // clean the command
+        switch (type) { 
+            case "INSTRUCTION":
+            case "REGISTER":
+                break
+            case "LABEL":
+                name = name.slice(0, -1)
+                break
+            case "NULL":
+                console.error(`PARSING ERROR: "${name}" has unknown type`)
+                return;
+            default:
+                name = line[0].slice(1)
+                break
         }
-        else {
-            name = line[0].slice(1)
-        }
 
-        console.log(line) 
-        return new Instruction(type, name, line.slice(1).map(arg => this.parse(arg)))
+        return line.length == 1 ? new Token(type, name) : new Token(type, name, line.slice(1).map(arg => this.parse([arg])))
     }
 
-    read(raw) {
-        var program = []
-        var text = this.santize(raw.split(["\n"]))
-        
+    read(text) {    
         for (var line of text) {
-            var commands = line.split(/[,:]/)
-            program.push(this.parse(commands))
+            var commands = line.split(" ")
+
+            if (line != "") {
+                program.push(this.parse(commands))
+            }
         }
 
         return program
@@ -64,19 +74,23 @@ class Arksecond {
 
         var startType = typesLookup[word[0]]
 
-        if (startType == "ADDRESS") {
-            return "0123456789".includes(word[1]) || word[1] == "!" ? "ADDRESS" : "REGISTER"
-        }
-
         if (startType != null) {
             return startType
         }
 
-        if (word.slice(-1) == ":") {
+        else if (word.slice(-1) == ":") {
             return "LABEL"
         }
+            
+        else if (instructions.includes(word)) { 
+            return "INSTRUCTION"
+        }
 
-        return "INSTRUCTION"
+        else if (word in registers) { 
+            return "REGISTER"
+        }
+
+        return "NULL"
     }
 }
 

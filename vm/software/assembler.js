@@ -11,7 +11,6 @@ const regInstruction = (r1, r2="") => {
     return (0b11110000 & (high << 4)) + (0b00001111 & low)
 }
 
-
 const findLabel = (variable, labels) => {
     for (var replace of labels) {
         if (replace.name == variable.name) {

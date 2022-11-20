@@ -5,7 +5,17 @@ class CPU {
         // store registers as n as 16 bit registers
         this.registerNames = ["PC", "SP", "acc", "d", "x", "y"]
         
-        this.registerLookup = {}
+        this.generateLookup = () => {
+            var lookUp = {}
+            for (var i in this.registerNames) {
+                lookUp[this.registerNames[i]] = parseInt(i)
+            }
+
+            return lookUp
+        }
+        
+        this.registerLookup = this.generateLookup()
+
         for (var i in this.registerNames) {
             this.registerLookup[this.registerNames[i]] = i
         }

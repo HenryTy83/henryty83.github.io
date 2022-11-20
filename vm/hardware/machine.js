@@ -18,3 +18,16 @@ const runCPU = () => {
         }
     }
 }
+
+// import programs from program file, assemble, and load
+// file-reading code from https://stackoverflow.com/questions/36921947/read-a-server-side-file-using-javascript
+function loadFile(filePath) {
+    var result = null;
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.open("GET", filePath, false);
+    xmlhttp.send();
+    if (xmlhttp.status == 200) {
+        result = xmlhttp.responseText;
+    }
+    return result.split(/\r?\n/);
+}
