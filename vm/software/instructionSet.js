@@ -1,4 +1,4 @@
-instructionSet = {
+const instructionSet = {
     /* 0x0X: Control flow */
     halt: { // halts execution
         opcode: 0x00,
@@ -89,3 +89,11 @@ instructionSet = {
 var instructions = ["mov", "hlt", "nop"]
 
 var registers = new CPU().generateLookup()
+
+const findByMnemonic = (m) => { 
+    const matches = []
+    for (var instruction of Object.values(instructionSet)) {
+        if (instruction.mnemonic == m) { matches.push(instruction) }
+    }
+    return matches
+}

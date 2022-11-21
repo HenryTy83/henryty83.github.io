@@ -33,3 +33,5 @@ function loadFile(filePath) {
     }
     return result.split(/\r?\n/);
 }
+
+const helloWorld = loadFile("./programs/helloWorld.jsm")

@@ -49,9 +49,21 @@ assemble = (program) => {
     for (var i in program) {
         word = program[i]
         if (word.type == "INSTRUCTION") {
-            instruction = findByMnemonic(instruction.name)
+            expectedArguments = word.args.map(token => token.type)
+            
+            try {
+                var possibleCommands = findByMnemonic(word.name)
+            }
 
-            machineCode.push(findByMnemonic(instruction.name).opcode)
+            catch (err) { 
+                throw new Error(`Unknown instruction: ${word.name}`)
+            }
+
+            Object.value(possibleCommands)
+
+            instruction = instructionSet.
+
+            machineCode.push()
 
             for (argument of instruction.args) {
                 // use if-elses instead of switch case to make it easier to port to assembly

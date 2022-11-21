@@ -9,15 +9,15 @@ class Arksecond {
             var cleanLine = line
 
             for (var i in cleanLine) {
-                if (cleanLine[cleanLine.length-1-i] != " ") {
-                    cleanLine = cleanLine.slice(0, cleanLine.length-i)
+                if (cleanLine[0] != " ") {
+                    cleanLine = cleanLine.slice(i)
                     break
                 }
             }
 
             for (var i in cleanLine) {
-                if (cleanLine[0] != " ") {
-                    cleanLine = cleanLine.slice(i)
+                if (cleanLine[cleanLine.length-1-i] != " ") {
+                    cleanLine = cleanLine.slice(0, cleanLine.length - i)
                     break
                 }
             }
@@ -28,23 +28,58 @@ class Arksecond {
         return sanitized
     }
 
+    parseBracket(address) {
+        try {
+            var expression = address.split(" ")
+            var total = parseInt(expression.slice(0, 1)[0].slice(1), 16)
+
+            if (expression.length == 0) { return parseInt(address.slice(1), 16) }
+            
+            for (var i = 1; i < expression.length; i += 2) {
+                var operator = expression[i]
+
+                switch (operator) {
+                    case "+":
+                        total += parseInt(expression[i + 1].slice(1), 16)
+                        break
+                    case "*":
+                        total *= parseInt(expression[i + 1].slice(1), 16)
+                        break
+                    case "-":
+                        total -= parseInt(expression[i + 1].slice(1), 16)
+                        break
+                }
+            }
+        }
+
+        catch (err) { 
+            throw new Error(`PARSING ERROR: Tried evaluating expression ${address} and recieved error: \n${err}`)
+        }
+
+        return total 
+    }
+
     parse(line) {
         var name = line[0]
         var type = this.classify(name)
 
         // clean the command
         switch (type) { 
+            case "COMMENT":
+                return new Token(type, line.join(" "))
+            case "ADDRESS":
+                return new Token(type, this.parseBracket(line[0].slice(2, line[0].length - 1)))
+            case "LITERAL":
+                return new Token(type, parseInt(line[0].slice(1), 16))
+            case "NULL":
+                throw new Error(`PARSING ERROR: "${name}" has unknown type`)
+                return;
             case "INSTRUCTION":
             case "REGISTER":
                 break
-            case "COMMENT":
-                return new Token(type, line.join(""))
             case "LABEL":
                 name = name.slice(0, -1)
                 break
-            case "NULL":
-                console.error(`PARSING ERROR: "${name}" has unknown type`)
-                return;
             default:
                 name = line[0].slice(1)
                 break
