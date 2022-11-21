@@ -15,25 +15,27 @@ registers:
 Memory Mapped I/O
 
 //// Memory Mapping:
-0x0000-0xffff: working memory
+$0000-$ffff: useable memory
 
-0x0000-0x3ff0: program memory
-0x3fee: Hardware interrupt address
-0x3ff0-0x3fff: interrupt vector addresses
-0x4000-0x7fff: general purpose use
-< 0x7fff: stack
+$0000-$7fff: RAM (Programs and temporary data)
+$7fef-$7ffe: interrupt vector addresses (each bit in the interrupt register corresponds to a byte, which is jumped to on the interrupt)
+$7fff: Reset vector: On startup, execution will begin at whatever address is stored here
+< 0x7fef: stack
 0x8000-0xafff: Peripherals 
-    0x8000-0x87b7: screen display
-        screen is mapped in rows from top to bottom, each row goes from left to right. each byte corresponds to a character 
-        useable address space: 
-        starting rows: 0x8000, 0x804e, 0x809c, 0x80ea
+    0x8000-0x874f: screen display
+        screen is indexed starting in the upper left corner at 0. Addresses increase by one going right. 
+        After the right edge, numbering continues on the left side of the next line
+        Each byte corresponds to a character 
         
         interacting with the screen is done by writing two 16 bit numbers: control and data
-        control: the first four bits set the flag, the next 12 are the color: 0bABCDRRRRGGGGBBBB
+        control: the first four bits set control flags, the next 12 are the color: 0bABCDRRRRGGGGBBBB
             A: clear screen
-            B: bold text
-            C: italic text
-            D: underline text
+            B: italic text
+            C: bold text
+
+            D: UNUSED
+
             R: red channel (4 bit number)
             G: green channel (4 bit number)
             B: blue channel (4 bit number)
+        data: any 16-bit unicode value

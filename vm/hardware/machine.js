@@ -1,5 +1,7 @@
-const RAM = Memory(0xffff)
-const cpu = new CPU(RAM)
+const ram = new Region(0x0000, 0x3fff)
+const screen = new Region(0x8000, 0x874f)
+const memoryMappage = new Mapping([ram, screen])
+const cpu = new CPU(memoryMappage)
 
 const runCPU = () => {
     if (fadeInTime < 0 && cpu.running) {

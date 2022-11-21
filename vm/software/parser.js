@@ -37,6 +37,8 @@ class Arksecond {
             case "INSTRUCTION":
             case "REGISTER":
                 break
+            case "COMMENT":
+                return new Token(type, line.join(""))
             case "LABEL":
                 name = name.slice(0, -1)
                 break
@@ -51,7 +53,9 @@ class Arksecond {
         return line.length == 1 ? new Token(type, name) : new Token(type, name, line.slice(1).map(arg => this.parse([arg])))
     }
 
-    read(text) {    
+    read(text) {   
+        const program = []
+
         for (var line of text) {
             var commands = line.split(" ")
 
@@ -69,7 +73,7 @@ class Arksecond {
             "&": "ADDRESS",
             "!": "VARIABLE",
             "/": "COMMENT",
-            ".": "RESERVED"
+            ".": "KEYWORD"
         }
 
         var startType = typesLookup[word[0]]
