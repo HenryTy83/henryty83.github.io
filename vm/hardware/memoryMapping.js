@@ -10,7 +10,7 @@ class Mapping {
             }
         }
 
-        console.error(`OUT OF RANGE ERROR: Address $${address.toString(16).padStart(4, '0')} has no corresponding memory section`)
+        console.error(`OUT OF RANGE ERROR: Address $${(address).toString(16).padStart(4, '0')} has no corresponding memory section`)
         return new Region(address, address) //invalid memory
     }
 
@@ -36,11 +36,11 @@ class Mapping {
 }
 
 class Region {
-    constructor(start, end) {
+    constructor(start, end, memory=Memory(end-start+1)) {
         this.start = start
         this.end = end
 
-        this.memory = Memory(end-start+1)
+        this.memory = memory
     }
 }
 

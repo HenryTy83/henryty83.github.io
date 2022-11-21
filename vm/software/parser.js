@@ -9,14 +9,14 @@ class Arksecond {
             var cleanLine = line
 
             for (var i in cleanLine) {
-                if (cleanLine[0] != " ") {
+                if (cleanLine[0] != ' ') {
                     cleanLine = cleanLine.slice(i)
                     break
                 }
             }
 
             for (var i in cleanLine) {
-                if (cleanLine[cleanLine.length-1-i] != " ") {
+                if (cleanLine[cleanLine.length-1-i] != ' ') {
                     cleanLine = cleanLine.slice(0, cleanLine.length - i)
                     break
                 }
@@ -28,56 +28,25 @@ class Arksecond {
         return sanitized
     }
 
-    parseBracket(address) {
-        try {
-            var expression = address.split(" ")
-            var total = parseInt(expression.slice(0, 1)[0].slice(1), 16)
-
-            if (expression.length == 0) { return parseInt(address.slice(1), 16) }
-            
-            for (var i = 1; i < expression.length; i += 2) {
-                var operator = expression[i]
-
-                switch (operator) {
-                    case "+":
-                        total += parseInt(expression[i + 1].slice(1), 16)
-                        break
-                    case "*":
-                        total *= parseInt(expression[i + 1].slice(1), 16)
-                        break
-                    case "-":
-                        total -= parseInt(expression[i + 1].slice(1), 16)
-                        break
-                }
-            }
-        }
-
-        catch (err) { 
-            throw new Error(`PARSING ERROR: Tried evaluating expression ${address} and recieved error: \n${err}`)
-        }
-
-        return total 
-    }
-
     parse(line) {
         var name = line[0]
         var type = this.classify(name)
 
-        // clean the command
         switch (type) { 
-            case "COMMENT":
-                return new Token(type, line.join(" "))
-            case "ADDRESS":
-                return new Token(type, this.parseBracket(line[0].slice(2, line[0].length - 1)))
-            case "LITERAL":
-                return new Token(type, parseInt(line[0].slice(1), 16))
-            case "NULL":
-                throw new Error(`PARSING ERROR: "${name}" has unknown type`)
-                return;
-            case "INSTRUCTION":
-            case "REGISTER":
+            case 'COMMENT':
+                return new Token(type, line.join(' '))
+            case 'ADDRESS':
+                return new Token(type, new Token('BRACKET', name.slice(2, name.length - 1)))
+            case 'LITERAL':
+                return new Token(type, parseInt(name.slice(1), 16))
+            case 'KEYWORD':
+                return new Token(type, name.slice(1), line.slice(1))
+            case 'NULL':
+                throw new Error(`PARSING ERROR: '${name}' has unknown type`)
+            case 'INSTRUCTION':
+            case 'REGISTER':
                 break
-            case "LABEL":
+            case 'LABEL':
                 name = name.slice(0, -1)
                 break
             default:
@@ -92,9 +61,9 @@ class Arksecond {
         const program = []
 
         for (var line of text) {
-            var commands = line.split(" ")
+            var commands = line.split(' ')
 
-            if (line != "") {
+            if (line != '') {
                 program.push(this.parse(commands))
             }
         }
@@ -104,32 +73,39 @@ class Arksecond {
 
     classify(word) {
         const typesLookup = {
-            "$": "LITERAL",
-            "&": "ADDRESS",
-            "!": "VARIABLE",
-            "/": "COMMENT",
-            ".": "KEYWORD"
+            '$': 'LITERAL',
+            '&': 'ADDRESS',
+            '[': 'BRACKET',
+            '!': 'VARIABLE',
+            '/': 'COMMENT',
+            '.': 'KEYWORD'
         }
 
         var startType = typesLookup[word[0]]
 
-        if (startType != null) {
+        if (startType == 'ADDRESS') { 
+            var secondType = this.classify(word.slice(1))
+            if (secondType == 'REGISTER') { return 'REGISTER_VALUE' }
+            else if (secondType == 'BRACKET') { return 'ADDRESS' } 
+        }
+
+        else if (startType != null) {
             return startType
         }
 
-        else if (word.slice(-1) == ":") {
-            return "LABEL"
+        else if (word.slice(-1) == ':') {
+            return 'LABEL'
         }
             
         else if (instructions.includes(word)) { 
-            return "INSTRUCTION"
+            return 'INSTRUCTION'
         }
 
         else if (word in registers) { 
-            return "REGISTER"
+            return 'REGISTER'
         }
 
-        return "NULL"
+        return 'NULL'
     }
 }
 

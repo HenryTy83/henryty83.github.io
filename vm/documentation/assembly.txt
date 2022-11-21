@@ -1,3 +1,44 @@
 //////// JSM: The custom-made assembly language for the TJSVMTDHAA
 By Henry Ty, XX November 2022
 
+general format: [prefix] [arg1] [arg2]
+
+//// type definitions:
+/comment: any text
+    prefixed with '/' and ignored by compiler
+$literal: any 16-bit hexadecimal number
+    prefixed with '!' and replaced with values during compilation
+!variable: any non-whitespace string
+[addr]: address in memory, either a:
+    [$literal]: hex literal
+        or a
+    [( expression )]: where an expression is either:
+        $literal: hex literal
+        ( ( expression ) +/-/* ( expression ) ): an expression, an operator (+, -, or *) and another expression
+        *PARENTHETICAL EXPRESSIONS MUST BE SEPARATED WITH WHITESPACE* i.e. ($2 + $3) would throw an error: do ( $2 + $3 ) instead  
+        **THERE IS NO ORDER OF OPERATIONS FOR EXPRESSIONS. EXPRESSIONS ARE EVALUATED FROM LEFT TO RIGHT. USE PARENTHESES**
+reg: register name (acc, x, y, d)
+&addr/reg: reference the value of a memory address or register rather than the address
+
+
+//// special keywords:
+.org $literal
+    write the suceeding lines at the address
+.def variable $literal
+    define a variable with the variable name and the value $literal
+    variables are referenced in other parts with !variable
+    variables are replaced with their values during compilation. They are only found in the assembly and are not referenced in the machine code
+.data8 name $lit1 $lit2... $litN
+    write the following bytes directly into memory
+    $literals must be 8 bits only
+    !name is a variable that referenced the address in memory of $lit1
+.data16 name $literal1 $literal2... $literalN
+    ditto, but for 16bit literals
+
+//// Commands
+// mov &A B: copy the value in A to B  (B = A)
+    mov &reg reg 
+    mov &[addr] reg
+    mov $lit reg
+    mov &reg [addr]
+    mov &addr

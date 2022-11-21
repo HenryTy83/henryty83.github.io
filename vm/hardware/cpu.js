@@ -3,7 +3,7 @@ class CPU {
         this.memory = memory
 
         // store registers as n as 16 bit registers
-        this.registerNames = ["PC", "SP", "acc", "d", "x", "y"]
+        this.registerNames = ['PC', 'SP', 'acc', 'd', 'x', 'y']
         
         this.generateLookup = () => {
             var lookUp = {}
@@ -29,6 +29,7 @@ class CPU {
 
         // debug stuff
         this.cycles = 0
+        this.debug = false
     }
 
     getReg(index) {
@@ -47,7 +48,7 @@ class CPU {
     writeReg(reg, value) {this.setReg((this.getRegIndex(reg)), value)}
 
     fetchByte() {
-        var pcAddress = this.getRegIndex("PC") * 2
+        var pcAddress = this.getRegIndex('PC') * 2
         var PC = this.registers.getUint16(pcAddress)
         this.registers.setUint16(pcAddress, (PC + 1) % 0xffff)
 
@@ -55,12 +56,14 @@ class CPU {
     }
 
     fetchWord() {
-        return (this.fetchByte() & 0xff00) + (this.fetchByte() & 0x00ff)
+        return ((this.fetchByte() << 8) & 0xff00) |  (this.fetchByte() & 0x00ff)
     }
 
     run() {
         this.cycles ++
-        //cpu.hexDump([cpu.readReg("PC")])
+        if (this.debug) {
+            this.instructionDump()
+        }
 
         var instruction = this.fetchByte()
 
@@ -74,7 +77,7 @@ class CPU {
                 this.halted = true
                 return
                 
-            case mov_reg_reg: 
+            case instructionSet.mov_reg_reg: 
                 var registers = this.fetchByte()
                 var r1 = 2 * ((registers & 0b11110000) >> 4)
                 var r2 = 2 * (registers & 0b00001111)
@@ -147,7 +150,9 @@ class CPU {
                 return
 
             case instructionSet.mov_lit_mem.opcode: 
+                // this.instructionDump()
                 var lit = this.fetchWord()
+                // this.instructionDump()
                 var addr = this.fetchWord()
                                 
                 this.memory.setUint16(addr, lit)
@@ -173,12 +178,14 @@ class CPU {
                 contents += `\nMemory at: $${address.toString(16).padStart(4, '0')}: `
 
                 for (let i=0; i<16; i++) {
-                    contents += `${this.memory.getUint8(i).toString(16).padStart(2, '0')} `
+                    contents += `${this.memory.getUint8(address + i).toString(16).padStart(2, '0')} `
                 }
-                contents += "\n"
+                contents += '\n'
             }
         }
 
         console.log(contents)
     }
+
+    instructionDump = () => this.hexDump([cpu.readReg('PC')])
 }

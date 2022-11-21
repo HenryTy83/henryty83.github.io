@@ -1,5 +1,5 @@
-const ram = new Region(0x0000, 0x3fff)
-const screen = new Region(0x8000, 0x874f)
+const ram = new Region(0x0000, 0x7fff)
+const screen = new Region(0x8000, 0x874f, createScreenOutput())
 const memoryMappage = new Mapping([ram, screen])
 const cpu = new CPU(memoryMappage)
 
@@ -8,14 +8,11 @@ const runCPU = () => {
         const speedUp = document.getElementById("myRange").value;
         for (let i = 0; i < speedUp; i++) {
             if (cpu.running) { cpu.run(); }
-            else if (cpu.halted) {
+            if (cpu.halted) {
                 clearTimeout(running) //stop looping when halted
                 console.log('EXECUTION HALTED')
                 button.style.backgroundColor = 'rgb(255, 255, 0)'
                 return
-            }
-            else {
-                return;
             }
         }
     }
@@ -35,3 +32,6 @@ function loadFile(filePath) {
 }
 
 const helloWorld = loadFile("./programs/helloWorld.jsm")
+const helloWorldParsed = Parser.read(helloWorld)
+const helloWorldCompiled = assemble(helloWorldParsed)
+loadProgram(cpu.memory)(helloWorldCompiled)

@@ -19,21 +19,21 @@ const instructionSet = {
         opcode: 0x10,
         length: 2,
         mnemonic: "mov",
-        args: ["REGISTER", "REGISTER"]
+        args: ["REGISTER_VALUE", "REGISTER"]
     },
 
     mov_reg_indirect_reg: { // copy the register to memory at the address stored in the register
         opcode: 0x11,
         length: 2,
         mnemonic: "mov",
-        args: ["REGISTER", "REGISTER"]
+        args: ["REGISTER_VALUE", "REGISTER"]
     },
 
     mov_indirect_reg_reg: { // copy the memory value at the address in the register to the register
         opcode: 0x12,
         length: 2,
         mnemonic: "mov",
-        args: ["REGISTER", "REGISTER"]
+        args: ["REGISTER_VALUE", "REGISTER"]
     },
 
     mov_lit_reg: { // copy $lit to a register
@@ -47,7 +47,7 @@ const instructionSet = {
         opcode: 0x14,
         length: 4,
         mnemonic: "mov",
-        args: ["REGISTER", "ADDRESS"]
+        args: ["ADDRESS", "ADDRESS"]
     },
 
     mov_mem_reg: { // copy &memory address to register value
@@ -68,7 +68,7 @@ const instructionSet = {
         opcode: 0x17,
         length: 4,
         mnemonic: "mov",
-        args: ["REGISTER", "LITERAL", "REGISTER"]
+        args: ["ADDRESS", "LITERAL", "REGISTER"]
     },
 
     mov_reg_indirect_reg_literal_offset: { // copy the register to memory at the address in the register + the offset
@@ -86,9 +86,17 @@ const instructionSet = {
     },
 }
 
-var instructions = ["mov", "hlt", "nop"]
+const generateInstructions = () => {
+    const matches = []
+    for (var instruction of Object.values(instructionSet)) {
+        if (!matches.includes(instruction.mnemonic)) { matches.push(instruction.mnemonic) }
+    }
+    return matches
+}
 
-var registers = new CPU().generateLookup()
+const instructions = generateInstructions()
+
+const registers = new CPU().generateLookup()
 
 const findByMnemonic = (m) => { 
     const matches = []

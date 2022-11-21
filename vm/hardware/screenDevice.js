@@ -32,18 +32,18 @@ DOSfont.load().then(function (font) { //what the hell is a promise
 }); 
 
 var VRAMinstructions = {}
-var hextetNumber = 0
+var controlHextet = null
 
 const drawChar = (char, address, r, g, b) => {
     const charX = (address % charPerRow) + 1 //this makes sense, just convert the index number to x and y coordinates
     const charY = Math.floor(address / charPerRow) + 1
 
-    const randomFlicker = Math.random() < 0.0025 ? Math.random() : 0;
+    const randomFlicker = Math.random() < 0.005 ? Math.random() : 0;
 
-    ctx.fillStyle = `rgb(0, 255, 0, ${1-0.75*randomFlicker}`
+    ctx.fillStyle = `rgb(${r}, ${g},  ${b}, ${1-0.75*randomFlicker})`
     ctx.fillText(char, charX * charWidth -3, charY * charHeight-5)
 
-    ctx.fillStyle = `rgb(${r}, ${g}, ${b}, ${0.05-0.035*randomFlicker}`
+    ctx.fillStyle = `rgb(${r}, ${g}, ${b}, ${0.05-0.035*randomFlicker})`
     for (let i=-2; i<=2; i++) {
         for (let j=-2; j<=2; j++) {
             ctx.fillText(char, charX * charWidth -3 + i, charY * charHeight + j - 5)
@@ -67,7 +67,7 @@ const displayScreen = () => {
         if (control & 0b1000000000000000) {
             background();
             VRAMinstructions = {}; 
-            hextetNumber = 0; 
+            controlHextet = null; 
             break
         }
 
@@ -95,8 +95,14 @@ const createScreenOutput = () => {
         getUint16: (address) => VRAMinstructions[address][1],
         getUint8: () => 0,
         setUint16: (address, data) => { 
-            VRAMinstructions[address][hextetNumber] = data
-            hextetNumber = (hextetNumber + 1) % 2
+            if (controlHextet == null) {
+                controlHextet = data
+            }
+
+            else {
+                VRAMinstructions[address] = [controlHextet, data]
+                controlHextet = null
+            }
         },
         setUint8: () => 0,
     }
