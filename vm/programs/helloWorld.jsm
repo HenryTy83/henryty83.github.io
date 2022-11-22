@@ -2,6 +2,7 @@
 // test of the assembler and basic code
 .def standardSettings $00F0
 
+start:
 mov !standardSettings &[$8000]
 mov $0048 &[$8000]
 
@@ -42,6 +43,6 @@ hlt
 
 // reset vector
 .org $7ffe
-.data16 start $0000
+.data16 reset_vector !start
 
 // 0048 0065 006c 006c 006f 0020 0057 006f 0072 006c 0064 0021

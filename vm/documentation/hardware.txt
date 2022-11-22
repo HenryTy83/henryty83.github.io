@@ -6,6 +6,7 @@ By Henry Ty, XX November 2022
 registers:
     PC: program counter*
     SP: stack pointer*
+    MB: memory bank controller*
     accumulator
     x, y, d: general purpose registers
     

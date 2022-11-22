@@ -3,13 +3,14 @@ const screen = new Region(0x8000, 0x874f, createScreenOutput())
 const memoryMappage = new Mapping([ram, screen])
 const cpu = new CPU(memoryMappage)
 
+var process
 const runCPU = () => {
     if (fadeInTime < 0 && cpu.running) {
         const speedUp = document.getElementById("myRange").value;
         for (let i = 0; i < speedUp; i++) {
             if (cpu.running) { cpu.run(); }
             if (cpu.halted) {
-                clearTimeout(running) //stop looping when halted
+                clearTimeout(process) //stop looping when halted
                 console.log('EXECUTION HALTED')
                 button.style.backgroundColor = 'rgb(255, 255, 0)'
                 return

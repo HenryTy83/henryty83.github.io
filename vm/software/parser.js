@@ -74,8 +74,8 @@ class Arksecond {
     classify(word) {
         const typesLookup = {
             '$': 'LITERAL',
-            '&': 'ADDRESS',
-            '[': 'BRACKET',
+            '&': 'INDIRECT',
+            '[': 'ADDRESS',
             '!': 'VARIABLE',
             '/': 'COMMENT',
             '.': 'KEYWORD'
@@ -83,10 +83,10 @@ class Arksecond {
 
         var startType = typesLookup[word[0]]
 
-        if (startType == 'ADDRESS') { 
+        if (startType == 'INDIRECT') { 
             var secondType = this.classify(word.slice(1))
-            if (secondType == 'REGISTER') { return 'REGISTER_VALUE' }
-            else if (secondType == 'BRACKET') { return 'ADDRESS' } 
+            if (secondType == 'REGISTER') { return 'INDIRECT_REGISTER' }
+            else if (secondType == 'ADDRESS') { return 'ADDRESS' } 
         }
 
         else if (startType != null) {

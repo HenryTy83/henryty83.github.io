@@ -80,6 +80,56 @@ const arraysEqual = (a, b) => {
     return true
 }
 
+const parseBracket = (address) => {
+    var expression = address.split(' ')
+    
+    if (expression.length == 1) {
+        if (expression[0][0] == '$') { return parseInt(expression[0].slice(1), 16) }
+        return parseInt(address)
+    }
+
+    for (var i in expression) { 
+        if (expression[i][0] == '$') { expression[i] = parseInt(expression[i].slice(1), 16) }
+        else if (expression[i] == '(') {
+            for (var j = parseInt(i) + 1; j < expression.length; j++) {
+                if (expression[j] == ')') {
+                    expression.splice(i, 0, parseBracket(expression.splice(i, j + 1).slice(1, -2).join(' ')))
+                }
+            }
+        }
+
+        else if ('01233456789'.includes(expression[i])) { 
+            expression[i] = parseInt(expression[i])
+        }
+    }
+
+
+    for (var i = 1; i < expression.length-1; i++) { 
+        if (expression[i] == '*') {
+            expression[i] = expression[i - 1] * expression[i + 1]
+            expression.splice(i + 1, 1)
+            expression.splice(i - 1, 1)
+        }
+    }
+
+    for (var i = 0; i < expression.length-1; i++) { 
+        if (expression[i] == '-') {
+            expression[i + 1] *= -1
+            expression[i] = '+'
+        }
+    }
+
+    for (var i = 1; i < expression.length - 1; i++) { 
+        if (expression[i] == '+') {
+            expression[i] = expression[i - 1] + expression[i + 1]
+            expression.splice(i + 1, 1)
+            expression.splice(i - 1, 1)
+        }
+    }
+
+    return parseBracket(expression.join(' '))
+}
+
 const assemble = (program) => {
     const defaultResetVector = 0x7ffe
     const variables = createLabelLookup(program)
@@ -89,45 +139,21 @@ const assemble = (program) => {
     machineCode[defaultResetVector] = 0
     machineCode[defaultResetVector + 1] = 0
 
-    const parseBracket = (address) => {
-        try {
-            var expression = address.split(' ')
-
-            if (expression.length == 0) { console.log(address); return parseInt(address.slice(1), 16) }
-            if (expression[0] == '(') { return this.parseBracket(expression.slice(1, expression.length - 1).join(' ')) }
-                
-            var total = parseInt(expression.slice(0, 1)[0].slice(1), 16)
-            
-            for (var i = 1; i < expression.length; i += 2) {
-                var operator = expression[i]
-                var operand = expression[i + 1]
-                
-                if (operand == '(') { operand = this.parseBracket(address.slice(i + 1, address.length - 1)) }
-                else {
-                    if (Parser.classify(operand) == 'LITERAL') { operand = parseInt(operand.slice(1), 16) }
-                    else { operand = variables[operand.slice(1)] }
-                }
-
-                switch (operator) {
-                    case '+':
-                        total += operand
-                        break
-                    case '*':
-                        total *= operand
-                        break
-                    case '-':
-                        total -= operand
-                        break
-                }
-            }
-        }
-
-
-    catch (err) { 
-        throw new Error(`PARSING ERROR: Tried evaluating expression ${address} and recieved error: \n${err}`)
+    const assembleRegister = (reg, args, i) => {
+    if (i == 0) { 
+        machineCode[programCounter++] = (reg << 4) & 0b11110000
+        return
     }
-
-    return total 
+        
+    switch (args[i - 1].type) { 
+        case 'REGISTER':
+        case 'INDIRECT_REGISTER':
+            machineCode[programCounter - 1] |= reg & 0b00001111
+            return
+        default:
+            machineCode[programCounter++] = (reg << 4) & 0b11110000
+            return
+    }
     }
 
     for (var word of program) {
@@ -176,42 +202,26 @@ const assemble = (program) => {
                 for (var i in word.args) {
                     var argument = word.args[i]
 
-                    // use if-elses instead of switch case to make it easier to port to assembly
-                    if (argument.type == 'ADDRESS') { 
-                        if (Parser.classify(argument.value.value) == 'REGISTER_VALUE') {
-                            if (i > 1 && (word.args[i - 1].type == 'REGISTER' || word.args[i - 1].type == 'REGISTER_VALUE')) {
-                                machineCode[programCounter - 1] = ((machineCode[programCounter - 1] << 4) | argument.value) & 0xff
-                            }
-                            else {
-                                machineCode[programCounter++] = argument.value & 0xff
-                            }
-                        }
-
-                        else {
+                    switch (argument.type) { 
+                        case 'ADDRESS':
                             var address = parseBracket(argument.value.value)
                             machineCode[programCounter++] = (address & 0xff00) >> 8
                             machineCode[programCounter++] = address & 0x00ff
-                        }
-                    }
-
-                    else if (argument.type == 'LITERAL') {
-                        machineCode[programCounter++] = (argument.value & 0xff00) >> 8
-                        machineCode[programCounter++] = argument.value & 0x00ff
-                    }
-
-                    else if (argument.type == 'REGISTER' || argument.type == 'REGISTER_VALUE') {
-                        if (i > 1 && (word.args[i - 1].type == 'REGISTER' || word.args[i - 1].type == 'REGISTER_VALUE')) {
-                            machineCode[programCounter - 1] = ((machineCode[programCounter - 1] << 4) | argument.value) & 0xff
-                        }
-                        else {
-                            machineCode[programCounter++] = argument.value & 0xff
-                        }
-                    }
-
-                    else if (argument.type == 'VARIABLE') {
-                        var literal = variables[argument.value]
-                        machineCode[programCounter++] = (literal & 0xff00) >> 8
-                        machineCode[programCounter++] = (literal & 0xff)
+                            break
+                        case 'LITERAL':
+                            machineCode[programCounter++] = (argument.value & 0xff00) >> 8
+                            machineCode[programCounter++] = argument.value & 0x00ff
+                            break
+                        case 'VARIABLE':
+                            machineCode[programCounter++] = (variables[argument.value] & 0xff00) >> 8
+                            machineCode[programCounter++] = variables[argument.value] & 0x00ff
+                            break
+                        case 'REGISTER':
+                        case 'INDIRECT_REGISTER':
+                            assembleRegister(registers[argument.value], word.args, i)
+                            break
+                        default:
+                            throw new Error(`PARSER ERROR: Encountered word with unknown type "${argument.type} in line ${word}:"`)
                     }
                 }
                 break

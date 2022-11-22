@@ -3,8 +3,8 @@ class CPU {
         this.memory = memory
 
         // store registers as n as 16 bit registers
-        this.registerNames = ['PC', 'SP', 'acc', 'd', 'x', 'y']
-        
+        this.registerNames = ['PC', 'SP', 'MB', 'acc', 'd', 'x', 'y']
+
         this.generateLookup = () => {
             var lookUp = {}
             for (var i in this.registerNames) {
@@ -13,7 +13,7 @@ class CPU {
 
             return lookUp
         }
-        
+
         this.registerLookup = this.generateLookup()
 
         for (var i in this.registerNames) {
@@ -33,34 +33,46 @@ class CPU {
     }
 
     getReg(index) {
-        return this.registers.getUint16(index*2)
+        return this.registers.getUint16(index * 2) & 0xffff
     }
 
     setReg(index, value) {
         // indexed at 0, incremented by 1
-        this.registers.setUint16(index*2, value)
+        this.registers.setUint16(index * 2, value % (0xffff + 1))
     }
 
-    getRegIndex(reg) {return this.registerLookup[reg]}
+    getRegIndex(reg) {
+        return this.registerLookup[reg]
+    }
 
-    readReg(reg) {return this.getReg((this.getRegIndex(reg)))}
+    readReg(reg) {
+        return this.getReg((this.getRegIndex(reg)))
+    }
 
-    writeReg(reg, value) {this.setReg((this.getRegIndex(reg)), value)}
+    writeReg(reg, value) {
+        this.setReg((this.getRegIndex(reg)), value)
+    }
 
     fetchByte() {
         var pcAddress = this.getRegIndex('PC') * 2
-        var PC = this.registers.getUint16(pcAddress)
-        this.registers.setUint16(pcAddress, (PC + 1) % 0xffff)
+        var PC = this.getReg(pcAddress)
+        this.setReg(pcAddress, PC + 1)
 
         return this.memory.getUint8(PC)
     }
 
     fetchWord() {
-        return ((this.fetchByte() << 8) & 0xff00) |  (this.fetchByte() & 0x00ff)
+        return ((this.fetchByte() << 8) & 0xff00) | (this.fetchByte() & 0x00ff)
+    }
+
+    startup() { 
+        this.writeReg('PC', this.memory.getUint16(0x7ffe))
+        this.running = true;
+        process = setInterval(runCPU, 0);
     }
 
     run() {
-        this.cycles ++
+        this.cycles++
         if (this.debug) {
             this.instructionDump()
         }
@@ -72,97 +84,271 @@ class CPU {
 
     execute(instruction) {
         switch (instruction) {
-            case instructionSet.halt.opcode: 
+            case instructionSet.halt.opcode:
                 this.running = false
                 this.halted = true
-                return
-                
-            case instructionSet.mov_reg_reg: 
-                var registers = this.fetchByte()
-                var r1 = 2 * ((registers & 0b11110000) >> 4)
-                var r2 = 2 * (registers & 0b00001111)
 
-                this.registers.setUint16(r1, this.registers.getUint16(r2))
                 return
-            
-            case instructionSet.mov_reg_indirect_reg.opcode: 
-                var registers = this.fetchByte()
-                var r1 = 2 * ((registers & 0b11110000) >> 4)
-                var r2 = 2 * (registers & 0b00001111)
-
-                this.memory.setUint16(this.registers.getUint16(r1), this.registers.getUint16(r2*2))
-                return 
-            
-            case instructionSet.mov_indirect_reg_reg.opcode: 
-                var registers = this.fetchByte()
-                var r1 = 2 * (registers & 0b11110000)
-                var r2 = 2 * (registers & 0b00001111)
-
-                this.registers.setUint16(r2, this.memory.getUint16(this.registers.getUint16(r1)))
+            case instructionSet.noop.opcode:
                 return
-            
+            case instructionSet.mov_reg_reg:
+                var registers = this.fetchByte()
+                var r1 = ((registers & 0b11110000) >> 4)
+                var r2 = (registers & 0b00001111)
+
+                this.setReg(r1, this.getReg(r2))
+                return
+            case instructionSet.mov_reg_indirect_reg.opcode:
+                var registers = this.fetchByte()
+                var r1 = ((registers & 0b11110000) >> 4)
+                var r2 = (registers & 0b00001111)
+
+                this.memory.setUint16(this.getReg(r1), this.getReg(r2 * 2))
+                return
+            case instructionSet.mov_indirect_reg_reg.opcode:
+                var registers = this.fetchByte()
+                var r1 = (registers & 0b11110000)
+                var r2 = (registers & 0b00001111)
+
+                this.setReg(r2, this.memory.getUint16(this.getReg(r1)))
+                return
             case instructionSet.mov_lit_reg.opcode:
                 var lit = this.fetchWord()
-                var reg = 2 * ((this.fetchByte() & 0b11110000) >> 4)
+                var reg = ((this.fetchByte() & 0b11110000) >> 4)
 
-                this.registers.setUint16(reg, lit)
+                this.setReg(reg, lit)
                 return
-            
-            case instructionSet.mov_reg_mem.opcode: 
-                var reg = 2 * ((this.fetchByte() & 0b11110000) >> 4)
+            case instructionSet.mov_reg_mem.opcode:
+                var reg = ((this.fetchByte() & 0b11110000) >> 4)
                 var addr = this.fetchWord()
-                                
-                this.memory.setUint16(addr, this.registers.getUint16(reg))
+
+                this.memory.setUint16(addr, this.getReg(reg))
                 return
-            
-            case instructionSet.mov_mem_reg.opcode: 
+            case instructionSet.mov_mem_reg.opcode:
                 var addr = this.fetchWord()
-                var reg = 2 * ((this.fetchByte() & 0b11110000) >> 4)
-                                
-                this.registers.setUint16(reg, this.memory.getUint16(addr))
+                var reg = ((this.fetchByte() & 0b11110000) >> 4)
+
+                this.setReg(reg, this.memory.getUint16(addr))
                 return
-            
-            case instructionSet.mov_lit_indirect_reg.opcode: 
+            case instructionSet.mov_lit_indirect_reg.opcode:
                 var lit = this.fetchWord()
-                var reg = 2 * (this.fetchByte() & 0b00001111)
+                var reg = (this.fetchByte() & 0b11110000) >> 4
 
-                this.memory.setUint16(this.registers.getUint16(reg), lit)
+                this.memory.setUint16(this.getReg(reg), lit)
                 return
-            
-            case instructionSet.mov_indirect_reg_reg_literal_offset.opcode: 
+            case instructionSet.mov_indirect_reg_reg_literal_offset.opcode:
                 var registers = this.fetchByte()
-                var r1 = 2 * ((registers & 0b11110000) >> 4)
-                var r2 = 2 * (registers & 0b00001111)
+                var r1 = ((registers & 0b11110000) >> 4)
+                var r2 = (registers & 0b00001111)
 
                 var offset = this.fetchWord()
-                                
-                this.registers.setUint16(r2, this.memory.getUint16(offset + this.registers.getUint16(r1)))
+
+                this.setReg(r2, this.memory.getUint16(offset + this.getReg(r1)))
                 return
-                
-            case instructionSet.mov_reg_indirect_reg_literal_offset.opcode: 
+            case instructionSet.mov_reg_indirect_reg_literal_offset.opcode:
                 var registers = this.fetchByte()
-                var r1 = 2 * ((registers & 0b11110000) >> 4)
-                var r2 = 2 * (registers & 0b00001111)
+                var r1 = ((registers & 0b11110000) >> 4)
+                var r2 = (registers & 0b00001111)
 
                 var offset = this.fetchWord()
-                                
-                this.memory.setUint16(this.memory.getUint16(offset + this.registers.getUint16(r2), this.registers.getUint16(r1)))
-                return
 
-            case instructionSet.mov_lit_mem.opcode: 
-                // this.instructionDump()
+                this.memory.setUint16(offset + this.getReg(r2), this.getReg(r1))
+                return
+            case instructionSet.mov_lit_mem.opcode:
                 var lit = this.fetchWord()
-                // this.instructionDump()
                 var addr = this.fetchWord()
-                                
+
                 this.memory.setUint16(addr, lit)
                 return
+            case instructionSet.mov_mem_mem.opcode:
+                var source = this.fetchWord()
+                var target = this.fetchWord()
 
-            case instructionSet.noop.opcode:
-            default: 
+                this.memory.setUint16(target, this.memory.getUint16(source))
                 return
-            
+            case instructionSet.add_reg_reg:
+                var registers = this.fetchByte()
+                var r1 = ((registers & 0b11110000) >> 4)
+                var r2 = (registers & 0b00001111)
+
+                this.writeReg('acc', this.getReg(r1) + this.getReg(r2))
+                return
+            case instructionSet.add_reg_lit:
+                var reg = (this.fetchByte() & 0b11110000) >> 4
+                var lit = this.fetchWord()
+
+                this.writeReg('acc', this.getReg(reg) + lit)
+                return
+            case instructionSet.add_reg_mem:
+                var reg = (this.fetchByte() & 0b11110000) >> 4
+                var address = this.fetchWord()
+
+                this.writeReg('acc', this.getReg(reg) + this.memory.getUint16(address))
+                return
+            case instructionSet.sub_reg_reg:
+                var registers = this.fetchByte()
+                var r1 = ((registers & 0b11110000) >> 4)
+                var r2 = (registers & 0b00001111)
+
+                this.writeReg('acc', this.getReg(r1) - this.getReg(r2))
+                return
+            case instructionSet.sub_reg_lit:
+                var reg = (this.fetchByte() & 0b11110000) >> 4
+                var lit = this.fetchWord()
+
+                this.writeReg('acc', this.getReg(reg) - lit)
+                return
+            case instructionSet.sub_reg_mem:
+                var reg = (this.fetchByte() & 0b11110000) >> 4
+                var address = this.fetchWord()
+
+                this.writeReg('acc', this.getReg(reg) - this.memory.getUint16(address))
+                return
+            case instructionSet.sub_lit_reg:
+                var lit = this.fetchWord()
+                var reg = (this.fetchByte() & 0b11110000) >> 4
+
+                this.writeReg('acc', lit - this.getReg(reg))
+                return
+            case instructionSet.sub_mem_reg:
+                var address = this.fetchWord()
+                var reg = (this.fetchByte() & 0b11110000) >> 4
+
+                this.writeReg('acc', this.memory.getUint16(address) - this.getReg(reg))
+                return
+            case instructionSet.mul_reg_reg:
+                var registers = this.fetchByte()
+                var r1 = ((registers & 0b11110000) >> 4)
+                var r2 = (registers & 0b00001111)
+
+                this.writeReg('acc', this.getReg(r1) * this.getReg(r2))
+                return
+            case instructionSet.mul_reg_lit:
+                var reg = (this.fetchByte() & 0b11110000) >> 4
+                var lit = this.fetchWord()
+
+                this.writeReg('acc', this.getReg(reg) * lit)
+                return
+            case instructionSet.mul_reg_mem:
+                var reg = (this.fetchByte() & 0b11110000) >> 4
+                var address = this.fetchWord()
+
+                this.writeReg('acc', this.getReg(reg) * this.memory.getUint16(address))
+                return
+            case instructionSet.and_reg_reg:
+                var registers = this.fetchByte()
+                var r1 = ((registers & 0b11110000) >> 4)
+                var r2 = (registers & 0b00001111)
+
+                this.writeReg('acc', this.getReg(r1) & this.getReg(r2))
+                return
+            case instructionSet.and_reg_lit:
+                var reg = (this.fetchByte() & 0b11110000) >> 4
+                var lit = this.fetchWord()
+
+                this.writeReg('acc', this.getReg(reg) & lit)
+                return
+            case instructionSet.and_reg_mem:
+                var reg = (this.fetchByte() & 0b11110000) >> 4
+                var address = this.fetchWord()
+
+                this.writeReg('acc', this.getReg(reg) & this.memory.getUint16(address))
+                return
+            case instructionSet.or_reg_reg:
+                var registers = this.fetchByte()
+                var r1 = ((registers & 0b11110000) >> 4)
+                var r2 = (registers & 0b00001111)
+
+                this.writeReg('acc', this.getReg(r1) | this.getReg(r2))
+                return
+            case instructionSet.or_reg_lit:
+                var reg = (this.fetchByte() & 0b11110000) >> 4
+                var lit = this.fetchWord()
+
+                this.writeReg('acc', this.getReg(reg) | lit)
+                return
+            case instructionSet.or_reg_mem:
+                var reg = (this.fetchByte() & 0b11110000) >> 4
+                var address = this.fetchWord()
+
+                this.writeReg('acc', this.getReg(reg) | this.memory.getUint16(address))
+                return
+            case instructionSet.xor_reg_reg:
+                var registers = this.fetchByte()
+                var r1 = ((registers & 0b11110000) >> 4)
+                var r2 = (registers & 0b00001111)
+
+                this.writeReg('acc', this.getReg(r1) ^ this.getReg(r2))
+                return
+            case instructionSet.xor_reg_lit:
+                var reg = (this.fetchByte() & 0b11110000) >> 4
+                var lit = this.fetchWord()
+
+                this.writeReg('acc', this.getReg(reg) ^ lit)
+                return
+            case instructionSet.xor_reg_mem:
+                var reg = (this.fetchByte() & 0b11110000) >> 4
+                var address = this.fetchWord()
+
+                this.writeReg('acc', this.getReg(reg) ^ this.memory.getUint16(address))
+                return
+            case instructionSet.not:
+                var reg = ((this.fetchByte() & 0b11110000) >> 4)
+                this.setReg(reg, ~this.getReg(reg))
+                return
+            case instructionSet.neg:
+                var reg = ((this.fetchByte() & 0b11110000) >> 4)
+                this.setReg(reg, -this.getReg(reg))
+                return
+            case instructionSet.inc:
+                var reg = ((this.fetchByte() & 0b11110000) >> 4)
+                this.setReg(reg, this.getReg(reg) + 1)
+                return
+            case instructionSet.dec:
+                var reg = ((this.fetchByte() & 0b11110000) >> 4)
+                this.setReg(reg, this.getReg(reg) - 1)
+                return
+            case instructionSet.shr_reg_reg:
+                var registers = this.fetchByte()
+                var r1 = ((registers & 0b11110000) >> 4)
+                var r2 = (registers & 0b00001111)
+
+                this.writeReg('acc', this.getReg(r1) >> this.getReg(r2))
+                return
+            case instructionSet.shr_reg_lit:
+                var reg = (this.fetchByte() & 0b11110000) >> 4
+                var lit = this.fetchWord()
+
+                this.writeReg('acc', this.getReg(reg) >> lit)
+                return
+            case instructionSet.shr_reg_mem:
+                var reg = (this.fetchByte() & 0b11110000) >> 4
+                var address = this.fetchWord()
+
+                this.writeReg('acc', this.getReg(reg) >> this.memory.getUint16(address))
+                return
+            case instructionSet.shl_reg_reg:
+                var registers = this.fetchByte()
+                var r1 = ((registers & 0b11110000) >> 4)
+                var r2 = (registers & 0b00001111)
+
+                this.writeReg('acc', this.getReg(r1) << this.getReg(r2))
+                return
+            case instructionSet.shl_reg_lit:
+                var reg = (this.fetchByte() & 0b11110000) >> 4
+                var lit = this.fetchWord()
+
+                this.writeReg('acc', this.getReg(reg) << lit)
+                return
+            case instructionSet.shl_reg_mem:
+                var reg = (this.fetchByte() & 0b11110000) >> 4
+                var address = this.fetchWord()
+
+                this.writeReg('acc', this.getReg(reg) << this.memory.getUint16(address))
+                return
         }
+
+        console.error(`EXECUTION ERROR: UNKNOWN OPCODE $${instruction.toString(16).padStart(2, '0')}`)
     }
 
     // debug functions
@@ -170,14 +356,14 @@ class CPU {
         var contents = `Time elapsed: ${this.cycles}\n\nRegisters:\n`
 
         for (let i in this.registerNames) {
-            contents += `${this.registerNames[i]}: $${this.registers.getUint16(i*2).toString(16).padStart(4, '0')}\n`
+            contents += `${this.registerNames[i]}: $${this.getReg(i*2).toString(16).padStart(4, '0')}\n`
         }
 
         if (addresses != null) {
             for (let address of addresses) {
                 contents += `\nMemory at: $${address.toString(16).padStart(4, '0')}: `
 
-                for (let i=0; i<16; i++) {
+                for (let i = 0; i < 16; i++) {
                     contents += `${this.memory.getUint8(address + i).toString(16).padStart(2, '0')} `
                 }
                 contents += '\n'

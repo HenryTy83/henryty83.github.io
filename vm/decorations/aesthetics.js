@@ -14,7 +14,6 @@ const fadeout = () => {
 }
 
 const fadeIn = () => { // its 4am
-
     ctx.fillStyle = 'rgb(0, 100, 0, 0.03)';
     ctx.fillRect(0, 0, canvas.width, canvas.height)
 
@@ -28,18 +27,16 @@ const fadeIn = () => { // its 4am
 
 var button = document.getElementById('power')
 const powerToggle = () => { //its 3 AM
-    if (running == null) { return; }
+    if (process == null) { return; }
     powerOn = !powerOn;
     button.style.backgroundColor = powerOn ? 'green' : 'red';
 
-    if (!powerOn) {
-        powerOff = setInterval(fadeout, 100);
-    
-        // turn on the pc
+    if (powerOn) {
+        powerUp = setInterval(fadeIn, 50);
     }
 
     else {
-        powerUp = setInterval(fadeIn, 50);
+        powerOff = setInterval(fadeout, 100);
     }
 };
 

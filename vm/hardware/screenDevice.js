@@ -1,5 +1,5 @@
 const canvas = document.getElementById("screen"); //This code is a mess, taken from 50 different websites. I have no idea how it works
-var ctx = canvas.getContext("2d");
+const ctx = canvas.getContext("2d");
 const DOSfont = new FontFace('modernDOS', 'url(./decorations/modernDOS.ttf)');
 
 var powerOn = false;
@@ -16,19 +16,11 @@ DOSfont.load().then(function (font) { //what the hell is a promise
     ctx.font = defaultFont
     ctx.textAlign = "start"
 
-    try {
-        console.log('LOAD SUCCESSFUL. POWERING ON...')
+    console.log('LOAD SUCCESSFUL. POWERING ON...')
 
-        button.style.backgroundColor = 'rgb(255, 0, 0)'
-
-        cpu.running = true;
-        running = setInterval(runCPU, 0); //start the loop
-    }
-
-    catch(notLoaded) {
-        console.error(`LOAD FAILED. REBOOTING PAGE...`)
-        window.location.reload();
-    }
+    button.style.backgroundColor = 'rgb(255, 0, 0)'
+    
+    cpu.startup()
 }); 
 
 var VRAMinstructions = {}

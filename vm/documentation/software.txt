@@ -2,7 +2,7 @@
 By Henry Ty, XX November 2022
 
 //// GENERAL INFO
-All opcodes are 1 btye (total of $ff+1=256)
+All opcodes are 1 byte (total of $ff+1=256)
 Commands consist of a 1 byte opcode + X bytes of arguments
 
 // Kinds of arguments:
@@ -12,9 +12,10 @@ Commands consist of a 1 byte opcode + X bytes of arguments
 [LIT] [ERL] Hex literal: 2 bytes ($LITERL)
 
 // Prefix meanings:
-&: value of something
+&A: memory at the address of the value of A
 [X]: memory at address X
 $: literal
+
 
 //// ALL OPCODES
 // $0X: Control flow 
@@ -31,29 +32,126 @@ mov_reg_reg: $10 [R2G]
     B = A 
 
 mov_reg_indirect_reg: $11 [R2G]
-    &[&B] = &A
+    &B = A
 
 mov_indirect_reg_reg: $12 [R2G]
-    B = &[&A]
+    B = &A
 
 mov_lit_reg: $13 [LIT] [ERL] [REG]
     A = $LITERL 
 
 mov_reg_mem: $14 [REG] [MEM] [ORY]
-    [ADDRES] = &A
+    [ADDRES] = A
 
 mov_mem_reg: $15 [MEM] [ORY] [REG]
-    A = &[ADDRES]
+    A = [ADDRES]
 
 mov_indirect_reg_reg_literal_offset: $16 [R2G] [LIT] [ERL]
-    B = &[&A + $LITERL]
+    B = [A + $LITERL]
 
 mov_reg_indirect_reg_literal_offset: $17 [R2G] [LIT] [ERL]
-    [&B + $LITERL] = &A
+    [B + $LITERL] = A
 
 mov_lit_indirect_reg: $18 [LIT] [ERL] [REG]
-    [&A] = $LITERL
+    &A = $LITERL
 
 mov_lit_mem: $19 [LIT] [ERL] [ADD] [RES]
     [ADDRES] = $LITERL
+
+mov_mem_mem: $1a [ADD] [RS1] [ADD] [RS2]
+    [ADDRS2] = [ADDRS1]
     
+
+// $20-$32: ALU Operations
+add_reg_reg: $20 [R2G]
+    acc = A + B
+
+add_reg_lit: $21 [REG] [LIT] [ERL]
+    acc = A + $LITERL
+
+add_reg_mem: $22 [REG] [ADD] [RES]
+    acc = A + [ADDRS]
+
+sub_reg_reg: $23 [R2G]
+    acc = A - B
+
+sub_reg_lit: $24 [REG] [LIT] [ERL]
+    acc = A - $LITERL
+
+sub_reg_mem: $25 [REG] [ADD] [RES]
+    acc = A - [ADDRS]
+
+sub_lit_reg: $26 [LIT] [ERL] [REG]
+    acc = $LITERL - A
+
+sub_reg_mem: $27 [REG] [ADD] [RES]
+    acc = [ADDRS] - A
+
+mul_reg_reg: $28 [R2G]
+    acc = A * B
+
+mul_reg_lit: $29 [REG] [LIT] [ERL]
+    acc = A * $LITERL
+
+mul_reg_mem: $2a [REG] [ADD] [RES]
+    acc = A * [ADDRS]
+
+and_reg_reg: $2b [R2G]
+    acc = A & B
+
+and_reg_lit: $2c [REG] [LIT] [ERL]
+    acc = A & $LITERL
+
+and_reg_mem: $2d [REG] [ADD] [RES]
+    acc = A & [ADDRS]
+
+or_reg_reg: $2e [R2G]
+    acc = A | B
+
+or_reg_lit: $2f [REG] [LIT] [ERL]
+    acc = A | $LITERL
+
+or_reg_mem: $30 [REG] [ADD] [RES]
+    acc = A | [ADDRS]
+
+xor_reg_reg: $31 [R2G]
+    acc = A ^ B
+
+xor_reg_lit: $32 [REG] [LIT] [ERL]
+    acc = A ^ $LITERL
+
+xor_reg_mem: $33 [REG] [ADD] [RES]
+    acc = A ^ [ADDRS]
+
+not: $34 [REG]
+    A = ~A
+
+neg: $35 [REG]
+    A = -A
+    
+inc: $36 [REG]
+    A = A+1
+
+dec: $37 [REG]
+    A = A-1
+
+shr_reg_reg: $38 [R2G]
+    acc = A >> B
+
+shr_reg_lit: $39 [REG] [LIT] [ERL]
+    acc = A >> $LITERL
+
+shr_reg_mem: $3a [REG] [ADD] [RES]
+    acc = A >> [ADDRS]
+
+shl_reg_reg: $3b [R2G]
+    acc = A << B
+
+shl_reg_lit: $3c [REG] [LIT] [ERL]
+    acc = A << $LITERL
+
+shl_reg_mem: $3d [REG] [ADD] [RES]
+    acc = A << [ADDRS]
+
+
+// $4X: Control flow
