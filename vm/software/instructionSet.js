@@ -1,108 +1,105 @@
 const instructionSet = {
-    /* $0X: Control flow */
-    halt: { // halts execution
+    halt: {
         opcode: 0x00,
         length: 1,
         mnemonic: 'hlt',
         args: []
     },
 
-    noop: { // does nothing
+    noop: {
         opcode: 0x01,
         length: 1,
         mnemonic: 'nop',
         args: []
     },
 
-    /* $1X: Data logistics */
-    mov_reg_reg: { // copy value from 1 register to another
+    mov_reg_reg: {
         opcode: 0x10,
-        length: 3,
+        length: 2,
         mnemonic: 'mov',
-        args: ['REGISTER', 'REGISTER']
+        args: ['REGISTER']
     },
 
-    mov_reg_indirect_reg: { // copy the register to memory at the address stored in the register
+    mov_reg_indirect_reg: {
         opcode: 0x11,
-        length: 3,
+        length: 2,
         mnemonic: 'mov',
-        args: ['REGISTER', 'INDIRECT_REGISTER']
+        args: ['REGISTER']
     },
 
-    mov_indirect_reg_reg: { // copy the memory value at the address in the register to the register
+    mov_indirect_reg_reg: {
         opcode: 0x12,
-        length: 3,
+        length: 2,
         mnemonic: 'mov',
-        args: ['INDIRECT_REGISTER', 'REGISTER']
+        args: ['REGISTER']
     },
 
-    mov_lit_reg: { // copy $lit to a register
+    mov_lit_reg: {
         opcode: 0x13,
         length: 4,
         mnemonic: 'mov',
         args: ['LITERAL', 'REGISTER']
     },
 
-    mov_reg_mem: { // copy register value to a &memory address 
+    mov_reg_mem: {
         opcode: 0x14,
         length: 4,
         mnemonic: 'mov',
-        args: ['REGISTER', 'ADDRESS']
+        args: ['REGISTER']
     },
 
-    mov_mem_reg: { // copy &memory address to register value
+    mov_mem_reg: {
         opcode: 0x15,
         length: 4,
         mnemonic: 'mov',
-        args: ['ADDRESS', 'REGISTER']
+        args: ['REGISTER']
     },
 
-    mov_lit_indirect_reg: { // copy $lit to the address stored in the reg
+    mov_indirect_reg_reg_literal_offset: {
         opcode: 0x16,
         length: 4,
         mnemonic: 'mov',
-        args: ['LITERAL', 'INDIRECT_REGISTER']
+        args: ['REGISTER', 'LITERAL']
     },
 
-    mov_indirect_reg_reg_literal_offset: { // copy the memory value at the address in the register + the offset to the register
+    mov_reg_indirect_reg_literal_offset: {
         opcode: 0x17,
-        length: 5,
+        length: 4,
         mnemonic: 'mov',
-        args: ['INDIRECT_REGISTER', 'REGISTER', 'LITERAL']
+        args: ['REGISTER', 'LITERAL']
     },
 
-    mov_reg_indirect_reg_literal_offset: { // copy the register to memory at the address in the register + the offset
+    mov_lit_indirect_reg: {
         opcode: 0x18,
-        length: 5,
+        length: 4,
         mnemonic: 'mov',
-        args: ['REGISTER', 'INDIRECT_REGISTER', 'LITERAL']
+        args: ['LITERAL', 'REGISTER']
     },
 
-    mov_lit_mem: { // copy $lit to &memory address 
+    mov_lit_mem: {
         opcode: 0x19,
         length: 5,
         mnemonic: 'mov',
         args: ['LITERAL', 'ADDRESS']
     },
 
-    mov_mem_mem: { // copy &memory address to &memory address 
+    mov_mem_mem: {
         opcode: 0x1a,
         length: 5,
         mnemonic: 'mov',
         args: ['ADDRESS', 'ADDRESS']
     },
 
-    /* $2X: ALU Operations */
     add_reg_reg: {
         opcode: 0x20,
-        length: 3,
+        length: 2,
         mnemonic: 'add',
-        args: ['REGISTER', 'REGISTER']
+        args: ['REGISTER']
     },
 
     add_reg_lit: {
         opcode: 0x21,
-        length: 5,
+        length: 4,
         mnemonic: 'add',
         args: ['REGISTER', 'LITERAL']
     },
@@ -118,12 +115,12 @@ const instructionSet = {
         opcode: 0x23,
         length: 2,
         mnemonic: 'sub',
-        args: ['REGISTER', 'REGISTER']
+        args: ['REGISTER']
     },
 
     sub_reg_lit: {
         opcode: 0x24,
-        length: 3,
+        length: 4,
         mnemonic: 'sub',
         args: ['REGISTER', 'LITERAL']
     },
@@ -142,18 +139,18 @@ const instructionSet = {
         args: ['LITERAL', 'REGISTER']
     },
 
-    sub_mem_reg: {
+    sub_reg_mem: {
         opcode: 0x27,
         length: 4,
         mnemonic: 'sub',
-        args: ['ADDRESS', 'REGISTER']
+        args: ['REGISTER', 'ADDRESS']
     },
 
     mul_reg_reg: {
         opcode: 0x28,
         length: 2,
         mnemonic: 'mul',
-        args: ['REGISTER', 'REGISTER']
+        args: ['REGISTER']
     },
 
     mul_reg_lit: {
@@ -174,7 +171,7 @@ const instructionSet = {
         opcode: 0x2b,
         length: 2,
         mnemonic: 'and',
-        args: ['REGISTER', 'REGISTER']
+        args: ['REGISTER']
     },
 
     and_reg_lit: {
@@ -195,7 +192,7 @@ const instructionSet = {
         opcode: 0x2e,
         length: 2,
         mnemonic: 'or',
-        args: ['REGISTER', 'REGISTER']
+        args: ['REGISTER']
     },
 
     or_reg_lit: {
@@ -214,9 +211,9 @@ const instructionSet = {
 
     xor_reg_reg: {
         opcode: 0x31,
-        length: 3,
+        length: 2,
         mnemonic: 'xor',
-        args: ['REGISTER', 'REGISTER']
+        args: ['REGISTER']
     },
 
     xor_reg_lit: {
@@ -245,27 +242,27 @@ const instructionSet = {
         length: 2,
         mnemonic: 'neg',
         args: ['REGISTER']
-    }, 
-    
+    },
+
     inc: {
         opcode: 0x36,
         length: 2,
         mnemonic: 'inc',
         args: ['REGISTER']
-    }, 
+    },
 
     dec: {
         opcode: 0x37,
         length: 2,
         mnemonic: 'dec',
         args: ['REGISTER']
-    }, 
+    },
 
     shr_reg_reg: {
         opcode: 0x38,
-        length: 3,
+        length: 2,
         mnemonic: 'shr',
-        args: ['REGISTER', 'REGISTER']
+        args: ['REGISTER']
     },
 
     shr_reg_lit: {
@@ -284,9 +281,9 @@ const instructionSet = {
 
     shl_reg_reg: {
         opcode: 0x3b,
-        length: 3,
+        length: 2,
         mnemonic: 'shl',
-        args: ['REGISTER', 'REGISTER']
+        args: ['REGISTER']
     },
 
     shl_reg_lit: {
@@ -303,124 +300,123 @@ const instructionSet = {
         args: ['REGISTER', 'ADDRESS']
     },
 
-    /* $3f + $4X: Control flow */
     jmp: {
         opcode: 0x3f,
         length: 3,
         mnemonic: 'jmp',
-        args: ['ADDRESS']
+        args: ['LITERAL']
     },
-                
+
     jez: {
         opcode: 0x40,
         length: 3,
         mnemonic: 'jez',
-        args: ['ADDRESS']
+        args: ['LITERAL']
     },
-                
+
     jnz: {
         opcode: 0x41,
         length: 3,
         mnemonic: 'jnz',
-        args: ['ADDRESS']
+        args: ['LITERAL']
     },
-                
+
     jgz: {
         opcode: 0x42,
         length: 3,
         mnemonic: 'jgz',
-        args: ['ADDRESS']
+        args: ['LITERAL']
     },
-                
+
     jlz: {
         opcode: 0x43,
         length: 3,
         mnemonic: 'jlz',
-        args: ['ADDRESS']
+        args: ['LITERAL']
     },
-                
+
     jeq_reg: {
         opcode: 0x44,
         length: 4,
         mnemonic: 'jeq',
-        args: ['REGISTER','ADDRESS']
+        args: ['REGISTER', 'LITERAL']
     },
-                
+
     jne_reg: {
         opcode: 0x45,
         length: 4,
         mnemonic: 'jne',
-        args: ['REGISTER','ADDRESS']
+        args: ['REGISTER', 'LITERAL']
     },
-                
+
     jgt_reg: {
         opcode: 0x46,
         length: 4,
         mnemonic: 'jgt',
-        args: ['REGISTER','ADDRESS']
+        args: ['REGISTER', 'LITERAL']
     },
-                
+
     jlt_reg: {
         opcode: 0x47,
         length: 4,
         mnemonic: 'jlt',
-        args: ['REGISTER','ADDRESS']
+        args: ['REGISTER', 'LITERAL']
     },
-                
+
     jeq_mem: {
         opcode: 0x48,
         length: 5,
         mnemonic: 'jeq',
-        args: ['ADDRESS','ADDRESS']
+        args: ['ADDRESS', 'LITERAL']
     },
-                
+
     jne_mem: {
         opcode: 0x49,
         length: 5,
         mnemonic: 'jne',
-        args: ['ADDRESS','ADDRESS']
+        args: ['ADDRESS', 'LITERAL']
     },
-                
+
     jgt_mem: {
         opcode: 0x4a,
         length: 5,
         mnemonic: 'jgt',
-        args: ['ADDRESS','ADDRESS']
+        args: ['ADDRESS', 'LITERAL']
     },
-                
+
     jlt_mem: {
         opcode: 0x4b,
         length: 5,
         mnemonic: 'jlt',
-        args: ['ADDRESS','ADDRESS']
+        args: ['ADDRESS', 'LITERAL']
     },
-                
+
     jeq_lit: {
         opcode: 0x4c,
         length: 5,
         mnemonic: 'jeq',
-        args: ['ADDRESS','ADDRESS']
+        args: ['ADDRESS', 'LITERAL']
     },
-                
+
     jne_lit: {
         opcode: 0x4d,
         length: 5,
         mnemonic: 'jne',
-        args: ['ADDRESS','ADDRESS']
+        args: ['ADDRESS', 'LITERAL']
     },
-                
+
     jgt_lit: {
         opcode: 0x4e,
         length: 5,
         mnemonic: 'jgt',
-        args: ['ADDRESS','ADDRESS']
+        args: ['ADDRESS', 'LITERAL']
     },
-                
+
     jlt_lit: {
         opcode: 0x4f,
         length: 5,
         mnemonic: 'jlt',
-        args: ['ADDRESS','ADDRESS']
+        args: ['ADDRESS', 'LITERAL']
     },
 }
 
@@ -451,7 +447,7 @@ const documentationToInstructionSet = (docs) => {
     const findArgsLength = (args) => args.length + 1
 
     for (var line of data) {
-        if (line[0] != ' ' && line != '') {
+        if (line[0] != ' ' && line != '' && line[0] != '/') {
             var info = line.split(' ')
             
             var args = formatArgsString(info.slice(2))
@@ -490,5 +486,21 @@ const findByMnemonic = (m) => {
     for (var instruction of Object.values(instructionSet)) {
         if (instruction.mnemonic == m) { matches.push(instruction) }
     }
+
     return matches
+}
+
+const findByOpcode = (o) => {
+    const matches = []
+    for (var instruction of Object.values(instructionSet)) {
+        if (instruction.opcode == o) {
+            matches.push(instruction)
+        }
+    }
+
+    if (matches.length > 1) { 
+        throw new Error(`INSTRUCTION SET ERROR: FOUND DUPLICATE OPCODE: $${o.toString(16).padStart(2, '0')}`)
+    }
+           
+    return matches[0]
 }

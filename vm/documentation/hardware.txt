@@ -21,14 +21,14 @@ $0000-$ffff: useable memory
 $0000-$7fff: RAM (Programs and temporary data)
 $7fee-$7ffd: interrupt vector addresses (each bit in the interrupt register corresponds to a byte, which is jumped to on the interrupt)
 $7ffe: Reset vector: On startup, execution will begin at whatever address is stored here
-< 0x7fee: stack
-0x8000-0xafff: Peripherals 
-    0x8000-0x874f: screen display
-        screen is indexed starting in the upper left corner at 0. Addresses increase by one going right. 
+< $7fee: stack
+$8000-$afff: Peripherals 
+    $8000-$8750: screen display
+        screen is indexed starting in the upper left corner at $8001. Addresses increase by one going right. 
         After the right edge, numbering continues on the left side of the next line
         Each byte corresponds to a character 
-        
-        interacting with the screen is done by writing two 16 bit numbers: control and data
+
+        $8000 is not used for display, but used to set the control hextet
         control: the first four bits set control flags, the next 12 are the color: 0bABCDRRRRGGGGBBBB
             A: clear screen
             B: italic text
@@ -39,4 +39,6 @@ $7ffe: Reset vector: On startup, execution will begin at whatever address is sto
             R: red channel (4 bit number)
             G: green channel (4 bit number)
             B: blue channel (4 bit number)
-        data: any 16-bit unicode value
+        Settings persist until overwritten or cleared
+        
+        After setting the control hextet, write to the screen by writing any 16-bit unicode value to the corresponding memory address

@@ -4,14 +4,15 @@
 .def screen_address $8000
 
 start:
-mov !standard_settings d
-mov $0000 x
+mov !hello_world_string x
+mov !screen_address y
+mov !standard_settings [&y]
+
 
 loop:
-mov &x acc !hello_world_string
-
-mov d &x !screen_address
-mov acc [!screen_address]
+inc y
+mov &x acc
+mov acc [&y]
 
 end:
 hlt

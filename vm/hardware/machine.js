@@ -32,8 +32,8 @@ function loadFile(filePath) {
     return result.split(/\r?\n/);
 }
 
-// const helloWorld = loadFile("./programs/helloWorld.jsm")
-const helloWorld = loadFile("./programs/helloLooped.jsm")
+const helloWorld = loadFile("./programs/helloWorld.jsm")
+// const helloWorld = loadFile("./programs/helloLooped.jsm")
 
 const helloWorldParsed = Parser.read(helloWorld)
 const helloWorldCompiled = assemble(helloWorldParsed)

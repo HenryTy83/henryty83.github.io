@@ -1,4 +1,4 @@
-const canvas = document.getElementById("screen"); //This code is a mess, taken from 50 different websites. I have no idea how it works
+const canvas = document.getElementById("screen"); //This code is a mess, taken from 50 different websites.
 const ctx = canvas.getContext("2d");
 const DOSfont = new FontFace('modernDOS', 'url(./decorations/modernDOS.ttf)');
 
@@ -87,13 +87,11 @@ const createScreenOutput = () => {
         getUint16: (address) => VRAMinstructions[address][1],
         getUint8: () => 0,
         setUint16: (address, data) => { 
-            if (controlHextet == null) {
+            if (address == 0) { 
                 controlHextet = data
-            }
-
+            }       
             else {
-                VRAMinstructions[address] = [controlHextet, data]
-                controlHextet = null
+                VRAMinstructions[address-1] = [controlHextet, data]
             }
         },
         setUint8: () => 0,

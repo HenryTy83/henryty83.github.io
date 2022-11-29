@@ -133,7 +133,7 @@ const parseBracket = (address) => {
 const assemble = (program) => {
     const defaultResetVector = 0x7ffe
     const variables = createLabelLookup(program)
-    console.log(variables)
+    // console.log(variables)
     var programCounter = 0
     const machineCode = {}
 
@@ -172,12 +172,18 @@ const assemble = (program) => {
                     case 'data8':
                         for (var byte of word.args.slice(2, -1)) { 
                             var hexValue = (parseInt(byte.slice(1), 16))
-                            machineCode[programCounter++] = byte & 0xff
+                            machineCode[programCounter++] = hexValue & 0xff
                         }
                         break
                     case 'data16':
-                        for (var byte of word.args.slice(2, -1)) { 
-                            var hexValue = (parseInt(byte.slice(1), 16))
+                        for (var byte of word.args.slice(2, -2)) { 
+                            var hexValue = byte.slice(1)
+                            if (hexValue in variables) {
+                                hexValue = variables[hexValue]
+                            }
+                            else {
+                                hexValue = parseInt(hexValue, 16)
+                            }
                             machineCode[programCounter++] = (hexValue & 0xff00) >> 8
                             machineCode[programCounter++] = hexValue & 0xff
                         }
@@ -192,7 +198,7 @@ const assemble = (program) => {
                     throw new Error(`Unknown instruction: ${word.value}`)
                 }
 
-                instruction = possibleCommands.find(command => arraysEqual(command.args, expectedArguments))
+                var instruction = possibleCommands.find(command => arraysEqual(command.args, expectedArguments))
 
                 try {
                     machineCode[programCounter++] = instruction.opcode

@@ -6,41 +6,20 @@ hlt
 // should be skipped
 
 start:
-mov !standardSettings &[$8000]
-mov $0048 &[$8000]
+mov !standardSettings [$8000]
 
-mov !standardSettings &[$8001]
-mov $0065 &[$8001]
-
-mov !standardSettings &[$8002]
-mov $006c &[$8002]
-
-mov !standardSettings &[$8003]
-mov $006c &[$8003]
-
-mov !standardSettings &[$8004]
-mov $006f &[$8004]
-
-mov !standardSettings &[$8005]
-mov $0020 &[$8005]
-
-mov !standardSettings &[$8006]
-mov $0057 &[$8006]
-
-mov !standardSettings &[$8007]
-mov $006f &[$8007]
-
-mov !standardSettings &[$8008]
-mov $0072 &[$8008]
-
-mov !standardSettings &[$8009]
-mov $006c &[$8009]
-
-mov !standardSettings &[$800a]
-mov $0064 &[$800a]
-
-mov !standardSettings &[$800b]
-mov $0021 &[$800b]
+mov $0048 [$8001]
+mov $0065 [$8002]
+mov $006c [$8003]
+mov $006c [$8004]
+mov $006f [$8005]
+mov $0020 [$8006]
+mov $0057 [$8007]
+mov $006f [$8008]
+mov $0072 [$8009]
+mov $006c [$800a]
+mov $0064 [$800b]
+mov $0021 [$800c]
 
 hlt
 

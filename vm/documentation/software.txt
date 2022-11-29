@@ -154,7 +154,7 @@ shl_reg_mem: $3d [REG] [ADD] [RES]
     acc = A << [ADDRS]
 
 
-// $3f+4X: Control flow
+// $3f-4f: Control flow
 jmp: $3f [LIT] [ERL]
     jump unconditionally
 

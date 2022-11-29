@@ -32,6 +32,12 @@ class CPU {
         this.debug = false
     }
 
+    startup() {
+        this.writeReg('PC', this.memory.getUint16(0x7ffe))
+        this.running = true
+        process = setInterval(runCPU, 0)
+    }
+
     getReg(index) {
         return this.registers.getUint16(index * 2) & 0xffff
     }
@@ -65,12 +71,6 @@ class CPU {
         return ((this.fetchByte() << 8) & 0xff00) | (this.fetchByte() & 0x00ff)
     }
 
-    startup() {
-        this.writeReg('PC', this.memory.getUint16(0x7ffe))
-        this.running = true
-        process = setInterval(runCPU, 0)
-    }
-
     jumpToWord() {
         this.writeReg('PC', this.fetchWord())
     }
@@ -83,6 +83,7 @@ class CPU {
         this.cycles++
         if (this.debug) {
             this.instructionDump()
+            this.decompileInstruction()
         }
 
         var instruction = this.fetchByte()
@@ -140,7 +141,7 @@ class CPU {
                 return
             case instructionSet.mov_lit_indirect_reg.opcode:
                 var lit = this.fetchWord()
-                var reg = this.getSingleReg()
+                var reg = this.fetchSingleReg()
 
                 this.memory.setUint16(this.getReg(reg), lit)
                 return
@@ -182,13 +183,13 @@ class CPU {
                 this.writeReg('acc', this.getReg(r1) + this.getReg(r2))
                 return
             case instructionSet.add_reg_lit:
-                var reg = this.getSingleReg()
+                var reg = this.fetchSingleReg()
                 var lit = this.fetchWord()
 
                 this.writeReg('acc', this.getReg(reg) + lit)
                 return
             case instructionSet.add_reg_mem:
-                var reg = this.getSingleReg()
+                var reg = this.fetchSingleReg()
                 var address = this.fetchWord()
 
                 this.writeReg('acc', this.getReg(reg) + this.memory.getUint16(address))
@@ -201,26 +202,26 @@ class CPU {
                 this.writeReg('acc', this.getReg(r1) - this.getReg(r2))
                 return
             case instructionSet.sub_reg_lit:
-                var reg = this.getSingleReg()
+                var reg = this.fetchSingleReg()
                 var lit = this.fetchWord()
 
                 this.writeReg('acc', this.getReg(reg) - lit)
                 return
             case instructionSet.sub_reg_mem:
-                var reg = this.getSingleReg()
+                var reg = this.fetchSingleReg()
                 var address = this.fetchWord()
 
                 this.writeReg('acc', this.getReg(reg) - this.memory.getUint16(address))
                 return
             case instructionSet.sub_lit_reg:
                 var lit = this.fetchWord()
-                var reg = this.getSingleReg()
+                var reg = this.fetchSingleReg()
 
                 this.writeReg('acc', lit - this.getReg(reg))
                 return
             case instructionSet.sub_mem_reg:
                 var address = this.fetchWord()
-                var reg = this.getSingleReg()
+                var reg = this.fetchSingleReg()
 
                 this.writeReg('acc', this.memory.getUint16(address) - this.getReg(reg))
                 return
@@ -232,13 +233,13 @@ class CPU {
                 this.writeReg('acc', this.getReg(r1) * this.getReg(r2))
                 return
             case instructionSet.mul_reg_lit:
-                var reg = this.getSingleReg()
+                var reg = this.fetchSingleReg()
                 var lit = this.fetchWord()
 
                 this.writeReg('acc', this.getReg(reg) * lit)
                 return
             case instructionSet.mul_reg_mem:
-                var reg = this.getSingleReg()
+                var reg = this.fetchSingleReg()
                 var address = this.fetchWord()
 
                 this.writeReg('acc', this.getReg(reg) * this.memory.getUint16(address))
@@ -251,13 +252,13 @@ class CPU {
                 this.writeReg('acc', this.getReg(r1) & this.getReg(r2))
                 return
             case instructionSet.and_reg_lit:
-                var reg = this.getSingleReg()
+                var reg = this.fetchSingleReg()
                 var lit = this.fetchWord()
 
                 this.writeReg('acc', this.getReg(reg) & lit)
                 return
             case instructionSet.and_reg_mem:
-                var reg = this.getSingleReg()
+                var reg = this.fetchSingleReg()
                 var address = this.fetchWord()
 
                 this.writeReg('acc', this.getReg(reg) & this.memory.getUint16(address))
@@ -270,13 +271,13 @@ class CPU {
                 this.writeReg('acc', this.getReg(r1) | this.getReg(r2))
                 return
             case instructionSet.or_reg_lit:
-                var reg = this.getSingleReg()
+                var reg = this.fetchSingleReg()
                 var lit = this.fetchWord()
 
                 this.writeReg('acc', this.getReg(reg) | lit)
                 return
             case instructionSet.or_reg_mem:
-                var reg = this.getSingleReg()
+                var reg = this.fetchSingleReg()
                 var address = this.fetchWord()
 
                 this.writeReg('acc', this.getReg(reg) | this.memory.getUint16(address))
@@ -289,13 +290,13 @@ class CPU {
                 this.writeReg('acc', this.getReg(r1) ^ this.getReg(r2))
                 return
             case instructionSet.xor_reg_lit:
-                var reg = this.getSingleReg()
+                var reg = this.fetchSingleReg()
                 var lit = this.fetchWord()
 
                 this.writeReg('acc', this.getReg(reg) ^ lit)
                 return
             case instructionSet.xor_reg_mem:
-                var reg = this.getSingleReg()
+                var reg = this.fetchSingleReg()
                 var address = this.fetchWord()
 
                 this.writeReg('acc', this.getReg(reg) ^ this.memory.getUint16(address))
@@ -324,13 +325,13 @@ class CPU {
                 this.writeReg('acc', this.getReg(r1) >> this.getReg(r2))
                 return
             case instructionSet.shr_reg_lit:
-                var reg = this.getSingleReg()
+                var reg = this.fetchSingleReg()
                 var lit = this.fetchWord()
 
                 this.writeReg('acc', this.getReg(reg) >> lit)
                 return
             case instructionSet.shr_reg_mem:
-                var reg = this.getSingleReg()
+                var reg = this.fetchSingleReg()
                 var address = this.fetchWord()
 
                 this.writeReg('acc', this.getReg(reg) >> this.memory.getUint16(address))
@@ -343,13 +344,13 @@ class CPU {
                 this.writeReg('acc', this.getReg(r1) << this.getReg(r2))
                 return
             case instructionSet.shl_reg_lit:
-                var reg = this.getSingleReg()
+                var reg = this.fetchSingleReg()
                 var lit = this.fetchWord()
 
                 this.writeReg('acc', this.getReg(reg) << lit)
                 return
             case instructionSet.shl_reg_mem:
-                var reg = this.getSingleReg()
+                var reg = this.fetchSingleReg()
                 var address = this.fetchWord()
 
                 this.writeReg('acc', this.getReg(reg) << this.memory.getUint16(address))
@@ -410,6 +411,15 @@ class CPU {
         console.error(`EXECUTION ERROR: UNKNOWN OPCODE $${instruction.toString(16).padStart(2, '0')}`)
     }
 
+    memoryDump(address) { 
+        var contents = ''
+        for (let i = 0; i < 16; i++) {
+            contents += `${this.memory.getUint8(address + i).toString(16).padStart(2, '0')} `
+        }
+
+        return contents.slice(0, -1)
+    }
+
     // debug functions
     hexDump(addresses) {
         var contents = `Time elapsed: ${this.cycles}\n\nRegisters:\n`
@@ -421,10 +431,7 @@ class CPU {
         if (addresses != null) {
             for (let address of addresses) {
                 contents += `\nMemory at: $${address.toString(16).padStart(4, '0')}: `
-
-                for (let i = 0; i < 16; i++) {
-                    contents += `${this.memory.getUint8(address + i).toString(16).padStart(2, '0')} `
-                }
+                contents += this.memoryDump(address)
                 contents += '\n'
             }
         }
@@ -432,5 +439,20 @@ class CPU {
         console.log(contents)
     }
 
-    instructionDump() {this.hexDump([this.readReg('PC')])}
+    instructionDump() { this.hexDump([this.readReg('PC')]) }
+    
+    decompileInstruction() { 
+        var peek = this.memoryDump(this.readReg('PC')).split(' ').map(x => parseInt(x, 16))
+        var decompiled = ''
+
+        var currentInstruction = findByOpcode(peek.splice(0, 1))
+
+        decompiled += `${Object.keys(instructionSet).find(key => instructionSet[key] === currentInstruction)} `
+
+        for (let i in peek) { 
+            
+        }
+
+        console.log(decompiled)
+    }
 }
