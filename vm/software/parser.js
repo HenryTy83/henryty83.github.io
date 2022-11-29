@@ -41,8 +41,10 @@ class Arksecond {
                 return new Token(type, parseInt(name.slice(1), 16))
             case 'KEYWORD':
                 return new Token(type, name.slice(1), line.slice(1))
+            case 'BLANK':
+                throw new Error(`UNEXPECTED WHITESPACE`)
             case 'NULL':
-                throw new Error(`PARSING ERROR: '${name}' has unknown type`)
+                throw new Error(`'${name}' has unknown type`)
             case 'INSTRUCTION':
             case 'REGISTER':
                 break
@@ -63,8 +65,11 @@ class Arksecond {
         for (var line of text) {
             var commands = line.split(' ')
 
-            if (line != '') {
-                program.push(this.parse(commands))
+            if (commands[0] != '') {
+                try { program.push(this.parse(commands)) }
+                catch (err) {
+                    throw new Error(`PARSING ERROR: Recieved error '${err}' when reading line '${commands}'`)
+                }
             }
         }
 
@@ -72,13 +77,16 @@ class Arksecond {
     }
 
     classify(word) {
+        if (word.length == 0) {return 'BLANK'}
+
         const typesLookup = {
             '$': 'LITERAL',
             '&': 'INDIRECT',
             '[': 'ADDRESS',
             '!': 'VARIABLE',
             '/': 'COMMENT',
-            '.': 'KEYWORD'
+            '.': 'KEYWORD',
+            '{': 'DATA',
         }
 
         var startType = typesLookup[word[0]]

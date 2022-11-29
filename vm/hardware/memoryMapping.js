@@ -26,12 +26,12 @@ class Mapping {
 
     setUint16(address, data) {
         var region = this.findCorrespondingRegion(address)
-        region.memory.setUint16(address-region.start, data)
+        region.memory.setUint16(address-region.start, data % (0xffff+1))
     }
 
     setUint8(address, data) {
         var region = this.findCorrespondingRegion(address)
-        region.memory.setUint8(address-region.start, data)
+        region.memory.setUint8(address-region.start, data % (0xff+1))
     }
 }
 

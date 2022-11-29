@@ -26,7 +26,7 @@ const instructionSet = {
         opcode: 0x11,
         length: 3,
         mnemonic: 'mov',
-        args: ['REGISTER', 'INDIRECT_REGUSTER']
+        args: ['REGISTER', 'INDIRECT_REGISTER']
     },
 
     mov_indirect_reg_reg: { // copy the memory value at the address in the register to the register
@@ -302,7 +302,176 @@ const instructionSet = {
         mnemonic: 'shl',
         args: ['REGISTER', 'ADDRESS']
     },
+
+    /* $3f + $4X: Control flow */
+    jmp: {
+        opcode: 0x3f,
+        length: 3,
+        mnemonic: 'jmp',
+        args: ['ADDRESS']
+    },
+                
+    jez: {
+        opcode: 0x40,
+        length: 3,
+        mnemonic: 'jez',
+        args: ['ADDRESS']
+    },
+                
+    jnz: {
+        opcode: 0x41,
+        length: 3,
+        mnemonic: 'jnz',
+        args: ['ADDRESS']
+    },
+                
+    jgz: {
+        opcode: 0x42,
+        length: 3,
+        mnemonic: 'jgz',
+        args: ['ADDRESS']
+    },
+                
+    jlz: {
+        opcode: 0x43,
+        length: 3,
+        mnemonic: 'jlz',
+        args: ['ADDRESS']
+    },
+                
+    jeq_reg: {
+        opcode: 0x44,
+        length: 4,
+        mnemonic: 'jeq',
+        args: ['REGISTER','ADDRESS']
+    },
+                
+    jne_reg: {
+        opcode: 0x45,
+        length: 4,
+        mnemonic: 'jne',
+        args: ['REGISTER','ADDRESS']
+    },
+                
+    jgt_reg: {
+        opcode: 0x46,
+        length: 4,
+        mnemonic: 'jgt',
+        args: ['REGISTER','ADDRESS']
+    },
+                
+    jlt_reg: {
+        opcode: 0x47,
+        length: 4,
+        mnemonic: 'jlt',
+        args: ['REGISTER','ADDRESS']
+    },
+                
+    jeq_mem: {
+        opcode: 0x48,
+        length: 5,
+        mnemonic: 'jeq',
+        args: ['ADDRESS','ADDRESS']
+    },
+                
+    jne_mem: {
+        opcode: 0x49,
+        length: 5,
+        mnemonic: 'jne',
+        args: ['ADDRESS','ADDRESS']
+    },
+                
+    jgt_mem: {
+        opcode: 0x4a,
+        length: 5,
+        mnemonic: 'jgt',
+        args: ['ADDRESS','ADDRESS']
+    },
+                
+    jlt_mem: {
+        opcode: 0x4b,
+        length: 5,
+        mnemonic: 'jlt',
+        args: ['ADDRESS','ADDRESS']
+    },
+                
+    jeq_lit: {
+        opcode: 0x4c,
+        length: 5,
+        mnemonic: 'jeq',
+        args: ['ADDRESS','ADDRESS']
+    },
+                
+    jne_lit: {
+        opcode: 0x4d,
+        length: 5,
+        mnemonic: 'jne',
+        args: ['ADDRESS','ADDRESS']
+    },
+                
+    jgt_lit: {
+        opcode: 0x4e,
+        length: 5,
+        mnemonic: 'jgt',
+        args: ['ADDRESS','ADDRESS']
+    },
+                
+    jlt_lit: {
+        opcode: 0x4f,
+        length: 5,
+        mnemonic: 'jlt',
+        args: ['ADDRESS','ADDRESS']
+    },
 }
+
+// for developer use only, delete or comment when done /*
+const documentationToInstructionSet = (docs) => {
+    data = docs.split('\n')
+    output = ``
+
+    const formatArgsString = (args) => {
+        var argDict = {
+            '[REG]': `'REGISTER'`,
+            '[R2G]': `'REGISTER'`,
+            '[LIT]': `'LITERAL'`,
+            '[ADD]': `'ADDRESS'`,
+        }
+        const newArgs = []
+        for (var arg of args) {
+            var newArg = argDict[arg]
+
+            if (newArg != undefined) {
+                newArgs.push(newArg)
+            }
+        }
+
+        return newArgs
+    }
+
+    const findArgsLength = (args) => args.length + 1
+
+    for (var line of data) {
+        if (line[0] != ' ' && line != '') {
+            var info = line.split(' ')
+            
+            var args = formatArgsString(info.slice(2))
+
+            output += `
+${info[0].slice(0, -1)}: {
+    opcode: 0x${info[1].slice(1)},
+    length: ${findArgsLength(info.slice(2))},
+    mnemonic: '${info[0].split('_')[0]}',
+    args: [${args}]
+},
+            `
+        }
+    }
+
+    console.log(output)
+}
+
+const generateInstructionSwitchCase = () => {total = ``; Object.keys(instructionSet).forEach(element => {total += `case instructionSet.${element}.opcode:\n    return\n`}); console.log(total)}
+// end developer use */
 
 const generateInstructions = () => {
     const matches = []

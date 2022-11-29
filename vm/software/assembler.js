@@ -1,4 +1,3 @@
-// this code is specifically written in a simply way to make it easy to port into assembly on the VM
 const regInstruction = (r1, r2='') => {
     var high, low = 0
     
@@ -23,15 +22,16 @@ const findLabel = (variable, labels) => {
 
 const findLengthOfInstruction = (args) => { 
     var lengths = {
+        'INDIRECT_REGISTER': 1,
         'REGISTER': 1,
         'ADDRESS': 2,
+        'VARIABLE': 2,
         'LITERAL': 2
     }
     
     var length = 1
     for (var i in args) { 
         var argument = args[i]
-
         length += lengths[argument.type]
         if (i > 1 && args[i - 1].type == 'REGISTER') { length -= 1 }
     }
@@ -46,7 +46,7 @@ const createLabelLookup = (program) => {
     for (var instruction of program) {
         switch (instruction.type) {
             case 'LABEL':
-                labels[instruction.name] = bytePointer
+                labels[instruction.value] = bytePointer
                 break
             case 'INSTRUCTION': 
                 bytePointer += findLengthOfInstruction(instruction.args)
@@ -133,6 +133,7 @@ const parseBracket = (address) => {
 const assemble = (program) => {
     const defaultResetVector = 0x7ffe
     const variables = createLabelLookup(program)
+    console.log(variables)
     var programCounter = 0
     const machineCode = {}
 
@@ -140,20 +141,20 @@ const assemble = (program) => {
     machineCode[defaultResetVector + 1] = 0
 
     const assembleRegister = (reg, args, i) => {
-    if (i == 0) { 
-        machineCode[programCounter++] = (reg << 4) & 0b11110000
-        return
-    }
-        
-    switch (args[i - 1].type) { 
-        case 'REGISTER':
-        case 'INDIRECT_REGISTER':
-            machineCode[programCounter - 1] |= reg & 0b00001111
-            return
-        default:
+        if (i == 0) { 
             machineCode[programCounter++] = (reg << 4) & 0b11110000
             return
-    }
+        }
+            
+        switch (args[i - 1].type) { 
+            case 'REGISTER':
+            case 'INDIRECT_REGISTER':
+                machineCode[programCounter - 1] |= reg & 0b00001111
+                return
+            default:
+                machineCode[programCounter++] = (reg << 4) & 0b11110000
+                return
+        }
     }
 
     for (var word of program) {
@@ -169,14 +170,16 @@ const assemble = (program) => {
                         programCounter = parseInt(word.args[0].slice(1), 16)
                         break
                     case 'data8':
-                        for (var byte of word.args.slice(1)) { 
+                        for (var byte of word.args.slice(2, -1)) { 
+                            var hexValue = (parseInt(byte.slice(1), 16))
                             machineCode[programCounter++] = byte & 0xff
                         }
                         break
                     case 'data16':
-                        for (var byte of word.args.slice(1)) { 
-                            machineCode[programCounter++] = (byte & 0xff00) >> 8
-                            machineCode[programCounter++] = byte & 0xff
+                        for (var byte of word.args.slice(2, -1)) { 
+                            var hexValue = (parseInt(byte.slice(1), 16))
+                            machineCode[programCounter++] = (hexValue & 0xff00) >> 8
+                            machineCode[programCounter++] = hexValue & 0xff
                         }
                         break
                 }
@@ -196,7 +199,7 @@ const assemble = (program) => {
                 }
 
                 catch (err) { 
-                    throw new Error(`Unable to find opcode with arguments ${expectedArguments} for the instruction ${JSON.stringify(word)}`)
+                    throw new Error(`Unable to find opcode with arguments ${expectedArguments} for the instruction: ${word.value} ${word.args.map(argument => argument.value).join(' ')}`)
                 }
 
                 for (var i in word.args) {

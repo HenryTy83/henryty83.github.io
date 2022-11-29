@@ -154,4 +154,54 @@ shl_reg_mem: $3d [REG] [ADD] [RES]
     acc = A << [ADDRS]
 
 
-// $4X: Control flow
+// $3f+4X: Control flow
+jmp: $3f [LIT] [ERL]
+    jump unconditionally
+
+jez: $40 [LIT] [ERL]
+    jump if acc == 0
+
+jnz: $41 [LIT] [ERL]
+    jump if acc != 0
+
+jgz: $42 [LIT] [ERL]
+    jump if acc > 0
+
+jlz: $43 [LIT] [ERL]
+    jump if acc < 0
+
+jeq_reg: $44 [REG] [LIT] [ERL]
+    jump if acc == reg
+
+jne_reg: $45 [REG] [LIT] [ERL]
+    jump if acc != reg
+
+jgt_reg: $46 [REG] [LIT] [ERL]
+    jump if acc > reg
+
+jlt_reg: $47 [REG] [LIT] [ERL]
+    jump if acc < reg
+
+jeq_mem: $48 [ADD] [RES] [LIT] [ERL]
+    jump if acc == memory
+
+jne_mem: $49 [ADD] [RES] [LIT] [ERL]
+    jump if acc != memory
+
+jgt_mem: $4a [ADD] [RES] [LIT] [ERL]
+    jump if acc > memory
+
+jlt_mem: $4b [ADD] [RES] [LIT] [ERL]
+    jump if acc < memory
+
+jeq_lit: $4c [ADD] [RES] [LIT] [ERL]
+    jump if acc == $lit
+
+jne_lit: $4d [ADD] [RES] [LIT] [ERL]
+    jump if acc != $lit
+
+jgt_lit: $4e [ADD] [RES] [LIT] [ERL]
+    jump if acc > $lit
+
+jlt_lit: $4f [ADD] [RES] [LIT] [ERL]
+    jump if acc < $lit

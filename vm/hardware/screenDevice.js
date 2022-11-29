@@ -73,7 +73,7 @@ const displayScreen = () => {
         drawChar(String.fromCharCode(data), address, redChannel, greenChannel, blueChannel);
     }
 
-    if (powerOff == null) {
+    if (powerOff == null || powerOff == undefined) {
         requestAnimationFrame(displayScreen)
     }
 
