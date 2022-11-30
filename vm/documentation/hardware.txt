@@ -7,6 +7,7 @@ registers:
     PC: program counter*
     SP: stack pointer*
     MB: memory bank controller*
+    CLK: clock speed controller
     accumulator
     x, y, d: general purpose registers
     

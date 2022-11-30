@@ -1,18 +1,37 @@
 // Hello world program, but using loops
 // test of branching and alu operations
-.def standard_settings $00F0
 .def screen_address $8000
+.def chars_per_row $4e
 
 start:
 mov !hello_world_string x
-mov !screen_address y
-mov !standard_settings [&y]
+mov $0 d
 
+init_settings:
+sub $f d
+shl acc $4
+mov !screen_address y
+mov acc &y
+
+// set position 
+mul d !chars_per_row
+add acc y
+mov acc y
 
 loop:
 inc y
 mov &x acc
-mov acc [&y]
+jez [!break]
+mov acc &y
+inc x
+inc x
+jmp [!loop]
+
+break:
+mov !hello_world_string x
+inc d
+mov d acc
+jne $10 [!init_settings]
 
 end:
 hlt

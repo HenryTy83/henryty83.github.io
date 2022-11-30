@@ -36,7 +36,7 @@ class Arksecond {
             case 'COMMENT':
                 return new Token(type, line.join(' '))
             case 'ADDRESS':
-                return new Token(type, new Token('BRACKET', name.slice(2, name.length - 1)))
+                return new Token(type, new Token('BRACKET', name.slice(1, -1)))
             case 'LITERAL':
                 return new Token(type, parseInt(name.slice(1), 16))
             case 'KEYWORD':

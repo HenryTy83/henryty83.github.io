@@ -10,7 +10,6 @@ class Mapping {
             }
         }
 
-        console.error(`OUT OF RANGE ERROR: Address $${(address).toString(16).padStart(4, '0')} has no corresponding memory section`)
         return new Region(address, address) //invalid memory
     }
 

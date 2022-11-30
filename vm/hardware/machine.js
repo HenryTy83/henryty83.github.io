@@ -1,21 +1,28 @@
 const ram = new Region(0x0000, 0x7fff)
-const screen = new Region(0x8000, 0x874f, createScreenOutput())
+const screen = new Region(0x8000, 0x8750, createScreenOutput())
 const memoryMappage = new Mapping([ram, screen])
-const cpu = new CPU(memoryMappage)
+const cpu = new CPU(0x7fee, 0x7ffe, memoryMappage)
 
-var process
+var clockSpeed = cpu.readReg('CLK') > 0
+
 const runCPU = () => {
-    if (fadeInTime < 0 && cpu.running) {
-        const speedUp = document.getElementById("myRange").value;
-        for (let i = 0; i < speedUp; i++) {
-            if (cpu.running) { cpu.run(); }
+    if (fadeInTime < 0) {
+        const clockSpeed = document.getElementById("myRange").value;
+        for (var i = 0; i < clockSpeed == 0 ? 0 : clockSpeed; i++) {
+            previousSpeed = cpu.readReg('CLK')
+            cpu.run();
+            var newSpeed = cpu.readReg('CLK')
+            if (newSpeed != previousSpeed) { 
+                document.getElementById("myRange").value = newSpeed
+                break
+            }
             if (cpu.halted) {
-                clearTimeout(process) //stop looping when halted
                 console.log('EXECUTION HALTED')
                 button.style.backgroundColor = 'rgb(255, 255, 0)'
                 return
             }
         }
+        requestAnimationFrame(runCPU)
     }
 }
 
@@ -32,10 +39,11 @@ function loadFile(filePath) {
     return result.split(/\r?\n/);
 }
 
-const helloWorld = loadFile("./programs/helloWorld.jsm")
-// const helloWorld = loadFile("./programs/helloLooped.jsm")
+// const rawProgram = loadFile("./programs/helloWorld.jsm")
+// const rawProgram = loadFile("./programs/helloLooped.jsm")
+const rawProgram = loadFile("./programs/matrix.jsm")
 
-const helloWorldParsed = Parser.read(helloWorld)
-const helloWorldCompiled = assemble(helloWorldParsed)
+const parsedProgram = Parser.read(rawProgram)
+const compiledProgram = assemble(parsedProgram)
 
-loadProgram(cpu.memory)(helloWorldCompiled)
+loadProgram(cpu.memory)(compiledProgram)

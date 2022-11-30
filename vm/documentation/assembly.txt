@@ -70,3 +70,6 @@ reg: register name (acc, x, y, d)
 
 // shr A B: copy A >> B to the acc (acc = A >> B)
 // shl A B: copy A << B to the acc (acc = A << B)
+
+// jez/jlz/jgz/jnz address: jump to address if acc ==0/<0/>0/!=0
+// jgt/jlt/jgz/jne A address: jump to address if acc ==A/<A/>A/!=A

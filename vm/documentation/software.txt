@@ -155,53 +155,53 @@ shl_reg_mem: $3d [REG] [ADD] [RES]
 
 
 // $3f-4f: Control flow
-jmp: $3f [LIT] [ERL]
+jmp: $3f [ADD] [RSS]
     jump unconditionally
 
-jez: $40 [LIT] [ERL]
+jez: $40 [ADD] [RSS]
     jump if acc == 0
 
-jnz: $41 [LIT] [ERL]
+jnz: $41 [ADD] [RSS]
     jump if acc != 0
 
-jgz: $42 [LIT] [ERL]
+jgz: $42 [ADD] [RSS]
     jump if acc > 0
 
-jlz: $43 [LIT] [ERL]
+jlz: $43 [ADD] [RES]
     jump if acc < 0
 
-jeq_reg: $44 [REG] [LIT] [ERL]
+jeq_reg: $44 [REG] [ADD] [RSS]
     jump if acc == reg
 
-jne_reg: $45 [REG] [LIT] [ERL]
+jne_reg: $45 [REG] [ADD] [RSS]
     jump if acc != reg
 
-jgt_reg: $46 [REG] [LIT] [ERL]
+jgt_reg: $46 [REG] [ADD] [RSS]
     jump if acc > reg
 
-jlt_reg: $47 [REG] [LIT] [ERL]
+jlt_reg: $47 [REG] [ADD] [RSS]
     jump if acc < reg
 
-jeq_mem: $48 [ADD] [RES] [LIT] [ERL]
+jeq_mem: $48 [ADD] [RES] [ADD] [RSS]
     jump if acc == memory
 
-jne_mem: $49 [ADD] [RES] [LIT] [ERL]
+jne_mem: $49 [ADD] [RES] [ADD] [RSS]
     jump if acc != memory
 
-jgt_mem: $4a [ADD] [RES] [LIT] [ERL]
+jgt_mem: $4a [ADD] [RES] [ADD] [RSS]
     jump if acc > memory
 
-jlt_mem: $4b [ADD] [RES] [LIT] [ERL]
+jlt_mem: $4b [ADD] [RES] [ADD] [RSS]
     jump if acc < memory
 
-jeq_lit: $4c [ADD] [RES] [LIT] [ERL]
+jeq_lit: $4c [ADD] [RES] [ADD] [RSS]
     jump if acc == $lit
 
-jne_lit: $4d [ADD] [RES] [LIT] [ERL]
+jne_lit: $4d [ADD] [RES] [ADD] [RSS]
     jump if acc != $lit
 
-jgt_lit: $4e [ADD] [RES] [LIT] [ERL]
+jgt_lit: $4e [ADD] [RES] [ADD] [RSS]
     jump if acc > $lit
 
-jlt_lit: $4f [ADD] [RES] [LIT] [ERL]
+jlt_lit: $4f [ADD] [RES] [ADD] [RSS]
     jump if acc < $lit

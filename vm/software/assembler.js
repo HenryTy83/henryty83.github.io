@@ -10,16 +10,6 @@ const regInstruction = (r1, r2='') => {
     return (0b11110000 & (high << 4)) | (0b00001111 & low)
 }
 
-const findLabel = (variable, labels) => {
-    for (var replace of labels) {
-        if (replace.name == variable.name) {
-            return replace.value
-        }
-    }
-
-    return -1
-}
-
 const findLengthOfInstruction = (args) => { 
     var lengths = {
         'INDIRECT_REGISTER': 1,
@@ -30,10 +20,15 @@ const findLengthOfInstruction = (args) => {
     }
     
     var length = 1
-    for (var i in args) { 
-        var argument = args[i]
+    var previousReg = false
+    for (var argument of args) { 
         length += lengths[argument.type]
-        if (i > 1 && args[i - 1].type == 'REGISTER') { length -= 1 }
+        if (argument.type == 'REGISTER' || argument.type == 'INDIRECT_REGISTER') {
+            if (previousReg) {
+                length -= 1
+            }
+            else { previousReg = true }
+        }
     }
 
     return length
@@ -80,56 +75,6 @@ const arraysEqual = (a, b) => {
     return true
 }
 
-const parseBracket = (address) => {
-    var expression = address.split(' ')
-    
-    if (expression.length == 1) {
-        if (expression[0][0] == '$') { return parseInt(expression[0].slice(1), 16) }
-        return parseInt(address)
-    }
-
-    for (var i in expression) { 
-        if (expression[i][0] == '$') { expression[i] = parseInt(expression[i].slice(1), 16) }
-        else if (expression[i] == '(') {
-            for (var j = parseInt(i) + 1; j < expression.length; j++) {
-                if (expression[j] == ')') {
-                    expression.splice(i, 0, parseBracket(expression.splice(i, j + 1).slice(1, -2).join(' ')))
-                }
-            }
-        }
-
-        else if ('01233456789'.includes(expression[i])) { 
-            expression[i] = parseInt(expression[i])
-        }
-    }
-
-
-    for (var i = 1; i < expression.length-1; i++) { 
-        if (expression[i] == '*') {
-            expression[i] = expression[i - 1] * expression[i + 1]
-            expression.splice(i + 1, 1)
-            expression.splice(i - 1, 1)
-        }
-    }
-
-    for (var i = 0; i < expression.length-1; i++) { 
-        if (expression[i] == '-') {
-            expression[i + 1] *= -1
-            expression[i] = '+'
-        }
-    }
-
-    for (var i = 1; i < expression.length - 1; i++) { 
-        if (expression[i] == '+') {
-            expression[i] = expression[i - 1] + expression[i + 1]
-            expression.splice(i + 1, 1)
-            expression.splice(i - 1, 1)
-        }
-    }
-
-    return parseBracket(expression.join(' '))
-}
-
 const assemble = (program) => {
     const defaultResetVector = 0x7ffe
     const variables = createLabelLookup(program)
@@ -155,6 +100,62 @@ const assemble = (program) => {
                 machineCode[programCounter++] = (reg << 4) & 0b11110000
                 return
         }
+    }
+
+    const parseBracket = (address) => {
+        var expression = address.split(' ')
+
+        for (var i in expression) {
+            if (expression[i][0] == '$') {
+                expression[i] = parseInt(expression[i].slice(1), 16)
+            } else if (expression[i] == '(') {
+                for (var j = parseInt(i) + 1; j < expression.length; j++) {
+                    if (expression[j] == ')') {
+                        expression.splice(i, 0, parseBracket(expression.splice(i, j + 1).slice(1, -2).join(' ')))
+                    }
+                }
+            } else if ('01233456789'.includes(expression[i])) {
+                expression[i] = parseInt(expression[i])
+            }
+
+            else {
+
+            var lookedUp = variables[expression[i].slice(1)]
+            if (lookedUp != undefined) {
+                expression[i] = lookedUp
+            }
+            else { throw new Error(`Tried parsing bracket expression ${address} and could not parse ${expression[i]}`)}
+            }
+        }
+
+        if (expression.length == 1) {
+            return expression[0]
+        }
+
+        for (var i = 1; i < expression.length - 1; i++) {
+            if (expression[i] == '*') {
+                expression[i] = expression[i - 1] * expression[i + 1]
+                expression.splice(i + 1, 1)
+                expression.splice(i - 1, 1)
+            }
+        }
+
+        for (var i = 0; i < expression.length - 1; i++) {
+            if (expression[i] == '-') {
+                expression[i + 1] *= -1
+                expression[i] = '+'
+            }
+        }
+
+        for (var i = 1; i < expression.length - 1; i++) {
+            if (expression[i] == '+') {
+                expression[i] = expression[i - 1] + expression[i + 1]
+                expression.splice(i + 1, 1)
+                expression.splice(i - 1, 1)
+            }
+        }
+
+        return parseBracket(expression.join(' '))
     }
 
     for (var word of program) {
@@ -205,7 +206,7 @@ const assemble = (program) => {
                 }
 
                 catch (err) { 
-                    throw new Error(`Unable to find opcode with arguments ${expectedArguments} for the instruction: ${word.value} ${word.args.map(argument => argument.value).join(' ')}`)
+                    throw new Error(`Unable to find opcode with arguments ${expectedArguments} for the instruction: ${JSON.stringify(word)}`)
                 }
 
                 for (var i in word.args) {
