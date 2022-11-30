@@ -8,7 +8,7 @@ var clockSpeed = cpu.readReg('CLK') > 0
 const runCPU = () => {
     if (fadeInTime < 0) {
         const clockSpeed = document.getElementById("myRange").value;
-        for (var i = 0; i < clockSpeed == 0 ? 0 : clockSpeed; i++) {
+        for (var i = 0; i < clockSpeed; i++) {
             previousSpeed = cpu.readReg('CLK')
             cpu.run();
             var newSpeed = cpu.readReg('CLK')
@@ -40,8 +40,8 @@ function loadFile(filePath) {
 }
 
 // const rawProgram = loadFile("./programs/helloWorld.jsm")
-// const rawProgram = loadFile("./programs/helloLooped.jsm")
-const rawProgram = loadFile("./programs/matrix.jsm")
+const rawProgram = loadFile("./programs/helloLooped.jsm")
+// const rawProgram = loadFile("./programs/matrix.jsm")
 
 const parsedProgram = Parser.read(rawProgram)
 const compiledProgram = assemble(parsedProgram)
