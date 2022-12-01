@@ -3,7 +3,7 @@ const screen = new Region(0x8000, 0x8750, createScreenOutput())
 const memoryMappage = new Mapping([ram, screen])
 const cpu = new CPU(0x7fee, 0x7ffe, memoryMappage)
 
-var clockSpeed = cpu.readReg('CLK') > 0
+var clockSpeed = cpu.readReg('CLK')
 
 const runCPU = () => {
     if (fadeInTime < 0) {
@@ -12,14 +12,14 @@ const runCPU = () => {
             previousSpeed = cpu.readReg('CLK')
             cpu.run();
             var newSpeed = cpu.readReg('CLK')
-            if (newSpeed != previousSpeed) { 
-                document.getElementById("myRange").value = newSpeed
-                break
-            }
             if (cpu.halted) {
                 console.log('EXECUTION HALTED')
                 button.style.backgroundColor = 'rgb(255, 255, 0)'
                 return
+            }
+            if (newSpeed != previousSpeed) { 
+                document.getElementById("myRange").value = newSpeed
+                break
             }
         }
         requestAnimationFrame(runCPU)
@@ -40,7 +40,8 @@ function loadFile(filePath) {
 }
 
 // const rawProgram = loadFile("./programs/helloWorld.jsm")
-const rawProgram = loadFile("./programs/helloLooped.jsm")
+// const rawProgram = loadFile("./programs/helloLooped.jsm")
+const rawProgram = loadFile("./programs/functionWorld.jsm")
 // const rawProgram = loadFile("./programs/matrix.jsm")
 
 const parsedProgram = Parser.read(rawProgram)

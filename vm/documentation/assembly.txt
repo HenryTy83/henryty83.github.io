@@ -73,3 +73,12 @@ reg: register name (acc, x, y, d)
 
 // jez/jlz/jgz/jnz address: jump to address if acc ==0/<0/>0/!=0
 // jgt/jlt/jgz/jne A address: jump to address if acc ==A/<A/>A/!=A
+
+// psh A: push A to the stack
+// pop A: pop from the stack and copy to A
+
+// cal A B: call a subroutine at address B
+    address of arguments is found at &SP
+
+// rts: return to subroutine
+    address of return value should replace those of arguments

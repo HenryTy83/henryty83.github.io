@@ -417,6 +417,55 @@ const instructionSet = {
         mnemonic: 'jlt',
         args: ['LITERAL', 'ADDRESS']
     },
+
+    push_reg: {
+        opcode: 0x50,
+        length: 2,
+        mnemonic: 'psh',
+        args: ['REGISTER']
+    },
+                
+    push_lit: {
+        opcode: 0x51,
+        length: 3,
+        mnemonic: 'psh',
+        args: ['LITERAL']
+    },
+                
+    pop_reg: {
+        opcode: 0x52,
+        length: 2,
+        mnemonic: 'pop',
+        args: ['REGISTER']
+    },
+
+    peek: {
+        opcode: 0x53,
+        length: 2,
+        mnemonic: 'pek',
+        args: ['REGISTER']
+    },
+                
+    cal_reg: {
+        opcode: 0x54,
+        length: 4,
+        mnemonic: 'cal',
+        args: ['INDIRECT_REGISTER', 'ADDRESS']
+    },
+
+    cal_mem: {
+        opcode: 0x55,
+        length: 5,
+        mnemonic: 'cal',
+        args: ['ADDRESS', 'ADDRESS']
+    },
+                
+    rts: {
+        opcode: 0x56,
+        length: 1,
+        mnemonic: 'rts',
+        args: []
+    },
 }
 
 // for developer use only, delete or comment when done /*

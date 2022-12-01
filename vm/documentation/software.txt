@@ -205,3 +205,27 @@ jgt_lit: $4e [ADD] [RES] [ADD] [RSS]
 
 jlt_lit: $4f [ADD] [RES] [ADD] [RSS]
     jump if acc < $lit
+
+// $5X: Stack operations
+push_reg: $50 [REG]
+    push the value of a register to the stack
+
+push_lit: $51 [LIT] [ERL]
+    push the literal to the stack
+
+pop_reg: $52 [REG]
+    pop the stack and copy to the register
+
+peek_reg: $53 [REG]
+    copy the top of the stack to the register without popping
+
+cal: $54 [ADD] [RSS] [ADD] [RSS]
+    jump to an address as a subroutine with the first address pointing to operands
+
+cal: $54 [REG] [ADD] [RSS]
+    jump to an address as a subroutine with the value of the register pointing to operands
+
+rts: $55
+    return from the subroutine
+
+

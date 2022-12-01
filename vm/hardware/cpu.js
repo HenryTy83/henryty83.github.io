@@ -3,7 +3,7 @@ class CPU {
         this.memory = memory
 
         // store registers as n as 16 bit registers
-        this.registerNames = ['PC', 'SP', 'MB', 'CLK', 'acc', 'd', 'x', 'y']
+        this.registerNames = ['PC', 'SP', 'FP', 'MB', 'IC', 'CLK', '0',  '1','acc', 'd', 'x', 'y', 'w', 'mar', 'r7', 'r8']
 
         this.generateLookup = () => {
             var lookUp = {}
@@ -24,6 +24,7 @@ class CPU {
 
         // set hard coded values
         this.writeReg('SP', stackPointerInitialValue)
+        this.writeReg('1', 1)
         this.resetVector = resetVector
 
         // flags
@@ -92,6 +93,39 @@ class CPU {
         return (this.fetchByte() & 0b11110000) >> 4
     }
 
+    push(value) {
+        const sp = this.readReg('SP')
+        this.memory.setUint16(sp, value)
+        this.writeReg('SP', sp - 2)
+    }
+
+    pop() {
+        const sp = this.readReg('SP')
+        this.writeReg('SP', sp - 2) 
+        return this.memory.getUint16(sp - 2) 
+    }
+
+    pushState(args) {
+        for (let i in this.registerNames) {
+            this.push(this.getReg(i))
+        }
+
+
+        this.push(args)
+        this.writeReg('FP', this.readReg('SP'))
+    }
+
+    popState() {
+        this.writeReg('SP', this.readReg('FP'))
+        var returnAddress = this.pop()
+
+        for (let i in this.registerNames) {
+            this.getReg(this.registerNames.length - i) = this.pop()
+        }
+
+        this.push(returnAddress)
+    }
+
     run() {
         if (this.debug) {
             this.hexDump()
@@ -103,11 +137,11 @@ class CPU {
                 return
             }
 
-            else { 
+            else {
                 this.broke = false
             }
 
-            if (this.cycleLimit != -1 && this.cycles > this.cycleLimit) { 
+            if (this.cycleLimit != -1 && this.cycles > this.cycleLimit) {
                 cpu.halted = true
                 console.log('FORCED HALT DUE TO EXCEEDED RUNTIME')
             }
@@ -117,6 +151,9 @@ class CPU {
 
         this.execute(instruction)
         this.cycles++
+
+        this.writeReg('1', 1)
+        this.writeReg('0', 0)
     }
 
     execute(instruction) {
@@ -401,7 +438,7 @@ class CPU {
                 this.jumpToWord(this.readReg('acc') == this.getReg(this.fetchSingleReg()))
                 return
             case instructionSet.jne_reg.opcode:
-                    this.jumpToWord(this.readReg('acc') != this.getReg(this.fetchSingleReg()))
+                this.jumpToWord(this.readReg('acc') != this.getReg(this.fetchSingleReg()))
                 return
             case instructionSet.jgt_reg.opcode:
                 this.jumpToWord(this.readReg('acc') > this.getReg(this.fetchSingleReg()))
@@ -422,7 +459,7 @@ class CPU {
                 this.jumpToWord(this.readReg('acc') < this.memory.getUint16(this.fetchWord()))
                 return
             case instructionSet.jeq_lit.opcode:
-            this.jumpToWord(this.readReg('acc') == this.fetchWord())
+                this.jumpToWord(this.readReg('acc') == this.fetchWord())
                 return
             case instructionSet.jne_lit.opcode:
                 this.jumpToWord(this.readReg('acc') != this.fetchWord())
@@ -433,12 +470,36 @@ class CPU {
             case instructionSet.jlt_lit.opcode:
                 this.jumpToWord(this.readReg('acc') < this.fetchWord())
                 return
+            case instructionSet.push_reg.opcode:
+                this.push(this.getReg(this.fetchSingleReg()))
+                return
+            case instructionSet.push_lit.opcode:
+                this.push(this.fetchWord())
+                return
+            case instructionSet.pop_reg.opcode:
+                this.setReg(this.fetchSingleReg(), this.pop())
+                return
+            case instructionSet.peek.opcode:
+                this.setReg(this.fetchSingleReg(), this.memory.getUint16(this.readReg('SP') + 2))
+                return
+            case instructionSet.cal_reg.opcode:
+                this.pushState(this.getReg(this.fetchSingleReg()))
+                this.jumpToWord(true)
+                return
+            case instructionSet.cal_mem.opcode:
+                this.pushState(this.fetchWord())
+                this.jumpToWord(true)
+                return
+            case instructionSet.rts.opcode:
+                this.popState()
+                this.fetchWord()
+                return
         }
 
         console.error(`EXECUTION ERROR: UNKNOWN OPCODE $${instruction.toString(16).padStart(2, '0')}`)
     }
 
-    memoryDump(address, bytesToDump=16) {
+    memoryDump(address, bytesToDump = 16) {
         var contents = ''
         for (let i = 0; i < bytesToDump; i++) {
             contents += `${this.memory.getUint8(address + i).toString(16).padStart(2, '0')} `
@@ -448,11 +509,11 @@ class CPU {
     }
 
     // debug functions
-    hexDump(addresses) {
+    hexDump() {
         var contents = `Time elapsed: ${this.cycles}\n\nRegisters:\n`
 
         for (let i in this.registerNames) {
-            contents += `${`${`${this.registerNames[i]}:`.padEnd(4, ' ')} $${this.getReg(i).toString(16).padStart(4, '0')}`.padEnd(13, ' ')} memory at $${this.getReg(i).toString(16).padStart(4, '0')}: ${this.memoryDump(this.getReg(i), 8)} \n`
+            contents += `${`${`${this.registerNames[i]}:`.padEnd(4, ' ')} $${this.getReg(i).toString(16).padStart(4, '0')}`.padEnd(13, ' ')} ${['CLK', 'MB', '0', '1'].includes(this.registerNames[i]) ? `` : `memory at $${this.getReg(i).toString(16).padStart(4, '0')}: ${this.memoryDump(this.getReg(i), this.registerNames[i] == 'SP' ? 16 : 8)}`}\n`
             // debug functions dont need to be pretty
             // this hurts my eyes
         }
@@ -476,7 +537,7 @@ class CPU {
         const opcode = peek.splice(0, 1)
         var currentInstruction = findByOpcode(opcode)
         try { var expectedArguments = currentInstruction.args.slice() }
-        catch (err) { return (`ERROR: Unknown opcode: $${opcode.toString(16).padStart(2, '0')}`);}
+        catch (err) { return (`ERROR: Unknown opcode: $${opcode.toString(16).padStart(2, '0')}`); }
 
         decompiled += `${Object.keys(instructionSet).find(key => instructionSet[key] === currentInstruction)} `
 
