@@ -5,28 +5,29 @@
 
 start:
 mov SP x
+mov $00 &x
 psh $00
 
 main:
-mov $00 &x
+psh x
+mov $ffff CLK
+mov $ffff [!screen_address]
 cal &x [!draw_column]
+mov $05 CLK
+pop x
 
-mov 0 [!screen_address]
+mov &x acc
 
-mov $04 &x
-cal &x [!draw_column]
+sub acc $42
+jez [!skip_inc]
+add acc $43
 
-mov 0 [!screen_address]
-
-mov $00 &8
-cal &x [!draw_column]
-
-mov 0 [!screen_address]
+skip_inc:
+mov acc &x
 
 jmp [!main]
 
 draw_column:
-mov !hello_world_string x
 mov $0 d
 
 init_settings:
@@ -38,6 +39,9 @@ mov acc &y
 // set position 
 mul d !chars_per_row
 add acc y
+mov &FP w
+mov &w w
+add acc w
 mov acc y
 
 loop:

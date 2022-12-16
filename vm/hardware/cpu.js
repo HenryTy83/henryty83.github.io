@@ -23,6 +23,7 @@ class CPU {
         this.registers = Memory(this.registerNames.length * 2)
 
         // set hard coded values
+        this.writeReg('FP', stackPointerInitialValue)
         this.writeReg('SP', stackPointerInitialValue)
         this.writeReg('1', 1)
         this.resetVector = resetVector
@@ -101,29 +102,33 @@ class CPU {
 
     pop() {
         const sp = this.readReg('SP')
-        this.writeReg('SP', sp - 2) 
-        return this.memory.getUint16(sp - 2) 
+        this.writeReg('SP', sp + 2) 
+        return this.memory.getUint16(sp + 2) 
     }
 
-    pushState(args) {
-        for (let i in this.registerNames) {
-            this.push(this.getReg(i))
-        }
+    subroutine(argument) {
+        var routineAddress = this.fetchWord()
 
-
-        this.push(args)
+        this.push(this.readReg('FP'))
         this.writeReg('FP', this.readReg('SP'))
+        this.push(argument)
+        this.push(this.readReg('PC'))
+        
+        this.writeReg('PC', routineAddress)
     }
 
-    popState() {
-        this.writeReg('SP', this.readReg('FP'))
-        var returnAddress = this.pop()
-
-        for (let i in this.registerNames) {
-            this.getReg(this.registerNames.length - i) = this.pop()
-        }
-
-        this.push(returnAddress)
+    returnSubroutine() {
+        this.writeReg('SP', this.readReg('FP') - 4)
+        // this.hexDump()
+        this.writeReg('PC', this.pop())
+        // this.hexDump()
+        var returnValue =  this.pop()
+        // this.hexDump()
+        
+        this.writeReg('FP', this.pop())
+        // this.hexDump()
+        this.memory.setUint16(this.readReg('SP'), returnValue)
+        // this.hexDump()
     }
 
     run() {
@@ -483,16 +488,13 @@ class CPU {
                 this.setReg(this.fetchSingleReg(), this.memory.getUint16(this.readReg('SP') + 2))
                 return
             case instructionSet.cal_reg.opcode:
-                this.pushState(this.getReg(this.fetchSingleReg()))
-                this.jumpToWord(true)
+                this.subroutine(this.getReg(this.fetchSingleReg()))
                 return
             case instructionSet.cal_mem.opcode:
-                this.pushState(this.fetchWord())
-                this.jumpToWord(true)
+                this.subroutine(this.fetchWord())
                 return
             case instructionSet.rts.opcode:
-                this.popState()
-                this.fetchWord()
+                this.returnSubroutine()
                 return
         }
 

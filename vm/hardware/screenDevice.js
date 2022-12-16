@@ -58,13 +58,6 @@ const displayScreen = () => {
 
         ctx.font = defaultFont
 
-        if (control & 0b1000000000000000) {
-            background();
-            VRAMinstructions = {};
-            controlHextet = null;
-            break
-        }
-
         if (control & 0b0100000000000000) {
             ctx.font = 'italic ' + ctx.font
         }
@@ -91,6 +84,12 @@ const createScreenOutput = () => {
         setUint16: (address, data) => {
             if (address == 0) {
                 controlHextet = data
+
+                if (data & 0b1000000000000000) {
+                    background();
+                    VRAMinstructions = {};
+                    controlHextet = null;
+                }
             } else {
                 VRAMinstructions[address - 1] = [controlHextet, data]
             }
