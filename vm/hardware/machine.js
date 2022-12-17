@@ -1,13 +1,16 @@
+var cpu
+
 const ram = new Region(0x0000, 0x7fff)
 const screen = new Region(0x8000, 0x8750, createScreenOutput())
-const memoryMappage = new Mapping([ram, screen])
-const cpu = new CPU(0x7fee, 0x7ffe, memoryMappage)
+const hardDrive = BankedMemory(0xb000, 0xffff, 0xffff + 1, cpu)
+const memoryMappage = new Mapping([ram, screen, hardDrive])
+cpu = new CPU(0x7fee, 0x7ffe, memoryMappage)
 
 var clockSpeed = cpu.readReg('CLK')
 
 const runCPU = () => {
     if (fadeInTime < 0) {
-        const clockSpeed = document.getElementById("myRange").value;
+        const clockSpeed = cpu.readReg('CLK')
         for (var i = 0; i < clockSpeed; i++) {
             previousSpeed = cpu.readReg('CLK')
             cpu.run();
@@ -18,7 +21,6 @@ const runCPU = () => {
                 return
             }
             if (newSpeed != previousSpeed) { 
-                document.getElementById("myRange").value = newSpeed
                 break
             }
         }
@@ -31,7 +33,7 @@ const runCPU = () => {
 function loadFile(filePath) {
     var result = null;
     var xmlhttp = new XMLHttpRequest();
-    xmlhttp.open("GET", filePath, false);
+    xmlhttp.open('GET', filePath, false);
     xmlhttp.send();
     if (xmlhttp.status == 200) {
         result = xmlhttp.responseText;
@@ -39,10 +41,11 @@ function loadFile(filePath) {
     return result.split(/\r?\n/);
 }
 
-// const rawProgram = loadFile("./programs/helloWorld.jsm")
-// const rawProgram = loadFile("./programs/helloLooped.jsm")
-const rawProgram = loadFile("./programs/functionWorld.jsm")
-// const rawProgram = loadFile("./programs/matrix.jsm")
+// const rawProgram = loadFile('./programs/helloWorld.jsm')
+// const rawProgram = loadFile('./programs/helloLooped.jsm')
+// const rawProgram = loadFile('./programs/functionWorld.jsm')
+// const rawProgram = loadFile('./programs/matrix.jsm')
+const rawProgram = loadFile('./programs/JSword.jsm')
 
 const parsedProgram = Parser.read(rawProgram)
 const compiledProgram = assemble(parsedProgram)

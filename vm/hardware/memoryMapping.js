@@ -46,12 +46,17 @@ class Region {
 // store memory in a uint8 array
 const Memory = (size) => new DataView(new ArrayBuffer(size))
 
-// const BankedMemory = (start, end, numberOfBanks, cpu) => { 
-//     var banks = []
+const BankedMemory = (start, end, numberOfBanks, cpu) => { 
+    var banks = []
 
-//     for (var i = 0; i < numberOfBanks; i++) { 
-//         banks.push(Memory(end - start + 1))
-//     }
+    for (var i = 0; i < numberOfBanks; i++) { 
+        banks.push(new Region(start, end))
+    }
 
-//     return banks[cpu.getR]
-// }
+    return {
+        getUint16: (address) => banks[cpu.readReg('MB')].getUint16(address),
+        setUint16: (address, value) => banks[cpu.readReg('MB')].setUint8(address, value),
+        getUint8: (address) => banks[cpu.readReg('MB')].getUint8(address),
+        setUint8: (address, value) => banks[cpu.readReg('MB')].setUint8(address, value),
+    }
+}

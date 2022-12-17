@@ -1,5 +1,4 @@
-// Hello world program, but using loops
-// test of branching and alu operations
+// Hello world program, but using subroutines
 .def screen_address $8000
 .def chars_per_row $4e
 
@@ -8,59 +7,97 @@ mov SP x
 mov $00 &x
 psh $00
 
-main:
-psh x
-mov $ffff CLK
-mov $ffff [!screen_address]
-cal &x [!draw_column]
-mov $05 CLK
-pop x
+move_right:
+cal &x [!call_draw]
+mov &SP x
 
 mov &x acc
-
-sub acc $42
-jez [!skip_inc]
-add acc $43
-
-skip_inc:
+inc acc
 mov acc &x
 
-jmp [!main]
+jlt $42 [!move_right]
+
+// cal [$0a] [!delay]
+
+move_left:
+cal &x [!call_draw]
+mov &SP x
+
+mov &x acc
+dec acc
+mov acc &x
+
+jnz [!move_left]
+
+// cal [$0a] [!delay]
+jmp [!move_right]
+
+
+call_draw:
+mov $0ffff CLK
+mov $ffff [!screen_address]
+cal &x [!draw_column]
+mov $0a CLK
+
+// cal [$01] [!delay]
+
+rts
+
+
+delay:
+psh CLK
+mov 1 CLK
+
+mov &FP acc
+delay_wait:
+dec acc
+jgz [!delay_wait]
+
+pop CLK
+rts
 
 draw_column:
-mov $0 d
+mov 0 d
 
-init_settings:
-sub $f d
+draw_column_loop:
+sub $0f d
 shl acc $4
 mov !screen_address y
 mov acc &y
 
-// set position 
 mul d !chars_per_row
 add acc y
 mov &FP w
 mov &w w
 add acc w
 mov acc y
-
-loop:
 inc y
-mov &x acc
-jez [!break]
-mov acc &y
-inc x
-inc x
-jmp [!loop]
 
-break:
-mov !hello_world_string x
+psh d
+cal &y [!draw_string]
+pop d
+
 inc d
-mov d acc
-jne $10 [!init_settings]
-
-end:
+sub d $10
+jnz [!draw_column_loop]
 rts
+
+draw_string:
+mov &FP x
+mov !hello_world_string y
+
+draw_string_loop:
+mov &y acc
+jez [!draw_string_end]
+mov acc &x
+inc x
+inc y
+inc y
+jmp [!draw_string_loop]
+
+draw_string_end:
+rts
+
 
 // hello world string (null terminated)
 .org $4000

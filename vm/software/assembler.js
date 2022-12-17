@@ -55,6 +55,9 @@ const createLabelLookup = (program) => {
                     case 'data16':
                         labels[instruction.args[0]] = bytePointer
                         break
+                    case 'global':
+                        globals[instruction.args[0]] = parseInt(instruction.args[1].slice(1), 16)
+                        break
                     case 'def':
                         labels[instruction.args[0]] = parseInt(instruction.args[1].slice(1), 16)
                         break
@@ -74,6 +77,8 @@ const arraysEqual = (a, b) => {
 
     return true
 }
+
+var globals = {}
 
 const assemble = (program) => {
     const defaultResetVector = 0x7ffe
@@ -102,6 +107,20 @@ const assemble = (program) => {
         }
     }
 
+    const fetchVariable = (name) => {
+        var local = variables[name]
+        if (local != undefined) {
+            return local
+        }
+
+        var global = globals[name]
+        if (global != undefined) {
+            return global
+        }
+        
+        return undefined
+    }
+
     const parseBracket = (address) => {
         var expression = address.split(' ')
 
@@ -120,7 +139,7 @@ const assemble = (program) => {
 
             else {
 
-            var lookedUp = variables[expression[i].slice(1)]
+            var lookedUp = fetchVariable(expression[i].slice(1))
             if (lookedUp != undefined) {
                 expression[i] = lookedUp
             }
@@ -179,8 +198,8 @@ const assemble = (program) => {
                     case 'data16':
                         for (var byte of word.args.slice(2, -2)) { 
                             var hexValue = byte.slice(1)
-                            if (hexValue in variables) {
-                                hexValue = variables[hexValue]
+                            if (fetchVariable(hexValue) != undefined) {
+                                hexValue = fetchVariable(hexValue)
                             }
                             else {
                                 hexValue = parseInt(hexValue, 16)
@@ -223,8 +242,10 @@ const assemble = (program) => {
                             machineCode[programCounter++] = argument.value & 0x00ff
                             break
                         case 'VARIABLE':
-                            machineCode[programCounter++] = (variables[argument.value] & 0xff00) >> 8
-                            machineCode[programCounter++] = variables[argument.value] & 0x00ff
+                        case 'GLOBAL':
+                            var value = fetchVariable(argument.value)
+                            machineCode[programCounter++] = (value & 0xff00) >> 8
+                            machineCode[programCounter++] = value & 0x00ff
                             break
                         case 'REGISTER':
                         case 'INDIRECT_REGISTER':

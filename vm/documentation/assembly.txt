@@ -28,6 +28,8 @@ reg: register name (acc, x, y, d)
     define a variable with the variable name and the value $literal
     variables are referenced in other parts with !variable
     variables are replaced with their values during compilation. They are only found in the assembly and are not referenced in the machine code
+.global variable $literal
+    the same as .def, but accessible to any program
 .data8 name $lit1 $lit2... $litN
     write the following bytes directly into memory
     $literals must be 8 bits only
@@ -78,7 +80,7 @@ reg: register name (acc, x, y, d)
 // pop A: pop from the stack and copy to A
 
 // cal A B: call a subroutine at address B
-    address of arguments is found at &SP
+    argument (or address of multiple arguments) A is found in the subroutine at &FP
 
 // rts: return to subroutine
-    address of return value should replace those of arguments
+    return address (or address of return address) will be found at &SP (don't pop) (value will be deleted at next push)

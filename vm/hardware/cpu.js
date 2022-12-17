@@ -44,7 +44,7 @@ class CPU {
 
     startup() {
         this.writeReg('PC', this.memory.getUint16(this.resetVector))
-        this.writeReg('CLK', 10)
+        this.writeReg('CLK', 1)
 
         this.poweredOn = true
     }

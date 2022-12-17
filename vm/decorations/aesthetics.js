@@ -7,9 +7,8 @@ const fadeout = () => {
     ctx.fillRect(0, 0, canvas.width, canvas.height)
 
     fadeoutTime -= 1;
-    document.getElementById("myRange").value -= 4369
 
-    if (fadeoutTime < 0 && document.getElementById("myRange").value == 0) {
+    if (fadeoutTime < 0) {
         window.location.reload();
     }
 }
@@ -22,8 +21,7 @@ const fadeIn = () => { // its 4am
 
     if (fadeInTime < 0) {
         clearTimeout(powerUp)
-        document.getElementById("myRange").value = cpu.readReg('CLK')
-        
+
         requestAnimationFrame(runCPU)
         requestAnimationFrame(displayScreen)
     }
@@ -32,16 +30,22 @@ const fadeIn = () => { // its 4am
 var button = document.getElementById('power')
 const powerToggle = () => { //its 3 AM
     if (!cpu.poweredOn) { return; }
-    powerOn = !powerOn;
-    button.style.backgroundColor = powerOn ? 'green' : 'red';
 
-    if (powerOn) {
+    if (!powerOn) {
         powerUp = setInterval(fadeIn, 50);
     }
 
     else {
-        powerOff = setInterval(fadeout, 100);
-        cpu.halted = true
+        if (!cpu.halted) { 
+            cpu.halted = true
+            return
+        }
+
+        cpu.poweredOn = false
+        powerOff = setInterval(fadeout, 50);
     }
+    
+    powerOn = !powerOn;
+    button.style.backgroundColor = powerOn ? 'green' : 'red';
 };
 

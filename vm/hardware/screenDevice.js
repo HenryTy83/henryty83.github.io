@@ -72,14 +72,14 @@ const displayScreen = () => {
         drawChar(String.fromCharCode(data), address, redChannel, greenChannel, blueChannel);
     }
 
-    if (!cpu.halted) {
+    if (cpu.poweredOn) {
         requestAnimationFrame(displayScreen)
     } 
 }
 
 const createScreenOutput = () => {
     return {
-        getUint16: (address) => VRAMinstructions[address][1],
+        getUint16: (address) => VRAMinstructions[address] != undefined ? VRAMinstructions[address][1] : 0,
         getUint8: () => 0,
         setUint16: (address, data) => {
             if (address == 0) {
