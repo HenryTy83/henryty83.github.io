@@ -1,9 +1,9 @@
 class CPU {
-    constructor(stackPointerInitialValue, resetVector, memory) {
+    constructor(resetVector, memory) {
         this.memory = memory
 
         // store registers as n as 16 bit registers
-        this.registerNames = ['PC', 'SP', 'FP', 'MB', 'IC', 'CLK', '0',  '1','acc', 'd', 'x', 'y', 'w', 'mar', 'r7', 'r8']
+        this.registerNames = ['PC', 'SP', 'FP', 'IC', 'NUL', 'CLK', '0', '1', 'acc', 'd', 'x', 'y', 'w', 'mar', 'r7', 'r8']
 
         this.generateLookup = () => {
             var lookUp = {}
@@ -23,8 +23,6 @@ class CPU {
         this.registers = Memory(this.registerNames.length * 2)
 
         // set hard coded values
-        this.writeReg('FP', stackPointerInitialValue)
-        this.writeReg('SP', stackPointerInitialValue)
         this.writeReg('1', 1)
         this.resetVector = resetVector
 
@@ -85,9 +83,9 @@ class CPU {
     jumpToWord(condition) {
         if (condition) {
             this.writeReg('PC', this.fetchWord())
+        } else {
+            this.fetchWord()
         }
-
-        else { this.fetchWord() }
     }
 
     fetchSingleReg() {
@@ -102,8 +100,8 @@ class CPU {
 
     pop() {
         const sp = this.readReg('SP')
-        this.writeReg('SP', sp + 2) 
-        return this.memory.getUint16(sp + 2) 
+        this.writeReg('SP', sp + 2)
+        return this.memory.getUint16(sp + 2)
     }
 
     subroutine(argument) {
@@ -113,7 +111,7 @@ class CPU {
         this.writeReg('FP', this.readReg('SP'))
         this.push(argument)
         this.push(this.readReg('PC'))
-        
+
         this.writeReg('PC', routineAddress)
     }
 
@@ -122,9 +120,9 @@ class CPU {
         // this.hexDump()
         this.writeReg('PC', this.pop())
         // this.hexDump()
-        var returnValue =  this.pop()
+        var returnValue = this.pop()
         // this.hexDump()
-        
+
         this.writeReg('FP', this.pop())
         // this.hexDump()
         this.memory.setUint16(this.readReg('SP'), returnValue)
@@ -140,9 +138,7 @@ class CPU {
                 this.broke = true
                 console.log(`BREAKPOINT REACHED AT ADDRESS ${this.readReg('PC')}`)
                 return
-            }
-
-            else {
+            } else {
                 this.broke = false
             }
 
@@ -434,10 +430,10 @@ class CPU {
                 this.jumpToWord(this.readReg('acc') != 0)
                 return
             case instructionSet.jgz.opcode:
-                this.jumpToWord(this.readReg('acc') > 0)
+                this.jumpToWord(!(this.readReg('acc') & 0b1000000000000000))
                 return
             case instructionSet.jlz.opcode:
-                this.jumpToWord(this.readReg('acc') < 0)
+                this.jumpToWord(this.readReg('acc') & 0b1000000000000000)
                 return
             case instructionSet.jeq_reg.opcode:
                 this.jumpToWord(this.readReg('acc') == this.getReg(this.fetchSingleReg()))
@@ -490,7 +486,7 @@ class CPU {
             case instructionSet.cal_reg.opcode:
                 this.subroutine(this.getReg(this.fetchSingleReg()))
                 return
-            case instructionSet.cal_mem.opcode:
+            case instructionSet.cal_lit.opcode:
                 this.subroutine(this.fetchWord())
                 return
             case instructionSet.rts.opcode:
@@ -515,7 +511,7 @@ class CPU {
         var contents = `Time elapsed: ${this.cycles}\n\nRegisters:\n`
 
         for (let i in this.registerNames) {
-            contents += `${`${`${this.registerNames[i]}:`.padEnd(4, ' ')} $${this.getReg(i).toString(16).padStart(4, '0')}`.padEnd(13, ' ')} ${['CLK', 'MB', '0', '1'].includes(this.registerNames[i]) ? `` : `memory at $${this.getReg(i).toString(16).padStart(4, '0')}: ${this.memoryDump(this.getReg(i), this.registerNames[i] == 'SP' ? 16 : 8)}`}\n`
+            contents += `${`${`${this.registerNames[i]}:`.padEnd(4, ' ')} $${this.getReg(i).toString(16).padStart(4, '0')}`.padEnd(13, ' ')} ${['CLK', 'NUL', '0', '1'].includes(this.registerNames[i]) ? `` : `memory at $${this.getReg(i).toString(16).padStart(4, '0')}: ${this.memoryDump(this.getReg(i), this.registerNames[i] == 'SP' ? 16 : 8)}`}\n`
             // debug functions dont need to be pretty
             // this hurts my eyes
         }
@@ -532,14 +528,37 @@ class CPU {
         console.log(contents)
     }
 
+    fullMemoryDump() {
+        var output = ``
+        var previousLine = ``
+
+        for (var i = 0; i <= 0xffff; i += 8) {
+            var nextLine = this.memoryDump(i, 8)
+            var address = `$${(i).toString(16).padStart(4, '0')}:`
+            if (previousLine != nextLine) { 
+                output +=  `${address} ${nextLine}\n`
+                previousLine = nextLine
+            }
+        }
+
+        if (previousLine != nextLine) {
+            output += `${address} ${nextLine}\n`
+        }
+
+        console.log(output)
+    }
+
     decompileInstruction() {
         var peek = this.memoryDump(this.readReg('PC')).split(' ').map(x => parseInt(x, 16))
         var decompiled = 'Current instruction to execute: '
 
         const opcode = peek.splice(0, 1)
         var currentInstruction = findByOpcode(opcode)
-        try { var expectedArguments = currentInstruction.args.slice() }
-        catch (err) { return (`ERROR: Unknown opcode: $${opcode.toString(16).padStart(2, '0')}`); }
+        try {
+            var expectedArguments = currentInstruction.args.slice()
+        } catch (err) {
+            return (`ERROR: Unknown opcode: $${opcode.toString(16).padStart(2, '0')}`);
+        }
 
         decompiled += `${Object.keys(instructionSet).find(key => instructionSet[key] === currentInstruction)} `
 

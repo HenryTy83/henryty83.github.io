@@ -453,11 +453,11 @@ const instructionSet = {
         args: ['INDIRECT_REGISTER', 'ADDRESS']
     },
 
-    cal_mem: {
+    cal_lit: {
         opcode: 0x55,
         length: 5,
         mnemonic: 'cal',
-        args: ['ADDRESS', 'ADDRESS']
+        args: ['LITERAL', 'ADDRESS']
     },
                 
     rts: {

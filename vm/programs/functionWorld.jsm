@@ -1,11 +1,11 @@
 // Hello world program, but using subroutines
-.def screen_address $8000
+.data16 _this-length { !reset_vector }
+
 .def chars_per_row $4e
 
 start:
 mov SP x
-mov $00 &x
-psh $00
+psh 0
 
 move_right:
 cal &x [!call_draw]
@@ -34,12 +34,12 @@ jmp [!move_right]
 
 
 call_draw:
-mov $0ffff CLK
-mov $ffff [!screen_address]
+mov $ffff CLK
+mov $ffff [!_memory_map-screen_address]
 cal &x [!draw_column]
-mov $0a CLK
+mov $07 CLK
 
-// cal [$01] [!delay]
+// cal &1 [!delay]
 
 rts
 
@@ -62,7 +62,7 @@ mov 0 d
 draw_column_loop:
 sub $0f d
 shl acc $4
-mov !screen_address y
+mov !_memory_map-screen_address y
 mov acc &y
 
 mul d !chars_per_row
@@ -100,9 +100,6 @@ rts
 
 
 // hello world string (null terminated)
-.org $4000
 .data16 hello_world_string { $0048 $0065 $006c $006c $006f $0020 $0057 $006f $0072 $006c $0064 $0021 $0000 }
 
-// reset vector
-.org $7ffe
 .data16 reset_vector { !start }

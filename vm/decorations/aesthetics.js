@@ -38,6 +38,7 @@ const powerToggle = () => { //its 3 AM
     else {
         if (!cpu.halted) { 
             cpu.halted = true
+            cpu.writeReg('CLK', 1)
             return
         }
 

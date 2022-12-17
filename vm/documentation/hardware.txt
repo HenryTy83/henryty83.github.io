@@ -43,6 +43,6 @@ $8000-$afff: Peripherals
         Settings persist until overwritten or cleared
         
         After setting the control hextet, write to the screen by writing any 16-bit unicode value to the corresponding memory address
+$af00-$afff: ROM, bootloader. Code starts here on startup, use space to load in memory or keep vital functions
 $b000-$ffff: Hard drive
-    Banked memory: each section is controlled by the MB register. Each value of MB corresponds to a separate section of the hard drive.
-    Contents of the memory persist in browser cookies
+    Banked memory: Control which section is being seen by writing a 16-bit index to $b0000

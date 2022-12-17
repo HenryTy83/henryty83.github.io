@@ -1,6 +1,9 @@
-const regInstruction = (r1, r2='') => {
+const defaultResetVector = 0xbffe
+var globals = {}
+
+const regInstruction = (r1, r2 = '') => {
     var high, low = 0
-    
+
     if (r2 != '') {
         low = cpu.getRegIndex(r2)
     }
@@ -10,7 +13,7 @@ const regInstruction = (r1, r2='') => {
     return (0b11110000 & (high << 4)) | (0b00001111 & low)
 }
 
-const findLengthOfInstruction = (args) => { 
+const findLengthOfInstruction = (args) => {
     var lengths = {
         'INDIRECT_REGISTER': 1,
         'REGISTER': 1,
@@ -18,85 +21,120 @@ const findLengthOfInstruction = (args) => {
         'VARIABLE': 2,
         'LITERAL': 2
     }
-    
+
     var length = 1
     var previousReg = false
-    for (var argument of args) { 
+    for (var argument of args) {
         length += lengths[argument.type]
         if (argument.type == 'REGISTER' || argument.type == 'INDIRECT_REGISTER') {
             if (previousReg) {
                 length -= 1
+            } else {
+                previousReg = true
             }
-            else { previousReg = true }
         }
     }
 
     return length
 }
 
-const createLabelLookup = (program) => {
+const decodeVariable = (name) => (isNaN(parseInt(name.slice(1), 16))) ? name : parseInt(name.slice(1), 16)
+
+const substituteVariable = (label, labels) => {
+    if (typeof labels[label] == 'number') {
+        return labels[label]
+    }
+
+    if (labels[labels[label]] != undefined) {
+        return substituteVariable(labels[label], labels)
+    }
+
+    return undefined
+}
+
+const createLabelLookup = (program, startAddress) => {
     const labels = {}
-    var bytePointer = 0
+    var bytePointer = startAddress
 
     for (var instruction of program) {
         switch (instruction.type) {
             case 'LABEL':
                 labels[instruction.value] = bytePointer
                 break
-            case 'INSTRUCTION': 
+            case 'INSTRUCTION':
                 bytePointer += findLengthOfInstruction(instruction.args)
                 break
             case 'KEYWORD':
                 switch (instruction.value) {
                     case 'org':
                         bytePointer = parseInt(instruction.args[0].slice(1), 16)
+                        if (isNaN(bytePointer)) {
+                            throw new Error(`PARSING ERROR: EXPECTED A LITERAL AND RECIEVED ${instruction.args[0]} INSTEAD!`)
+                        }
                         break
                     case 'data8':
+                        labels[instruction.args[0]] = bytePointer
+                        bytePointer += instruction.args.slice(2, -1).length
+                        break
                     case 'data16':
                         labels[instruction.args[0]] = bytePointer
+                        bytePointer += instruction.args.slice(2, -1).length * 2
+                        break
+                    case 'global_label':
+                        globals[instruction.args[0].slice(0, -1)] = bytePointer
                         break
                     case 'global':
-                        globals[instruction.args[0]] = parseInt(instruction.args[1].slice(1), 16)
+                        globals[instruction.args[0]] = decodeVariable(instruction.args[1])
                         break
                     case 'def':
-                        labels[instruction.args[0]] = parseInt(instruction.args[1].slice(1), 16)
+                        labels[instruction.args[0]] = decodeVariable(instruction.args[1])
                         break
                 }
 
         }
     }
 
+    for (var label in labels) {
+        if (typeof parseInt((labels[label]) != 'number')) {
+            var value = substituteVariable(label, labels)
+
+            if (value == undefined) {
+                console.log(labels);
+                throw new Error(`PARSING ERROR: UNDEFINED VARIABLE WITH NAME '${label}'`)
+            }
+            labels[label] = value
+        }
+    }
+
     return labels
 }
 
-const arraysEqual = (a, b) => { 
-    if (a.length != b.length) {return false}
+const arraysEqual = (a, b) => {
+    if (a.length != b.length) {
+        return false
+    }
     for (var i in a) {
-        if (a[i] != b[i]) { return false }
+        if (a[i] != b[i]) {
+            return false
+        }
     }
 
     return true
 }
 
-var globals = {}
-
-const assemble = (program) => {
-    const defaultResetVector = 0x7ffe
-    const variables = createLabelLookup(program)
+const assemble = (program, startAddress = 0) => {
+    const variables = createLabelLookup(program, startAddress)
     // console.log(variables)
-    var programCounter = 0
+    var programCounter = startAddress
     const machineCode = {}
 
-    machineCode[defaultResetVector] = 0
-    machineCode[defaultResetVector + 1] = 0
-
     const assembleRegister = (reg, args, i) => {
-        if (i == 0) { 
+        if (i == 0) {
             machineCode[programCounter++] = (reg << 4) & 0b11110000
             return
         }
-            
-        switch (args[i - 1].type) { 
+
+        switch (args[i - 1].type) {
             case 'REGISTER':
             case 'INDIRECT_REGISTER':
                 machineCode[programCounter - 1] |= reg & 0b00001111
@@ -117,7 +155,7 @@ const assemble = (program) => {
         if (global != undefined) {
             return global
         }
-        
+
         return undefined
     }
 
@@ -135,15 +173,14 @@ const assemble = (program) => {
                 }
             } else if ('01233456789'.includes(expression[i])) {
                 expression[i] = parseInt(expression[i])
-            }
+            } else {
 
-            else {
-
-            var lookedUp = fetchVariable(expression[i].slice(1))
-            if (lookedUp != undefined) {
-                expression[i] = lookedUp
-            }
-            else { throw new Error(`Tried parsing bracket expression ${address} and could not parse ${expression[i]}`)}
+                var lookedUp = fetchVariable(expression[i].slice(1))
+                if (lookedUp != undefined) {
+                    expression[i] = lookedUp
+                } else {
+                    throw new Error(`Tried parsing bracket expression ${address} and could not parse ${expression[i]}`)
+                }
             }
         }
 
@@ -178,32 +215,37 @@ const assemble = (program) => {
     }
 
     for (var word of program) {
-        switch (word.type) { 
+        switch (word.type) {
             case 'COMMENT':
             case 'LABEL':
                 break
             default:
                 throw new Error(`PARSE ERROR: Expected INSTRUCTION but retrieved a ${word.type} instead with the word ${word}`)
             case 'KEYWORD':
-                switch (word.value) { 
+                switch (word.value) {
                     case 'org':
-                        programCounter = parseInt(word.args[0].slice(1), 16)
+                        programCounter = fetchVariable(word.args[0]) != undefined ? fetchVariable(word.args[0]) : parseInt(word.args[0].slice(1), 16)
                         break
                     case 'data8':
-                        for (var byte of word.args.slice(2, -1)) { 
-                            var hexValue = (parseInt(byte.slice(1), 16))
+                        for (var byte of word.args.slice(2, -1)) {
+                            var hexValue = byte.slice(1)
+                            if (fetchVariable(hexValue) != undefined) {
+                                hexValue = fetchVariable(hexValue)
+                            } else {
+                                hexValue = parseInt(hexValue, 16)
+                            }
                             machineCode[programCounter++] = hexValue & 0xff
                         }
                         break
                     case 'data16':
-                        for (var byte of word.args.slice(2, -2)) { 
+                        for (var byte of word.args.slice(2, -1)) {
                             var hexValue = byte.slice(1)
                             if (fetchVariable(hexValue) != undefined) {
                                 hexValue = fetchVariable(hexValue)
-                            }
-                            else {
+                            } else {
                                 hexValue = parseInt(hexValue, 16)
                             }
+
                             machineCode[programCounter++] = (hexValue & 0xff00) >> 8
                             machineCode[programCounter++] = hexValue & 0xff
                         }
@@ -212,7 +254,7 @@ const assemble = (program) => {
                 break
             case 'INSTRUCTION':
                 expectedArguments = word.args.map(token => token.type == 'VARIABLE' ? "LITERAL" : token.type)
-                
+
                 var possibleCommands = findByMnemonic(word.value)
                 if (possibleCommands == []) {
                     throw new Error(`Unknown instruction: ${word.value}`)
@@ -222,16 +264,14 @@ const assemble = (program) => {
 
                 try {
                     machineCode[programCounter++] = instruction.opcode
-                }
-
-                catch (err) { 
+                } catch (err) {
                     throw new Error(`Unable to find opcode with arguments ${expectedArguments} for the instruction: ${JSON.stringify(word)}`)
                 }
 
                 for (var i in word.args) {
                     var argument = word.args[i]
 
-                    switch (argument.type) { 
+                    switch (argument.type) {
                         case 'ADDRESS':
                             var address = parseBracket(argument.value.value)
                             machineCode[programCounter++] = (address & 0xff00) >> 8
@@ -242,7 +282,6 @@ const assemble = (program) => {
                             machineCode[programCounter++] = argument.value & 0x00ff
                             break
                         case 'VARIABLE':
-                        case 'GLOBAL':
                             var value = fetchVariable(argument.value)
                             machineCode[programCounter++] = (value & 0xff00) >> 8
                             machineCode[programCounter++] = value & 0x00ff
@@ -262,8 +301,11 @@ const assemble = (program) => {
     return machineCode
 }
 
-const loadProgram = (memory) => (code) => { 
-    for (var byte in code) { 
-        memory.setUint8(parseInt(byte), code[byte])
+const loadProgram = (memory, startAddress = 0) => (code) => {
+    var i=0
+    for (var byte in code) {
+        memory.setUint8(parseInt(byte) + startAddress, code[byte])
+        i++
     }
+    return i
 }
