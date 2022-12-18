@@ -4,15 +4,17 @@ By Henry Ty, XX November 2022
 
 //// 16-bit big endian Von Neumann architecture processor
 registers:
-    PC: program counter*
-    SP: stack pointer*
-    MB: memory bank controller*
+    PC: program counter
+    SP: stack pointer
+    IM: interrupt mask
+    0: always yields 0 (write only)
+    1: always yields 1 (write only)
+    NUL: idk
     CLK: clock speed controller
     accumulator
-    x, y, d: general purpose registers
+    x, y, d, w: general purpose registers
+    mar: memory address register, perferably used for memory addresses
     
-    *accessed by hardware only
-
 65536 ($ffff + 1) unique addresses (not including bank-switching)
 Memory Mapped I/O
 
@@ -20,8 +22,9 @@ Memory Mapped I/O
 $0000-$ffff: useable memory
 
 $0000-$7fff: RAM (Programs and temporary data)
-$7fee-$7ffd: interrupt vector addresses (each bit in the interrupt register corresponds to a byte, which is jumped to on the interrupt)
-$7ffe: Reset vector: On startup, execution will begin at whatever address is stored here
+$7fe0-$7fff: interrupt vector addresses (each bit in the interrupt register corresponds to a byte, which is jumped to on the interrupt)
+    Upon an interrupt, the id is bitwise &'d with IM, if 1, jump to address $7fe0 + (id-1)*2
+$cffe: Reset vector: On startup, execution will begin at whatever address is stored here
 < $7fee: stack
 $8000-$afff: Peripherals 
     $8000-$8750: screen display
@@ -43,6 +46,8 @@ $8000-$afff: Peripherals
         Settings persist until overwritten or cleared
         
         After setting the control hextet, write to the screen by writing any 16-bit unicode value to the corresponding memory address
-$af00-$afff: ROM, bootloader. Code starts here on startup, use space to load in memory or keep vital functions
-$b000-$ffff: Hard drive
+    $8751: Keyboard
+        Triggers an interrupt when typed, reading from this address will yield the last-pressed key
+$af00-$bfff: ROM, bootloader. Code starts here on startup, use space to load in memory or keep vital functions
+$c000-$ffff: Hard drive
     Banked memory: Control which section is being seen by writing a 16-bit index to $b0000

@@ -81,6 +81,15 @@ reg: register name (acc, x, y, d)
 
 // cal A B: call a subroutine at address B
     argument (or address of multiple arguments) A is found in the subroutine at &FP
+    on a call, the stack looks like this:
+    previous FP     argument    return address
+                    ^FP                            ^SP
+
 
 // rts: return to subroutine
     return address (or address of return address) will be found at &SP (don't pop) (value will be deleted at next push)
+
+// rti: return from interrupt
+    interrupts behave just like normal function calls, except the state of all registers is preserved
+    when an interrupt is in progress, any subsequent requests are blocked and dealt with after
+    shouldn't have a return address

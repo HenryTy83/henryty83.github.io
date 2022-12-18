@@ -1,9 +1,9 @@
 class CPU {
-    constructor(resetVector, memory) {
+    constructor(resetVector, interruptVector, memory) {
         this.memory = memory
 
         // store registers as n as 16 bit registers
-        this.registerNames = ['PC', 'SP', 'FP', 'IC', 'NUL', 'CLK', '0', '1', 'acc', 'd', 'x', 'y', 'w', 'mar', 'r7', 'r8']
+        this.registerNames = ['PC', 'SP', 'FP', 'IM', 'NUL', 'CLK', '0', '1', 'acc', 'd', 'x', 'y', 'w', 'mar', 'r7', 'r8']
 
         this.generateLookup = () => {
             var lookUp = {}
@@ -24,12 +24,15 @@ class CPU {
 
         // set hard coded values
         this.writeReg('1', 1)
+        this.interruptVector = interruptVector
         this.resetVector = resetVector
 
         // flags
         this.halted = false
-        this.interrupt = false
+        this.interrupting = false
         this.poweredOn = false
+
+        this.irq = 0
 
         // debug stuff
         this.cycles = 1
@@ -129,6 +132,36 @@ class CPU {
         // this.hexDump()
     }
 
+    enterInterrupt(address) {
+        for (var i=0; i<this.registerNames.length; i+=2) {
+            this.push(this.getReg(i))
+        }
+
+        this.subroutine(address)
+    }
+
+    returnInterrupt() {
+        this.returnSubroutine()
+        for (var i=0; i<this.registerNames.length; i+=2) {
+            this.setReg(this.registerNames.length-i, this.pop())
+        }
+    }
+    
+    requestInterrupt(id) {
+        if (this.irq == 0) {
+            this.irq = id + 1
+            return true
+        }
+
+        return false
+    }
+
+    checkInterrupt() {
+        if ((this.readReg('IM') &  (1 << (this.irq))) != 0) {
+            this.enterInterrupt(this.memory.getUint16(this.interruptVector + 2*(this.irq-1)))
+        }
+    }
+
     run() {
         if (this.debug) {
             this.hexDump()
@@ -155,6 +188,10 @@ class CPU {
 
         this.writeReg('1', 1)
         this.writeReg('0', 0)
+
+        if (!this.interrupting && this.irq != 0)  {
+            this.checkInterrupt()
+        }
     }
 
     execute(instruction) {
@@ -430,7 +467,7 @@ class CPU {
                 this.jumpToWord(this.readReg('acc') != 0)
                 return
             case instructionSet.jgz.opcode:
-                this.jumpToWord(!(this.readReg('acc') & 0b1000000000000000))
+                this.jumpToWord(!(this.readReg('acc') & 0b1000000000000000) && this.readReg('acc') != 0)
                 return
             case instructionSet.jlz.opcode:
                 this.jumpToWord(this.readReg('acc') & 0b1000000000000000)
@@ -492,6 +529,9 @@ class CPU {
             case instructionSet.rts.opcode:
                 this.returnSubroutine()
                 return
+            case instructionSet.rti.opcode:
+                this.returnInterrupt()
+                return
         }
 
         console.error(`EXECUTION ERROR: UNKNOWN OPCODE $${instruction.toString(16).padStart(2, '0')}`)
@@ -511,7 +551,7 @@ class CPU {
         var contents = `Time elapsed: ${this.cycles}\n\nRegisters:\n`
 
         for (let i in this.registerNames) {
-            contents += `${`${`${this.registerNames[i]}:`.padEnd(4, ' ')} $${this.getReg(i).toString(16).padStart(4, '0')}`.padEnd(13, ' ')} ${['CLK', 'NUL', '0', '1'].includes(this.registerNames[i]) ? `` : `memory at $${this.getReg(i).toString(16).padStart(4, '0')}: ${this.memoryDump(this.getReg(i), this.registerNames[i] == 'SP' ? 16 : 8)}`}\n`
+            contents += `${`${`${this.registerNames[i]}:`.padEnd(4, ' ')} $${this.getReg(i).toString(16).padStart(4, '0')}`.padEnd(13, ' ')} ${['CLK', 'NUL', 'IM', '0', '1'].includes(this.registerNames[i]) ? `` : `memory at $${this.getReg(i).toString(16).padStart(4, '0')}: ${this.memoryDump(this.getReg(i), this.registerNames[i] == 'SP' ? 16 : 8)}`}\n`
             // debug functions dont need to be pretty
             // this hurts my eyes
         }

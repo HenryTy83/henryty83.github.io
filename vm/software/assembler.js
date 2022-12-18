@@ -72,9 +72,16 @@ const createLabelLookup = (program, startAddress) => {
                             throw new Error(`PARSING ERROR: EXPECTED A LITERAL AND RECIEVED ${instruction.args[0]} INSTEAD!`)
                         }
                         break
+                    case 'global_data8':
+                        globals[instruction.args[0]] = bytePointer
+                        bytePointer += instruction.args.slice(2, -1).length
                     case 'data8':
                         labels[instruction.args[0]] = bytePointer
                         bytePointer += instruction.args.slice(2, -1).length
+                        break
+                    case 'global_data16':
+                        globals[instruction.args[0]] = bytePointer
+                        bytePointer += instruction.args.slice(2, -1).length * 2
                         break
                     case 'data16':
                         labels[instruction.args[0]] = bytePointer
@@ -90,7 +97,6 @@ const createLabelLookup = (program, startAddress) => {
                         labels[instruction.args[0]] = decodeVariable(instruction.args[1])
                         break
                 }
-
         }
     }
 
@@ -226,6 +232,7 @@ const assemble = (program, startAddress = 0) => {
                     case 'org':
                         programCounter = fetchVariable(word.args[0]) != undefined ? fetchVariable(word.args[0]) : parseInt(word.args[0].slice(1), 16)
                         break
+                    case 'global_data8':
                     case 'data8':
                         for (var byte of word.args.slice(2, -1)) {
                             var hexValue = byte.slice(1)
@@ -237,6 +244,7 @@ const assemble = (program, startAddress = 0) => {
                             machineCode[programCounter++] = hexValue & 0xff
                         }
                         break
+                    case 'global_data16':
                     case 'data16':
                         for (var byte of word.args.slice(2, -1)) {
                             var hexValue = byte.slice(1)

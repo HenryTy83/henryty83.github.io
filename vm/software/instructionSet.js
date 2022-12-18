@@ -466,6 +466,20 @@ const instructionSet = {
         mnemonic: 'rts',
         args: []
     },
+
+    rti: {
+        opcode: 0x57,
+        length: 1,
+        mnemonic: 'rti',
+        args: []
+    },
+
+    int: {
+        opcode: 0x58,
+        length: 3,
+        mnemonic: 'int',
+        args: ['ADDRESS']
+    },
 }
 
 // for developer use only, delete or comment when done /*
