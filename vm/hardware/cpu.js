@@ -30,6 +30,7 @@ class CPU {
         // flags
         this.halted = false
         this.interrupting = false
+        this.pendingInterrupt = false
         this.poweredOn = false
 
         this.irq = 0
@@ -72,9 +73,8 @@ class CPU {
     }
 
     fetchByte() {
-        var pcAddress = this.getRegIndex('PC') * 2
-        var PC = this.getReg(pcAddress)
-        this.setReg(pcAddress, PC + 1)
+        var PC = this.readReg('PC')
+        this.writeReg('PC', PC + 1)
 
         return this.memory.getUint8(PC)
     }
@@ -132,24 +132,10 @@ class CPU {
         // this.hexDump()
     }
 
-    enterInterrupt(address) {
-        for (var i=0; i<this.registerNames.length; i+=2) {
-            this.push(this.getReg(i))
-        }
-
-        this.subroutine(address)
-    }
-
-    returnInterrupt() {
-        this.returnSubroutine()
-        for (var i=0; i<this.registerNames.length; i+=2) {
-            this.setReg(this.registerNames.length-i, this.pop())
-        }
-    }
-    
     requestInterrupt(id) {
-        if (this.irq == 0) {
-            this.irq = id + 1
+        if (!this.pendingInterrupt) {
+            this.irq = id
+            this.pendingInterrupt = true
             return true
         }
 
@@ -157,9 +143,51 @@ class CPU {
     }
 
     checkInterrupt() {
-        if ((this.readReg('IM') &  (1 << (this.irq))) != 0) {
-            this.enterInterrupt(this.memory.getUint16(this.interruptVector + 2*(this.irq-1)))
+        if (!this.interrupting && (this.readReg('IM') & (1 << this.irq)) != 0) {
+            // console.log(`Interrupting with status ${this.irq - 1}, jumping to $${(this.interruptVector + 2 * (this.irq - 1)).toString(16).padStart(4, '0')}`)
+            this.pendingInterrupt = false
+            this.enterInterrupt(this.memory.getUint16(this.interruptVector + 2 * this.irq))
         }
+    }
+
+    enterInterrupt(address) {
+        // this.hexDump()
+
+        for (var i in this.registerNames) {
+            if (!['SP', 'FP'].includes(this.registerNames[i])) {
+                // console.log(`Saving ${this.registerNames[i]}`)
+                this.push(this.getReg(i))
+            }
+        }
+
+        this.push(this.readReg('FP'))
+        this.writeReg('FP', this.readReg('SP'))
+        this.push(this.readReg('PC'))
+
+        this.writeReg('PC', address)
+        this.interrupting = true
+    }
+
+    returnInterrupt() {
+        // this.hexDump()
+
+        this.writeReg('SP', this.readReg('FP') - 2)
+        var returnAddress = this.pop()
+        this.writeReg('FP', this.pop())
+
+        // this.hexDump()
+
+        for (var i in this.registerNames) {
+            if (!['SP', 'FP'].includes(this.registerNames[i])) {
+                // console.log(`Restoring ${this.registerNames[i]}`)
+                this.setReg(this.registerNames.length - i - 1, this.pop())
+            }
+        }
+
+        this.writeReg('PC', returnAddress)
+        this.interrupting = false
+
+        // this.hexDump()
     }
 
     run() {
@@ -189,7 +217,7 @@ class CPU {
         this.writeReg('1', 1)
         this.writeReg('0', 0)
 
-        if (!this.interrupting && this.irq != 0)  {
+        if (this.pendingInterrupt) {
             this.checkInterrupt()
         }
     }
@@ -532,15 +560,18 @@ class CPU {
             case instructionSet.rti.opcode:
                 this.returnInterrupt()
                 return
+            case instructionSet.int.opcode:
+                this.enterInterrupt(this.fetchWord())
+                return
         }
 
         console.error(`EXECUTION ERROR: UNKNOWN OPCODE $${instruction.toString(16).padStart(2, '0')}`)
     }
 
-    memoryDump(address, bytesToDump = 16) {
+    memoryDump(address, bytesToDump = 16, groupBy8not16 = true) {
         var contents = ''
         for (let i = 0; i < bytesToDump; i++) {
-            contents += `${this.memory.getUint8(address + i).toString(16).padStart(2, '0')} `
+            contents += `${(groupBy8not16 ? this.memory.getUint8(address + i) : this.memory.getUint16(address + (i * 2))).toString(16).padStart(groupBy8not16?2:4, '0')} `
         }
 
         return contents.slice(0, -1)
@@ -551,7 +582,8 @@ class CPU {
         var contents = `Time elapsed: ${this.cycles}\n\nRegisters:\n`
 
         for (let i in this.registerNames) {
-            contents += `${`${`${this.registerNames[i]}:`.padEnd(4, ' ')} $${this.getReg(i).toString(16).padStart(4, '0')}`.padEnd(13, ' ')} ${['CLK', 'NUL', 'IM', '0', '1'].includes(this.registerNames[i]) ? `` : `memory at $${this.getReg(i).toString(16).padStart(4, '0')}: ${this.memoryDump(this.getReg(i), this.registerNames[i] == 'SP' ? 16 : 8)}`}\n`
+            contents +=
+                `${`${`${this.registerNames[i]}:`.padEnd(4, ' ')} $${this.getReg(i).toString(16).padStart(4, '0')}`.padEnd(13, ' ')} ${['CLK', 'NUL', '0', '1'].includes(this.registerNames[i]) ? `` : `memory at $${(this.registerNames[i] == 'IM' ? this.interruptVector : this.getReg(i)).toString(16).padStart(4, '0')}: ${this.memoryDump((this.registerNames[i] == 'IM' ? this.interruptVector : this.getReg(i)), ['SP', 'IM'].includes(this.registerNames[i]) ? 16 : 8, this.registerNames[i] != 'IM')}`}\n`
             // debug functions dont need to be pretty
             // this hurts my eyes
         }
@@ -575,8 +607,8 @@ class CPU {
         for (var i = 0; i <= 0xffff; i += 8) {
             var nextLine = this.memoryDump(i, 8)
             var address = `$${(i).toString(16).padStart(4, '0')}:`
-            if (previousLine != nextLine) { 
-                output +=  `${address} ${nextLine}\n`
+            if (previousLine != nextLine) {
+                output += `${address} ${nextLine}\n`
                 previousLine = nextLine
             }
         }

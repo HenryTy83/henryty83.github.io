@@ -6,7 +6,7 @@ class Mapping {
 
     findCorrespondingRegion(address) {
         for (var region of this.regions) {
-            if (region.start <= address && address <= region.end) {
+            if (region.start <= address && address < region.end) {
                 return region
             }
         }

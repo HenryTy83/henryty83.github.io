@@ -16,9 +16,15 @@ DOSfont.load().then(function (font) { //what the hell is a promise
     ctx.font = defaultFont
     ctx.textAlign = 'start'
 
-    console.log('LOAD SUCCESSFUL. POWERING ON...')
+    try {
+        button.style.backgroundColor = 'rgb(255, 0, 0)'
+    }
+    catch (err) { 
+        setTimeout(Window.location.reload, 1000)
+        throw new Error(`LOAD FAILED, RESTARTING...`)
+    }
 
-    button.style.backgroundColor = 'rgb(255, 0, 0)'
+    console.log('LOAD SUCCESSFUL. POWERING ON...')
 
     cpu.startup()
 });

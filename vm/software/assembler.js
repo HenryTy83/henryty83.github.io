@@ -19,6 +19,7 @@ const findLengthOfInstruction = (args) => {
         'REGISTER': 1,
         'ADDRESS': 2,
         'VARIABLE': 2,
+        'PARENTHESES': 2,
         'LITERAL': 2
     }
 
@@ -74,18 +75,18 @@ const createLabelLookup = (program, startAddress) => {
                         break
                     case 'global_data8':
                         globals[instruction.args[0]] = bytePointer
-                        bytePointer += instruction.args.slice(2, -1).length
+                        bytePointer += parseInt(instruction.args.slice(2, -1).length)
                     case 'data8':
                         labels[instruction.args[0]] = bytePointer
-                        bytePointer += instruction.args.slice(2, -1).length
+                        bytePointer += parseInt(instruction.args.slice(2, -1).length)
                         break
                     case 'global_data16':
                         globals[instruction.args[0]] = bytePointer
-                        bytePointer += instruction.args.slice(2, -1).length * 2
+                        bytePointer += parseInt(instruction.args.slice(2, -1).length * 2)
                         break
                     case 'data16':
                         labels[instruction.args[0]] = bytePointer
-                        bytePointer += instruction.args.slice(2, -1).length * 2
+                        bytePointer += parseInt(instruction.args.slice(2, -1).length * 2)
                         break
                     case 'global_label':
                         globals[instruction.args[0].slice(0, -1)] = bytePointer
@@ -172,15 +173,16 @@ const assemble = (program, startAddress = 0) => {
             if (expression[i][0] == '$') {
                 expression[i] = parseInt(expression[i].slice(1), 16)
             } else if (expression[i] == '(') {
-                for (var j = parseInt(i) + 1; j < expression.length; j++) {
+                for (var j = expression.length; j > i; j--) {
                     if (expression[j] == ')') {
                         expression.splice(i, 0, parseBracket(expression.splice(i, j + 1).slice(1, -2).join(' ')))
                     }
                 }
-            } else if ('01233456789'.includes(expression[i])) {
+            } else if (!isNaN(parseInt(expression[i]))) {
                 expression[i] = parseInt(expression[i])
+            } else if ('+-*/'.includes(expression[i])) { 
+                
             } else {
-
                 var lookedUp = fetchVariable(expression[i].slice(1))
                 if (lookedUp != undefined) {
                     expression[i] = lookedUp
@@ -261,7 +263,11 @@ const assemble = (program, startAddress = 0) => {
                 }
                 break
             case 'INSTRUCTION':
-                expectedArguments = word.args.map(token => token.type == 'VARIABLE' ? "LITERAL" : token.type)
+                expectedArguments = word.args.map(token => { 
+                    if (token.type == 'VARIABLE') return 'LITERAL'
+                    else if (token.type == 'PARENTHESES') return 'LITERAL'
+                    return token.type
+                })
 
                 var possibleCommands = findByMnemonic(word.value)
                 if (possibleCommands == []) {
@@ -281,6 +287,7 @@ const assemble = (program, startAddress = 0) => {
 
                     switch (argument.type) {
                         case 'ADDRESS':
+                        case 'PARENTHESES':
                             var address = parseBracket(argument.value.value)
                             machineCode[programCounter++] = (address & 0xff00) >> 8
                             machineCode[programCounter++] = address & 0x00ff
@@ -310,7 +317,7 @@ const assemble = (program, startAddress = 0) => {
 }
 
 const loadProgram = (memory, startAddress = 0) => (code) => {
-    var i=0
+    var i = 0
     for (var byte in code) {
         memory.setUint8(parseInt(byte) + startAddress, code[byte])
         i++

@@ -4,74 +4,82 @@
 .global _memory_map-screen_address $8000
 .global _memory_map-hard_drive $c000
 
-.global _hardware-default_stack_pointer $7ffe
-.global _hardware-interrupt_vector $7fe0
+.global _hardware-default_stack_pointer $7fde
+.global _hardware-interrupt_vector-keyboard $7fe0
+.global _hardware-interrupt_vector-sleep_timer $7fe0
 
 .org $a000
 .global_label _memory_map-rom:
 bootloader-start:
 //                                               mask all interrupts
-mov 0 [!_hardware-interrupt_vector]
+mov 0, IM
 //                                               set the stack pointer
-mov !_hardware-default_stack_pointer SP
+mov !_hardware-default_stack_pointer, SP
+
 //                                               load a program from sector 0
-mov 0 x
-mov 0 y
+mov $ffff, CLK
+mov (!_memory_map-hard_drive + $01), x
+mov 0, y
+cal &0, [!_program-bootloader-load_program]
+mov 1, CLK
 
-mov $ffff CLK
-cal &1 [!_program-bootloader-load_program]
-mov 1 CLK
+//                                               set up an interrupt to reset on key press
+mov !_software-reset, [!_hardware-interrupt_vector-keyboard]
+mov $ffff, IM
 
-mov [!_function-break] [!_hardware-interrupt_vector]
-mov $ffff IM
-
-mov &SP PC
+mov &SP, PC
 hlt
 
 
-//                                               loading a program: (x, y, cal) = (sector_number, target_addr, source_addr)
+//                                               loading a program: (x, y, cal) = (target_addr, source_addr, sector_number)
 .global_label _program-bootloader-load_program:
 //                                               mask all interrupts
-mov 0 [!_hardware-interrupt_vector]
-//                                               pass in arguments
-mov x [!_memory_map-hard_drive]
-mov &FP d
-mov !_memory_map-hard_drive x
-add d x
+psh IM
+mov 0, IM
 
-//                                               set x (source) y (target) pointers
-mov acc x
+//                                               pass in argument
+mov &FP, mar
+mov mar, [!_memory_map-hard_drive]
 
 //                                               program should be prefixed its length, store it to count down
-mov &x acc
-add acc x
-mov &acc w
-mov &x acc
+mov &x, acc
+add acc, $02
+cal &acc, [!_program-mov_data]
 
-//                                               copy the source to the target
-bootloader-copy_loop:
-mov &x d
-mov d &y
-
-//                                               advance pointers
-inc x
-inc x
-inc y
-inc y
-
-//                                               stop when we reach the end
-dec acc
-dec acc
-jgz [!bootloader-copy_loop]
-
-//                                               return value is the address of the start of the copied program
-mov w &FP
+mov &SP, y
+mov &y, acc
+add acc, y
+mov &acc, mar
+mov mar, &FP
 rts
-hlt
 
 
-//                                               setting up a break command
-.global_label _function-break:
+//                                               copy a string from one memory location to the other: (x, y, cal) -> mov &x, &y (cal times)
+.global_label _program-mov_data:
+psh IM
+mov 0, IM
+
+mov &FP, acc
+mov y, &FP
+
+_program-mov_data-loop:
+mov &x, d
+mov d, &y
+
+inc x
+inc x
+inc y
+inc y
+
+sub acc, $02
+jgz [!_program-mov_data-loop]
+
+pop IM
+rts
+
+
+//                                               reset interrupt
+.global_label _software-reset:
 pop NUL
 psh !bootloader-start
 rti

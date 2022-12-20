@@ -4,28 +4,28 @@
 .def chars_per_row $4e
 
 start:
-mov SP x
+mov SP, x
 psh 0
 
 move_right:
-cal &x [!call_draw]
-mov &SP x
+cal &x, [!call_draw]
+mov &SP, x
 
-mov &x acc
+mov &x, acc
 inc acc
-mov acc &x
+mov acc, &x
 
-jlt $42 [!move_right]
+jlt $42, [!move_right]
 
 // cal [$0a] [!delay]
 
 move_left:
-cal &x [!call_draw]
-mov &SP x
+cal &x, [!call_draw]
+mov &SP, x
 
-mov &x acc
+mov &x, acc
 dec acc
-mov acc &x
+mov acc, &x
 
 jnz [!move_left]
 
@@ -34,10 +34,10 @@ jmp [!move_right]
 
 
 call_draw:
-mov $ffff CLK
-mov $ffff [!_memory_map-screen_address]
-cal &x [!draw_column]
-mov $07 CLK
+mov $ffff, CLK
+mov $ffff, [!_memory_map-screen_address]
+cal &x, [!draw_column]
+mov $07, CLK
 
 // cal &1 [!delay]
 
@@ -46,9 +46,9 @@ rts
 
 delay:
 psh CLK
-mov 1 CLK
+mov 1, CLK
 
-mov &FP acc
+mov &FP, acc
 delay_wait:
 dec acc
 jgz [!delay_wait]
@@ -57,39 +57,39 @@ pop CLK
 rts
 
 draw_column:
-mov 0 d
+mov 0, d
 
 draw_column_loop:
-sub $0f d
-shl acc $4
-mov !_memory_map-screen_address y
-mov acc &y
+sub $0f, d
+shl acc, $4
+mov !_memory_map-screen_address, y
+mov acc, &y
 
-mul d !chars_per_row
-add acc y
-mov &FP w
-mov &w w
-add acc w
-mov acc y
+mul d, !chars_per_row
+add acc, y
+mov &FP, w
+mov &w, w
+add acc, w
+mov acc, y
 inc y
 
 psh d
-cal &y [!draw_string]
+cal &y, [!draw_string]
 pop d
 
 inc d
-sub d $10
+sub d, $10
 jnz [!draw_column_loop]
 rts
 
 draw_string:
-mov &FP x
-mov !hello_world_string y
+mov &FP, x
+mov !hello_world_string, y
 
 draw_string_loop:
-mov &y acc
+mov &y, acc
 jez [!draw_string_end]
-mov acc &x
+mov acc, &x
 inc x
 inc y
 inc y

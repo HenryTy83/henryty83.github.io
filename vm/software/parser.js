@@ -35,6 +35,8 @@ class Arksecond {
         switch (type) { 
             case 'COMMENT':
                 return new Token(type, line.join(' '))
+            case 'PARENTHESES':
+                return new Token(type, new Token('PARENTHESES', name.slice(1, -1)))
             case 'ADDRESS':
                 return new Token(type, new Token('BRACKET', name.slice(1, -1)))
             case 'LITERAL':
@@ -56,19 +58,20 @@ class Arksecond {
                 break
         }
 
-        return line.length == 1 ? new Token(type, name) : new Token(type, name, line.slice(1).map(arg => this.parse([arg])))
+        return line.length == 1 ? new Token(type, name) : new Token(type, name, line.slice(1).join(' ').split(/,\s*/).map(arg => this.parse([arg])))
     }
 
     read(text) {   
         const program = []
 
-        for (var line of text) {
+        for (var lineNumber in text) {
+            var line = text[lineNumber]
             var commands = line.split(' ')
 
             if (commands[0] != '') {
                 try { program.push(this.parse(commands)) }
                 catch (err) {
-                    throw new Error(`PARSING ERROR: Recieved error '${err}' when reading line '${commands}'`)
+                    throw new Error(`PARSING ERROR: Recieved error '${err}' when reading line ${parseInt(lineNumber) + 1}: '${line}'`)
                 }
             }
         }
@@ -87,6 +90,7 @@ class Arksecond {
             '/': 'COMMENT',
             '.': 'KEYWORD',
             '{': 'DATA',
+            '(': 'PARENTHESES'
         }
 
         var startType = typesLookup[word[0]]
