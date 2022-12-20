@@ -37,6 +37,7 @@ class Keyboard {
     }
 
     getUint16 = (_) => {
+        // console.log(this.lastTyped)
         return this.lastTyped & 0xffff
     }
     setUint16 = (_) => 0

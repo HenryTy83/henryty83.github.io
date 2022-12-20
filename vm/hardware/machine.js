@@ -42,7 +42,7 @@ loadProgram(cpu.memory, 0)(assemble(Parser.read(loadFile('./programs/bootloader.
 rom.memory.setUInt16 = () => 0
 rom.memory.setUint8 = () => 0
 
-writeProgram(cpu, 0xc001, 'functionWorld.jsm', 0)
+writeProgram(cpu, 0xc001, 'JS-WORD.jsm', 0)
 
 var clockSpeed = cpu.readReg('CLK')
 

@@ -178,7 +178,7 @@ class CPU {
         // this.hexDump()
 
         for (var i in this.registerNames) {
-            if (!['SP', 'FP'].includes(this.registerNames[i])) {
+            if (!['SP', 'FP'].includes(this.registerNames[this.registerNames.length - i - 1])) {
                 // console.log(`Restoring ${this.registerNames[i]}`)
                 this.setReg(this.registerNames.length - i - 1, this.pop())
             }

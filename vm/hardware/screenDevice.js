@@ -20,7 +20,7 @@ DOSfont.load().then(function (font) { //what the hell is a promise
         button.style.backgroundColor = 'rgb(255, 0, 0)'
     }
     catch (err) { 
-        setTimeout(Window.location.reload, 1000)
+        Window.location.reload()
         throw new Error(`LOAD FAILED, RESTARTING...`)
     }
 
@@ -85,7 +85,7 @@ const displayScreen = () => {
 
 const createScreenOutput = () => {
     return {
-        getUint16: (address) => VRAMinstructions[address] != undefined ? VRAMinstructions[address][1] : 0,
+        getUint16: (address) => VRAMinstructions[address] != undefined ? VRAMinstructions[address][1] : (' ').charCodeAt(0),
         getUint8: () => 0,
         setUint16: (address, data) => {
             if (address == 0) {
