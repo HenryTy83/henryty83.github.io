@@ -20,8 +20,8 @@ DOSfont.load().then(function (font) { //what the hell is a promise
         button.style.backgroundColor = 'rgb(255, 0, 0)'
     }
     catch (err) { 
-        Window.location.reload()
-        throw new Error(`LOAD FAILED, RESTARTING...`)
+        console.error(`LOAD FAILED, RESTARTING...`)
+        this.location.reload()
     }
 
     console.log('LOAD SUCCESSFUL. POWERING ON...')

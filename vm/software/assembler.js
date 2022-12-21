@@ -131,7 +131,7 @@ const arraysEqual = (a, b) => {
 
 const assemble = (program, startAddress = 0) => {
     const variables = createLabelLookup(program, startAddress)
-    // console.log(variables)
+    console.log(variables)
     var programCounter = startAddress
     const machineCode = {}
 

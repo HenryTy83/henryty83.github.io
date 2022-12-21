@@ -8,7 +8,7 @@
 
 .global _hardware-default_stack_pointer $7fde
 .global _hardware-interrupt_vector-keyboard $7fe0
-.global _hardware-interrupt_vector-sleep_timer $7fe0
+.global _hardware-interrupt_vector-sleep_timer $7fe2
 
 .org $a000
 .global_label _memory_map-rom:
