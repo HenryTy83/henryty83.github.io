@@ -1,36 +1,44 @@
 .data16 start { !reset_vector }
 
 _function-main:
-mov $fff, CLK
+mov $ffff, CLK
 mov !_function-key_typed, [!_hardware-interrupt_vector-keyboard]
-mov (!cursor_pos + $02), [!cursor_pos]
-mov !cursor_blink_time, [!cursor_character]
+mov $ffff, IM
+mov !text_field, [!cursor_pos]
+mov $20, [!text_field]
+mov 0, [!text_field + $02]
+mov $02, [!text_length]
+mov !cursor_blink_time, [!cursor_character_status]
 
 _function-main-loop:
 mov $f000, [!_memory_map-screen_address]
 mov $00f0, [!_memory_map-screen_address]
-mov (!cursor_pos + $02), x
+mov (!text_field), x
 mov (!_memory_map-screen_address + $01), y
-cal &0, [!_function-display_text_to_screen]
-cal $08, [!_function-sleep]
-mov [!cursor_character_status], x
-dec x
-jgz [!_function-main-loop-update_blink_timer]
-mov !cursor_blink_time, x
+cal &NUL, [!_function-display_text_to_screen]
+
+_function-main-sleep:
+mov [!_memory_map-sleep_timer], acc
+jlt !frame_sleep, [!_function-main-sleep]
+mov 0, [!_memory_map-sleep_timer]
+
+mov [!cursor_character_status], acc
+dec acc
+mov acc, [!cursor_character_status]
+jgz [!_function-main-loop]
+
+mov !cursor_blink_time, [!cursor_character_status]
 mov [!cursor_character], acc
 sub !cursor_character_template, acc
 mov acc, [!cursor_character]
-_function-main-loop-update_blink_timer:
-mov x, [!cursor_character_status]
-mov $ffff, acc
-_function-main-loop-busy_wait:
-dec acc
-jgz [!_function-main-loop-busy_wait]
 jmp [!_function-main-loop]
 
-.def cursor_blink_time $01
-.def cursor_character_template $25af
-.data16 cursor_character { $0000 }
+
+.def frame_sleep $03
+.def cursor_blink_time $08
+
+.def cursor_character_template $25ae
+.data16 cursor_character { !cursor_character_template }
 .data16 cursor_character_status { $0000 }
 
 .def chars_per_row $4e
@@ -77,13 +85,17 @@ rts
 .def key-down_arrow $e002
 .def key-left_arrow $e003
 .def key-insert $e004
+.def key-escape $001b
 
 _function-key_typed:
 mov [!cursor_pos], x
 mov [!_memory_map-keyboard], d
+sub !key-escape, d
+jez [!_function-break]
+mov [!_memory_map-keyboard], d
 sub !key-backspace, d
 jnz [!_function-key_typed-is_insert]
-mov &x, acc
+sub x, (!cursor_pos + $02)
 jez [!_function-key_typed-rti]
 cal &x, [!_function-delete_char_and_shift]
 rti
@@ -103,7 +115,7 @@ jmp [!_function-key_typed-end]
 _function-key_typed-is_up_arrow:
 sub !key-up_arrow, d
 jnz [!_function-key_typed-is_right_arrow]
-cal &0, [!_function-find_previous_newline]
+cal &NUL, [!_function-find_previous_newline]
 mov &FP, x
 jmp [!_function-key_typed-end]
 _function-key_typed-is_right_arrow:
@@ -113,23 +125,50 @@ mov &x, acc
 jez [!_function-key_typed-rti]
 inc x
 inc x
+mul d, !chars_per_row
+jgt acc, [!_function-key_typed-end]
+inc d
 jmp [!_function-key_typed-end]
 _function-key_typed-is_down_arrow:
 sub !key-down_arrow, d
 jnz [!_function-key_typed-no_special_keys]
-cal &0, [!_function-find_next_newline]
+cal &NUL, [!_function-find_next_newline]
 mov &FP, x
 jmp [!_function-key_typed-end]
 _function-key_typed-no_special_keys:
 mov d, &x
 inc x
 inc x
+cal &NUL, [!_function-increment_text_length]
 _function-key_typed-end:
 mov x, [!cursor_pos]
 _function-key_typed-rti:
 rti
 
+_function-break:
+rti
+
+
+.data16 save_data_location { $ffff, $0000 }
+
+_function-save_text:
+mov [!save_data_location], mar
+mov [!save_data_location + $02], y
+mov !text_length, x
+cal &mar, [!_function-mov_data]
+rts
+
 // helper functions
+_function-increment_text_length:
+mov [!text_length], acc
+add acc, $02
+mov acc, [!text_length]
+rts
+_function-decrement_text_length:
+mov [!text_length], acc
+sub acc, $02
+mov acc, [!text_length]
+rts
 _function-delete_char_and_shift:
 mov &FP, x
 add x, $02
@@ -143,6 +182,7 @@ inc y
 inc y
 jmp [!_function-delete_char_and_shift-loop]
 function-delete_char_and_shift-end:
+cal &NUL, [!_function-decrement_text_length]
 rts
 _function-insert_space_and_unshift:
 mov &FP, x
@@ -157,6 +197,7 @@ mov acc, d
 jmp [!_function-insert_space_and_unshift-loop]
 function-insert_space_and_unshift-end:
 mov 0, &x
+cal &NUL, [!_function-increment_text_length]
 rts
 _function-find_previous_newline:
 mov x, acc
@@ -179,27 +220,8 @@ _function-find_next_newline-end:
 mov x, &FP
 rts
 
-
-.global_label _function-sleep:
-mov &FP, d
-mov [!_hardware-interrupt_vector-sleep_timer], w
-mov !timer_expired, [!_hardware-interrupt_vector-sleep_timer]
-psh CLK
-mov $0f, CLK
-mov d, [!_memory_map-sleep_timer]
-_function-sleep-wait:
-jmp [!_function-sleep-wait]
-_function-sleep-done:
-mov w, [!_hardware-interrupt_vector-sleep_timer]
-pop CLK
-rts
-timer_expired:
-pop NUL
-psh !_function-sleep-done
-rti
-
-
 .data16 reset_vector { !_function-main }
 
 .data16 cursor_pos { $0000 }
+.data16 text_length { $0000 }
 .data16 text_field { $0000 }

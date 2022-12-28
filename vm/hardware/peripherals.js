@@ -33,7 +33,8 @@ class Keyboard {
             'ArrowRight': 0xe001,
             'ArrowDown': 0xe002,
             'ArrowLeft': 0xe003,
-            'Insert': 0xe004
+            'Insert': 0xe004,
+            'Escape': 0x001b
         }
 
         var specialKeyCode = keyCodeLookup[event.key]
@@ -74,13 +75,15 @@ class Keyboard {
     setUint8 = (_) => 0
 }
 
-var currentTimer = 0
-const SleepTimer = (id, sleepTime = 10) => ({
-    getUint16: (address) => currentTimer % (0xffff + 1),
+
+var sleepCounter = 0
+var running = false
+const SleepTimer = (id, sleepTime = 100) => ({
+    getUint16: (address) => sleepCounter % (0xffff + 1),
     getUint8: (address) => 0,
     setUint16: (address, value) => {
-        currentTimer = value
-        setTimeout(function wait() { if (!cpu.requestInterrupt(id)) {setTimeout(wait, sleepTime)} }, currentTimer * 10)
+        sleepCounter = value
+        if (!running) setInterval(() => sleepCounter++, sleepTime)
     },
     setUint8: (address, value) => 0,
 })

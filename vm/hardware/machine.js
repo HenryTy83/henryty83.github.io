@@ -44,8 +44,6 @@ rom.memory.setUint8 = () => 0
 
 writeProgram(cpu, 0xc001, 'JS-WORD.jsm', 0)
 
-var clockSpeed = cpu.readReg('CLK')
-
 const runCPU = () => {
     if (fadeInTime < 0) {
         for (var i = 0; i < cpu.readReg('CLK'); i++) {
