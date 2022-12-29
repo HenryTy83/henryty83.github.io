@@ -1,7 +1,7 @@
 let seed
 let letters = 'abcdefghijklmnopqrstuvwxyz'
 let vowels = 'aeiou'
-let consonants = 'bcdfghijklmnpqrstvwxyz'
+let consonants = 'bcdfghjklmnpqrstvwxyz'
 let screen = 0;
 let roundTimer;
 let score = 0;
@@ -84,10 +84,10 @@ function generateSeed() {
         }
 
         output += roundSeed
-        doubleId = round(random(9))
+        doubleId = round(random(8))
         tripleId = doubleId
 
-        while (tripleId == doubleId) { tripleId = round(random(9)) }
+        while (tripleId == doubleId) { tripleId = round(random(8)) }
 
         output += doubleId
         output += tripleId
@@ -131,8 +131,8 @@ function generateNextSeed(lastSeed) {
             newSeed += encrypt(roundSeed[i], conEncryption, vowelEncryption)
         }
 
-        newSeed += (((parseInt(roundSeed[roundSeed.length - 2]) + 1) * 7) % 9) + 1
-        newSeed += (((parseInt(roundSeed[roundSeed.length - 1]) + 1) * 7) % 9) + 1
+        newSeed += (((parseInt(roundSeed[roundSeed.length - 2]) + 1) * 7) % 9)
+        newSeed += (((parseInt(roundSeed[roundSeed.length - 1]) + 1) * 7) % 9)
     }
 
     var lastWordID = parseInt(lastSeed.slice(11 * 5, 11 * (5 + 1)))
@@ -176,7 +176,7 @@ function draw() {
             board = []
             roundSeed = decodeSeed(floor(screen / 2) - 1)
             generateLetters(roundSeed, floor(screen / 2) - 1 == 4)
-            roundTimer = 45
+            roundTimer = 42
         case 2:
         case 4:
         case 6:
