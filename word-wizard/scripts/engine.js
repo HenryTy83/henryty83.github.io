@@ -104,7 +104,7 @@ function gameplay() {
             push()
             translate(width/2+60, 135)
             var angle = -lerp(0, 2*PI, roundTimer/42)
-            fill(lerpColor(color(0, 255, 0), color(200, 0, 0), 1-roundTimer/42))
+            fill(roundTimer > 7 ? lerpColor(color(0, 255, 0), color(252, 127, 3), 1-(roundTimer-7)/(42)) : frameCount % 2 == 0 ? color(252, 127, 3) : color(200, 0, 0))
             arc(0, 0, 70, 70, 0-PI/2, angle-PI/2)    
             rotate(angle)
             fill(0)
