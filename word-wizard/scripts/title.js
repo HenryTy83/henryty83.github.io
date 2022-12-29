@@ -1,12 +1,14 @@
 let titlebuttons = []
 
 function titleSetup() {
-    titlebuttons.push(new button(550, 300, 100, 40, color(255, 0, 0), color(255), "PLAY", 600, 330, function() {screen = 1}))
-    titlebuttons.push(new button(500, 400, 200, 50, color(255, 0, 0), color(255), "NEW GAME", 600, 435, function() {generateSeed()}))
-    winButtons.push(new button(490, 300, 220, 50, color(255, 0, 0), color(255), "PLAY AGAIN", 600, 330, function() {generateSeed()}))
+    titlebuttons.push(new button(width/2, 300, 800, 40, color(255, 0, 0), color(255), "PLAY (SHARE THE LINK TO PLAY WITH FRIENDS)", function() {screen = 1}))
+    titlebuttons.push(new button(width/2, 400, 500, 50, color(255, 0, 0), color(255), "GENERATE NEW GAME-CODE", function() {generateSeed()}))
+    winButtons.push(new button(width/2, height/2, 220, 50, color(255, 0, 0), color(255), "PLAY AGAIN", function() {generateNextSeed(seed)}))
 }
 
 function title() {
+    if (!titleSong.isPlaying())titleSong.play()
+
     textSize(100)
     fill(255)
     push()
@@ -22,12 +24,13 @@ function title() {
 
     textSize(10)
     fill(255)
-    text('© Henry Ty 2021', 60, height - 20)
+    text('© Henry Ty 2021-2', 60, height - 20)
 }
 
 let winButtons = []
 
 function winScreen() {
+    if (!endSong.isPlaying())endSong.play()
     textSize(100)
     fill(255)
     push()

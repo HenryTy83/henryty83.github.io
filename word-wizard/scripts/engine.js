@@ -5,13 +5,16 @@ class letter {
         this.value = value
         this.text = value.toUpperCase()
         this.score = parseInt(score)
+        this.multiplier = 1
     }
 
     display() {
-        fill(255)
+        rectMode(CORNER)
+        fill([color(255, 255,255), color(150, 150, 150), color(255, 208, 0)][this.multiplier - 1])
         rect(this.pos.x, this.pos.y, 100, 100, 10)
         fill(0)
         textSize(75)
+        textAlign(CENTER, BASELINE)
         text(this.text, this.pos.x + 55, this.pos.y + 80)
     }
 
@@ -28,14 +31,32 @@ class letter {
 
 const dummyTile = new letter(-100, -100, 'null', null)
 
-function generateLetters(seed) {
+function generateLetters(seed, fifth=false) {
     tiles = []
-    for (let i = 0; i < seed.length; i++) {
+
+    if (fifth) {
+        for (let i = 0; i < seed.length; i++) {
+            c = seed[i]
+            tiles.push(new letter(600, -10, c, 1))
+            tiles[tiles.length - 1].Tpos.y = 400
+            tiles[tiles.length - 1].Tpos.x = 50 + 120 * i
+        }
+
+        return
+    }
+
+    for (let i = 0; i < seed.length-2; i++) {
         c = seed[i]
         tiles.push(new letter(600, -10, c, 1))
         tiles[tiles.length - 1].Tpos.y = 400
         tiles[tiles.length - 1].Tpos.x = 50 + 120 * i
     }
+
+
+    tiles[seed[seed.length-2]].score *= 2
+    tiles[seed[seed.length-2]].multiplier = 2
+    tiles[seed[seed.length-1]].score *= 3
+    tiles[seed[seed.length-1]].multiplier = 3
 }
 
 let done = false
@@ -44,18 +65,55 @@ let guess;
 let guessScore;
 
 function gameplay() {
-    roundTimer -= 60/getFrameRate()
-    if (!done) {
+    roundTimer -= 1/getFrameRate()
+    if (!done) {    
         stroke(255)
         strokeWeight(3)
         fill(0)
         textSize(30)
-        text(screen == 10 ? 'Find the 9-letter word!' : 'Make the longest word!', width/2, 100)
-        text('Round ' + parseInt(screen / 2).toString() + '/5', 600, 200)
-        text(ceil(roundTimer / 60) + ' seconds left', 900, 200)
+        text(screen == 10 ? 'Find the 9-letter word!' : 'Make the longest word!', width/2, 50)
         textSize(50)
-        textAlign(LEFT)
-        text('Score: ' + score, 100, 200)
+        textAlign(LEFT, TOP)
+        text('Score: ' + score, 100, 150)
+        noStroke()
+
+        function displayHUD() {
+            fill(100)
+            stroke(255)
+        
+            rectMode(CENTER)
+            rect(width/2, 135, 20, 25)
+            rect(width/2 + 60, 85, 10, 25)
+            rect(width/2 + 60, 72.5, 30, 10)
+        
+            circle(width/2 - 60, 135, 100)
+            circle(width/2 + 60, 135, 100)
+        
+            fill(200)
+            circle(width/2 - 60, 135, 80)
+            circle(width/2 + 60, 135, 80)
+        
+            textAlign(CENTER)
+            textSize(18)
+            noStroke()
+            fill(0)
+            text(`Round`, width/2 - 60, 110)
+            textSize(30)
+            text(`${screen/2}/5`, width/2 - 60, 130)
+
+            push()
+            translate(width/2+60, 135)
+            var angle = -lerp(0, 2*PI, roundTimer/45)
+            fill(lerpColor(color(0, 255, 0), color(255, 0, 0), 1-roundTimer/45))
+            arc(0, 0, 70, 70, 0-PI/2, angle-PI/2)    
+            rotate(angle)
+            fill(0)
+            triangle(-5, 0, 5, 0, 0, -35)        
+            pop()
+        }
+
+        displayHUD()
+        rectMode(CORNER)
         textAlign(CENTER)
         noStroke()
 
@@ -66,12 +124,12 @@ function gameplay() {
 
         for (tile of tiles) {
             tile.display()
-            tile.update(80)
+            tile.update(300)
         }
 
         for (tile of board) {
             tile.display()
-            tile.update(50)
+            tile.update(300)
         }
 
         if (roundTimer < 0) {
@@ -81,20 +139,20 @@ function gameplay() {
     }
 
     else {
+        textAlign(CENTER)
         fill(0)
         textSize(75)
         stroke(255)
         text('Press enter to continue', width/2, 100)
 
-        textSize(50)
         textAlign(LEFT)
+        textSize(50)
         text('Score: ' + displayScore + '    (' + (correct ? ('+' + guessScore) : ("X")) + ')', 100, 200)
-        textAlign(CENTER)
         noStroke()
 
         for (tile of board) {
             tile.display()
-            tile.update(80)
+            tile.update(20)
         }
 
         if (displayScore < score) {
@@ -104,6 +162,11 @@ function gameplay() {
 }
 
 function genScore() {
+    roundSong.stop()
+    finalRoundSong.stop()
+
+    if (!resultSong.isPlaying())resultSong.play()
+
     done = true
     if (screen == 10) {
         guess = ''
@@ -112,7 +175,7 @@ function genScore() {
         }
         correct = dictionary.includes(guess)
 
-        answer = round5[parseInt(seed.slice(-5))]
+        answer = round5[parseInt(seed.slice(11*4, 11*(4+1)))]
 
         for (let i = 0; i <= 8; i++) {
             board[i] = new letter(600, -100, answer[i], 1)
@@ -155,6 +218,26 @@ function findtile(c) {
     return -1
 }
 
+function findtile3(c) {
+    for (let i in tiles) {
+        if (c == tiles[i].value && tiles[i].multiplier == 3) {
+            return i
+        }
+    }
+
+    return -1
+}
+
+function findtile2(c) {
+    for (let i in tiles) {
+        if (c == tiles[i].value && tiles[i].multiplier == 2) {
+            return i
+        }
+    }
+
+    return -1
+}
+
 function shuffleTiles() {
     for (let i = 0; i < tiles.length - 1 - board.length; i++) {
         choice = floor(random(0, tiles.length - 1 - i - board.length))
@@ -171,7 +254,9 @@ function keyTyped() {
             return
         }
 
-        index = findtile(key)
+        index = findtile3(key)
+        if (index == -1) index = findtile2(key)
+        if (index == -1) index = findtile(key)
         if (index != -1) {
             typed = tiles[index]
             board.push(typed)

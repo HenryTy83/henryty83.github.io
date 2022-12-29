@@ -467,15 +467,29 @@ const instructionSet = {
         args: []
     },
 
-    rti: {
+    brk: {
         opcode: 0x57,
+        length: 3,
+        mnemonic: 'brk',
+        args: ['ADDRESS']
+    },
+
+    rti: {
+        opcode: 0x58,
         length: 1,
         mnemonic: 'rti',
         args: []
     },
 
+    bki: {
+        opcode: 0x59,
+        length: 3,
+        mnemonic: 'bki',
+        args: ['ADDRESS']
+    },
+
     int: {
-        opcode: 0x58,
+        opcode: 0x5a,
         length: 3,
         mnemonic: 'int',
         args: ['ADDRESS']

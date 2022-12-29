@@ -552,8 +552,18 @@ class CPU {
             case instructionSet.rts.opcode:
                 this.returnSubroutine()
                 return
+            case instructionSet.brk.opcode:
+                var newAddress = this.fetchWord()    
+                this.returnSubroutine()
+                this.writeReg('PC', newAddress)  
+                return
             case instructionSet.rti.opcode:
                 this.returnInterrupt()
+                return
+            case instructionSet.bki.opcode:
+                var newAddress = this.fetchWord()    
+                this.returnInterrupt()
+                this.writeReg('PC', newAddress)  
                 return
             case instructionSet.int.opcode:
                 this.enterInterrupt(this.fetchWord())

@@ -70,7 +70,7 @@ const createLabelLookup = (program, startAddress) => {
                     case 'org':
                         bytePointer = parseInt(instruction.args[0].slice(1), 16)
                         if (isNaN(bytePointer)) {
-                            throw new Error(`PARSING ERROR: EXPECTED A LITERAL AND RECIEVED ${instruction.args[0]} INSTEAD!`)
+                            throw new Error(`PARSING ERROR: EXPECTED A LITERAL AND RECIEVED ${instruction.args[0]} INSTEAD`)
                         }
                         break
                     case 'global_data8':
@@ -168,58 +168,65 @@ const assemble = (program, startAddress = 0) => {
 
     const parseBracket = (address) => {
         var expression = address.split(' ')
+        try {
+            if (expression.includes(''))throw new Error('UNEXPECTED WHITESPACE')
 
-        for (var i in expression) {
-            if (expression[i][0] == '$') {
-                expression[i] = parseInt(expression[i].slice(1), 16)
-            } else if (expression[i] == '(') {
-                for (var j = expression.length; j > i; j--) {
-                    if (expression[j] == ')') {
-                        expression.splice(i, 0, parseBracket(expression.splice(i, j + 1).slice(1, -2).join(' ')))
+            for (var i in expression) {
+                if (expression[i][0] == '$') {
+                    expression[i] = parseInt(expression[i].slice(1), 16)
+                } else if (expression[i] == '(') {
+                    for (var j = expression.length; j > i; j--) {
+                        if (expression[j] == ')') {
+                            expression.splice(i, 0, parseBracket(expression.splice(i, j + 1).slice(1, -2).join(' ')))
+                        }
+                    }
+                } else if (!isNaN(parseInt(expression[i]))) {
+                    expression[i] = parseInt(expression[i])
+                } else if ('+-*/'.includes(expression[i])) {
+
+                } else {
+                    var lookedUp = fetchVariable(expression[i].slice(1))
+                    if (lookedUp != undefined) {
+                        expression[i] = lookedUp
+                    } else {
+                        throw new Error(`UNKNOWN ELEMENT: could not parse ${expression[i]}`)
                     }
                 }
-            } else if (!isNaN(parseInt(expression[i]))) {
-                expression[i] = parseInt(expression[i])
-            } else if ('+-*/'.includes(expression[i])) { 
-                
-            } else {
-                var lookedUp = fetchVariable(expression[i].slice(1))
-                if (lookedUp != undefined) {
-                    expression[i] = lookedUp
-                } else {
-                    throw new Error(`Tried parsing bracket expression ${address} and could not parse ${expression[i]}`)
+            }
+
+            if (expression.length == 1) {
+                return expression[0]
+            }
+
+            for (var i = 1; i < expression.length - 1; i++) {
+                if (expression[i] == '*') {
+                    expression[i] = expression[i - 1] * expression[i + 1]
+                    expression.splice(i + 1, 1)
+                    expression.splice(i - 1, 1)
                 }
             }
-        }
 
-        if (expression.length == 1) {
-            return expression[0]
-        }
-
-        for (var i = 1; i < expression.length - 1; i++) {
-            if (expression[i] == '*') {
-                expression[i] = expression[i - 1] * expression[i + 1]
-                expression.splice(i + 1, 1)
-                expression.splice(i - 1, 1)
+            for (var i = 0; i < expression.length - 1; i++) {
+                if (expression[i] == '-') {
+                    expression[i + 1] *= -1
+                    expression[i] = '+'
+                }
             }
-        }
 
-        for (var i = 0; i < expression.length - 1; i++) {
-            if (expression[i] == '-') {
-                expression[i + 1] *= -1
-                expression[i] = '+'
+            for (var i = 1; i < expression.length - 1; i++) {
+                if (expression[i] == '+') {
+                    expression[i] = expression[i - 1] + expression[i + 1]
+                    expression.splice(i + 1, 1)
+                    expression.splice(i - 1, 1)
+                }
             }
+
+            return parseBracket(expression.join(' '))
+        }
+        catch (err) {
+            throw new Error(`Tried parsing bracket expression '${address}', recived error: ${err}`)
         }
 
-        for (var i = 1; i < expression.length - 1; i++) {
-            if (expression[i] == '+') {
-                expression[i] = expression[i - 1] + expression[i + 1]
-                expression.splice(i + 1, 1)
-                expression.splice(i - 1, 1)
-            }
-        }
-
-        return parseBracket(expression.join(' '))
     }
 
     for (var word of program) {
@@ -263,7 +270,7 @@ const assemble = (program, startAddress = 0) => {
                 }
                 break
             case 'INSTRUCTION':
-                expectedArguments = word.args.map(token => { 
+                expectedArguments = word.args.map(token => {
                     if (token.type == 'VARIABLE') return 'LITERAL'
                     else if (token.type == 'PARENTHESES') return 'LITERAL'
                     return token.type
@@ -279,7 +286,7 @@ const assemble = (program, startAddress = 0) => {
                 try {
                     machineCode[programCounter++] = instruction.opcode
                 } catch (err) {
-                    throw new Error(`Unable to find opcode with arguments ${expectedArguments} for the instruction: ${JSON.stringify(word)}`)
+                    throw new Error(`Unable to find opcode with arguments ${expectedArguments}. Either recieved unknown instruction or never recieved an expected comma.`)
                 }
 
                 for (var i in word.args) {

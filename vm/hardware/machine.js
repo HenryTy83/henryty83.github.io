@@ -14,7 +14,8 @@ function loadFile(filePath) {
 const writeProgram = (cpu, actualStart, fileName, hardDriveSector = 0) => {
     hardDrive.memory.setUint16(hardDriveSector, 0)
     length = loadProgram(cpu.memory, actualStart)(assemble(Parser.read(loadFile('./programs/' + fileName))))
-    console.log(`Wrote program '${fileName}' to disk from at $${actualStart.toString(16).padStart(4, '0')} to $${(actualStart + length).toString(16).padStart(4, '0')}`)
+    console.log(`Wrote program '${fileName}' to disk at ${hardDriveSector} from $${actualStart.toString(16).padStart(4, '0')} to $${(actualStart + length).toString(16).padStart(4, '0')}`)
+    return actualStart + length + 1
 }
 
 
@@ -42,7 +43,8 @@ loadProgram(cpu.memory, 0)(assemble(Parser.read(loadFile('./programs/bootloader.
 rom.memory.setUInt16 = () => 0
 rom.memory.setUint8 = () => 0
 
-writeProgram(cpu, 0xc001, 'JS-WORD.jsm', 0)
+writeProgram(cpu, 0xc001, 'JS-DOS.jsm', 0)
+writeProgram(cpu, 0xc001, 'JS-WORD.jsm', 1)
 
 const runCPU = () => {
     if (fadeInTime < 0) {
