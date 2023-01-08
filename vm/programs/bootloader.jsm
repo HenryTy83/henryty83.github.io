@@ -11,7 +11,7 @@
 
 .org $a000
 .global_label _memory_map-rom:
-_function-main:
+function-main:
 mov $ffff, CLK
 //                                               mask all interrupts
 mov 0, IM
@@ -21,14 +21,13 @@ mov !_hardware-default_stack_pointer, SP
 mov (!_memory_map-hard_drive + $01), x
 mov 0, y
 mov 0, mar
-cal &mar, [!_program-bootloader-function-load_program_and_run]
+cal mar, [!_program-bootloader-function-load_program_and_run]
 hlt
 
 // 
 .global_label _program-bootloader-function-load_program_and_run:
 mov &FP, mar
-mov &mar, mar
-cal &mar, [!_function-load_file]
+cal mar, [!function-load_file]
 
 //                                               set up an interrupt to reset on key press
 mov !_software-reset, [!_hardware-interrupt_vector-keyboard]
@@ -36,11 +35,12 @@ mov 1, IM
 
 //                                               start the sleep timer
 mov 0, [!_memory_map-sleep_timer]
+mov &SP, mar
 
-brk [!_function-load_program_and_run-loaded]
+brk [!function-load_program_and_run-loaded]
 
-_function-load_program_and_run-loaded:
-mov &SP, PC
+function-load_program_and_run-loaded:
+mov mar, PC
 
 //                                               if we halt here there is something wrong
 hlt
@@ -48,13 +48,13 @@ hlt
 //                                                         (x, y, d, cal) = (target_addr, source_addr, jump_address, sector_number)
 .global_label _program-bootloader-function-load_program_and_jump:
 psh d
-cal &mar, [!_function-load_file]
+cal mar, [!function-load_file]
 pop PC
 hlt
 
 //                                               loading a program: (x, y, cal) = (target_addr, source_addr, sector_number)
 .global_label bootloader-function-load_file:
-_function-load_file:
+function-load_file:
 //                                               mask all interrupts
 psh IM
 mov 0, IM
@@ -65,29 +65,29 @@ mov mar, [!_memory_map-hard_drive]
 
 //                                               program should be prefixed by its length, store it to count down
 mov &x, acc
-jez [!_function-load_file-end]
+jez [!function-load_file-end]
 add acc, $02
-cal &acc, [!_function-mov_data]
+cal acc, [!function-mov_data]
 
 mov &SP, y
 mov &y, acc
 add acc, y
 mov &acc, mar
 mov mar, &FP
-_function-load_file-end:
+function-load_file-end:
 pop IM
 rts
 
 
 //                                               copy a string from one memory location to the other: (x, y, cal) -> mov &x, &y (cal times)
-.global_label _function-mov_data:
+.global_label function-mov_data:
 psh IM
 mov 0, IM
 
 mov &FP, acc
 mov y, &FP
 
-_function-mov_data-loop:
+function-mov_data-loop:
 mov &x, d
 mov d, &y
 
@@ -97,15 +97,15 @@ inc y
 inc y
 
 sub acc, $02
-jgz [!_function-mov_data-loop]
+jgz [!function-mov_data-loop]
 
 pop IM
 rts
 
 //                                               reset interrupt
 .global_label _software-reset:
-bki [!_function-main]
+bki [!function-main]
 
 
 .org $bffe
-.global_data16 _hardware-default_reset_vector { !_function-main }
+.global_data16 _hardware-default_reset_vector { !function-main }

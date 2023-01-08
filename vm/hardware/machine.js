@@ -32,9 +32,13 @@ const rom = new Region(0xa000, 0xbfff)
 const hardDrive = new Region(0xc000, 0xffff, new segmentedDrive(0x4000, 0xffff + 1))
 
 // peripherals
+const screenOutput = createScreenOutput();
+const keyboardInput = new Keyboard(0b000);
+const sleepTimerDevice = SleepTimer(0b001);
+
 const screen = new Region(0x8000, 0x8750, createScreenOutput())
-const keyboard = new Region(0x8751, 0x8751, new Keyboard(0b0000))
-const sleepTimer = new Region(0x8752, 0x8752, SleepTimer(0b001))
+const keyboard = new Region(0x8751, 0x8751, keyboardInput)
+const sleepTimer = new Region(0x8752, 0x8752, sleepTimerDevice)
 
 const memoryMappage = new Mapping([ram, screen, keyboard, sleepTimer, rom, hardDrive])
 const cpu = new CPU(defaultResetVector, 0x7fe0, memoryMappage)
@@ -44,7 +48,7 @@ rom.memory.setUInt16 = () => 0
 rom.memory.setUint8 = () => 0
 
 writeProgram(cpu, 0xc001, 'JS-DOS.jsm', 0)
-writeProgram(cpu, 0xc001, 'JS-WORD.jsm', 1)
+writeProgram(cpu, 0xc001, 'JS-WORD.jsm', 0)
 
 const runCPU = () => {
     if (fadeInTime < 0) {

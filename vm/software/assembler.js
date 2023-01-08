@@ -1,5 +1,6 @@
 const defaultResetVector = 0xbffe
 var globals = {}
+var allLabels = [globals]
 
 const regInstruction = (r1, r2 = '') => {
     var high, low = 0
@@ -131,7 +132,7 @@ const arraysEqual = (a, b) => {
 
 const assemble = (program, startAddress = 0) => {
     const variables = createLabelLookup(program, startAddress)
-    console.log(variables)
+    allLabels.push(variables)
     var programCounter = startAddress
     const machineCode = {}
 
@@ -189,6 +190,7 @@ const assemble = (program, startAddress = 0) => {
                     if (lookedUp != undefined) {
                         expression[i] = lookedUp
                     } else {
+                        console.error(`UNKNOWN VARIABLE WITH NAME '${name}'`)
                         throw new Error(`UNKNOWN ELEMENT: could not parse ${expression[i]}`)
                     }
                 }
@@ -305,6 +307,7 @@ const assemble = (program, startAddress = 0) => {
                             break
                         case 'VARIABLE':
                             var value = fetchVariable(argument.value)
+                            if (value == undefined)throw new Error(`UNKNOWN VARIABLE WITH NAME '${argument.value}'`)
                             machineCode[programCounter++] = (value & 0xff00) >> 8
                             machineCode[programCounter++] = value & 0x00ff
                             break

@@ -57,7 +57,7 @@ class CPU {
 
     setReg(index, value) {
         // indexed at 0, incremented by 1
-        this.registers.setUint16(index * 2, value % (0xffff + 1))
+        this.registers.setUint16(index * 2, value & 0xffff)
     }
 
     getRegIndex(reg) {
@@ -143,7 +143,7 @@ class CPU {
     }
 
     checkInterrupt() {
-        if (!this.interrupting && (this.readReg('IM') & (1 << this.irq)) != 0) {
+        if (!this.interrupting) {
             // console.log(`Interrupting with status ${this.irq}, jumping to $${(this.interruptVector + 2 * (this.irq - 1)).toString(16).padStart(4, '0')}`)
             this.pendingInterrupt = false
             this.enterInterrupt(this.memory.getUint16(this.interruptVector + 2 * this.irq))
@@ -185,11 +185,14 @@ class CPU {
         // this.hexDump()
     }
 
+    unbreak() {
+        this.writeReg('CLK', this.prevClock)
+    }
+
     run() {
         if (this.debug) {
-            this.hexDump()
-
-            if (!this.broke && this.readReg('PC') in this.breakpoints) {
+            if (!this.broke && this.breakpoints.includes(this.readReg('PC'))) {
+                this.prevClock = this.readReg('CLK')
                 this.writeReg('CLK', 0)
                 this.broke = true
                 console.log(`BREAKPOINT REACHED AT ADDRESS ${this.readReg('PC')}`)
@@ -204,6 +207,15 @@ class CPU {
             }
         }
 
+        this.singleStep()
+
+        if (this.pendingInterrupt) {
+            this.checkInterrupt()
+        }
+    }
+
+    singleStep() {
+        if (this.debug)this.hexDump()
         var instruction = this.fetchByte()
 
         this.execute(instruction)
@@ -211,10 +223,6 @@ class CPU {
 
         this.writeReg('1', 1)
         this.writeReg('0', 0)
-
-        if (this.pendingInterrupt) {
-            this.checkInterrupt()
-        }
     }
 
     execute(instruction) {
@@ -305,7 +313,7 @@ class CPU {
                 var r1 = ((registers & 0b11110000) >> 4)
                 var r2 = (registers & 0b00001111)
 
-                this.writeReg('acc', (this.getReg(r1) + this.getReg(r2)) % (0xffff + 1))
+                this.writeReg('acc', (this.getReg(r1) + this.getReg(r2)))
                 return
             case instructionSet.add_reg_lit.opcode:
                 var reg = this.fetchSingleReg()
@@ -317,7 +325,7 @@ class CPU {
                 var reg = this.fetchSingleReg()
                 var address = this.fetchWord()
 
-                this.writeReg('acc', (this.getReg(reg) + this.memory.getUint16(address)) % (0xffff + 1))
+                this.writeReg('acc', (this.getReg(reg) + this.memory.getUint16(address)))
                 return
             case instructionSet.sub_reg_reg.opcode:
                 var registers = this.fetchByte()
@@ -355,7 +363,7 @@ class CPU {
                 var r1 = ((registers & 0b11110000) >> 4)
                 var r2 = (registers & 0b00001111)
 
-                this.writeReg('acc', (this.getReg(r1) * this.getReg(r2)) % (0xffff + 1))
+                this.writeReg('acc', (this.getReg(r1) * this.getReg(r2)))
                 return
             case instructionSet.mul_reg_lit.opcode:
                 var reg = this.fetchSingleReg()
@@ -367,7 +375,7 @@ class CPU {
                 var reg = this.fetchSingleReg()
                 var address = this.fetchWord()
 
-                this.writeReg('acc', (this.getReg(reg) * this.memory.getUint16(address)) % (0xffff + 1))
+                this.writeReg('acc', (this.getReg(reg) * this.memory.getUint16(address)))
                 return
             case instructionSet.and_reg_reg.opcode:
                 var registers = this.fetchByte()
@@ -584,7 +592,7 @@ class CPU {
 
     // debug functions
     hexDump() {
-        var contents = `Time elapsed: ${this.cycles}\n\nRegisters:\n`
+        var contents = `Time elapsed: ${this.cycles.toString(16)}\n\nRegisters:\n`
 
         for (let i in this.registerNames) {
             contents +=

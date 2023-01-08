@@ -11,7 +11,8 @@ class Mapping {
             }
         }
 
-        return new Region(address, address + 1) //invalid memory
+        console.error(`UNMAPPED ADDRESS $${address.toString(16).padStart('0', 4)}`)
+        return new Region(address, address + 2) //invalid memory
     }
 
     getUint16(address) {
@@ -26,12 +27,12 @@ class Mapping {
 
     setUint16(address, data) {
         var region = this.findCorrespondingRegion(address)
-        region.memory.setUint16(address - (this.offsetAddress ? region.start : 0), data % (0xffff + 1))
+        region.memory.setUint16(address - (this.offsetAddress ? region.start : 0), data & 0xffff)
     }
 
     setUint8(address, data) {
         var region = this.findCorrespondingRegion(address)
-        region.memory.setUint8(address - (this.offsetAddress ? region.start : 0), data % (0xff + 1))
+        region.memory.setUint8(address - (this.offsetAddress ? region.start : 0), data & 0xff)
     }
 }
 

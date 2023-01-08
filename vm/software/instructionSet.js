@@ -450,7 +450,7 @@ const instructionSet = {
         opcode: 0x54,
         length: 4,
         mnemonic: 'cal',
-        args: ['INDIRECT_REGISTER', 'ADDRESS']
+        args: ['REGISTER', 'ADDRESS']
     },
 
     cal_lit: {
