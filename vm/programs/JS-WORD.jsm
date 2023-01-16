@@ -19,7 +19,7 @@ jmp [!function-loop]
 
 .data16 cursor_character { !cursor_character_template }
 .data16 cursor_character_status { $0000 }
-
+.data16 cursor_row { $0000 } 
 
 function-loop:
 mov !font-reset, [!_memory_map-screen_address]
@@ -48,6 +48,7 @@ jmp [!function-loop]
 
 
 .def chars_per_row $4e
+.def total_rows $18
 
 function-display_text_to_screen:
 mov 0, d
@@ -73,17 +74,24 @@ inc x
 inc x
 jeq !key-newline, [!function-display_text_to_screen-new_line]
 inc y
-jmp [!function-display_text_to_screen-loop]
+sub y, !_memory_map-screen_address-end
+jnz [!function-display_text_to_screen-loop]
+rts
 
 function-display_text_to_screen-new_line:
 mov 0, d
+sub y, (!_memory_map-screen_address + $01)
+mov acc, y
 function-display_text_to_screen-find_next_line:
 mul d, !chars_per_row
 sub acc, y
 inc d
 jlz [!function-display_text_to_screen-find_next_line]
-mov (!_memory_map-screen_address + $01), y
-jmp [!function-display_text_to_screen-find_target_pos]
+dec d
+mul d, !chars_per_row
+add acc, (!_memory_map-screen_address + $01)
+mov acc, y
+jmp [!function-display_text_to_screen-loop]
 
 function-display_text_to_screen-draw_cursor:
 mov [!cursor_character], acc

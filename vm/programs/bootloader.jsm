@@ -2,6 +2,7 @@
 .global _memory_map-program_mem $0000
 .global _memory_map-working_mem $4000
 .global _memory_map-screen_address $8000
+.global _memory_map-screen_address-end $8751
 .global _memory_map-keyboard $8751
 .global _memory_map-sleep_timer $8752
 .global _memory_map-hard_drive $c000
