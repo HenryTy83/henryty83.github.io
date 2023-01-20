@@ -5,9 +5,9 @@ mov $ffff, CLK
 mov !function-key_typed, [!_hardware-interrupt_vector-keyboard]
 mov 1, IM
 mov !text_field, [!cursor_pos]
+mov !text_field, [!starting_pos]
 mov $20, [!text_field]
 mov 0, [!text_field + $02]
-mov $02, [!text_length]
 mov !cursor_blink_time, [!cursor_character_status]
 mov 0, [!_memory_map-sleep_timer]
 jmp [!function-loop]
@@ -19,18 +19,24 @@ jmp [!function-loop]
 
 .data16 cursor_character { !cursor_character_template }
 .data16 cursor_character_status { $0000 }
-.data16 cursor_row { $0000 } 
+.data16 cursor_offscreen { $0000 }
 
 function-loop:
 mov !font-reset, [!_memory_map-screen_address]
 mov !font-green, [!_memory_map-screen_address]
-mov !text_field, x
+
+mov [!starting_pos], x
 mov (!_memory_map-screen_address + $01), y
 cal NUL, [!function-display_text_to_screen]
+
+mov [!cursor_offscreen], acc
+jnz [!function-loop]
 
 function-loop-sleep:
 mov [!_memory_map-sleep_timer], acc
 jlt !frame_sleep, [!function-loop-sleep]
+
+function-loop-sleep-end:
 mov 0, [!_memory_map-sleep_timer]
 
 mov [!cursor_character_status], acc
@@ -52,6 +58,10 @@ jmp [!function-loop]
 
 function-display_text_to_screen:
 mov 0, d
+mov 1, w
+
+mov [!cursor_pos], acc
+jlt x, [!function-display_text_to_screen-decrement_starting_pos]
 
 function-display_text_to_screen-find_target_pos:
 mul d, !chars_per_row
@@ -59,6 +69,9 @@ add acc, y
 mov acc, y
 
 function-display_text_to_screen-loop:
+sub y, !_memory_map-screen_address-end
+jez [!function-display_text_to_screen-done]
+
 mov [!cursor_pos], acc
 jeq x, [!function-display_text_to_screen-draw_cursor]
 
@@ -70,13 +83,12 @@ mov acc, &y
 
 function-display_text_to_screen-increment_pointers:
 mov &x, acc
+jez [!function-display_text_to_screen-done]
 inc x
 inc x
 jeq !key-newline, [!function-display_text_to_screen-new_line]
 inc y
-sub y, !_memory_map-screen_address-end
-jnz [!function-display_text_to_screen-loop]
-rts
+jmp [!function-display_text_to_screen-loop]
 
 function-display_text_to_screen-new_line:
 mov 0, d
@@ -94,6 +106,7 @@ mov acc, y
 jmp [!function-display_text_to_screen-loop]
 
 function-display_text_to_screen-draw_cursor:
+mov 0, w
 mov [!cursor_character], acc
 jez [!function-display_text_to_screen-cursor_skip]
 mov acc, &y
@@ -101,6 +114,21 @@ mov &x, acc
 jnz [!function-display_text_to_screen-increment_pointers]
 
 function-display_text_to_screen-done:
+mov w, acc
+jez [!function-display_text_to_screen-return]
+
+mov [!starting_pos], x
+inc x
+inc x
+mov x, [!starting_pos]
+
+function-display_text_to_screen-return:
+mov w, [!cursor_offscreen]
+rts
+
+function-display_text_to_screen-decrement_starting_pos:
+mov [!cursor_pos], x
+mov x, [!starting_pos]
 rts
 
 // important keys
@@ -205,8 +233,6 @@ cal acc, [!function-mov_data]
 rts
 
 
-
-
 // helper functions
 function-increment_text_length:
 mov [!text_length], acc
@@ -256,7 +282,7 @@ rts
 
 function-find_previous_newline:
 mov x, acc
-jeq (!cursor_pos + $02), [!function-find_previous_newline-end]
+jeq (!text_field), [!function-find_previous_newline-end]
 dec x
 dec x
 mov &x, acc
@@ -281,5 +307,6 @@ rts
 .data16 reset_vector { !function-setup }
 
 .data16 cursor_pos { $0000 }
+.data16 starting_pos { $0000 }
 .data16 text_length { $0000 }
 .data16 text_field { $0000 }

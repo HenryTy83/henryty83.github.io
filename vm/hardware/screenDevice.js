@@ -4,9 +4,10 @@ const DOSfont = new FontFace('modernDOS', 'url(./decorations/modernDOS.ttf)');
 
 var powerOn = false;
 
-const charWidth = 960 / 79;
-const charHeight = 1600 / 72;
-const charPerRow = parseInt(canvas.width / charWidth) - 1
+const charPerRow = 0x4e
+const rows = 24
+const charHeight = Math.floor(canvas.height / (rows));
+const charWidth = Math.floor(canvas.width / charPerRow);
 
 const defaultFont = `${charHeight}px modernDOS`
 
@@ -33,19 +34,19 @@ var VRAMinstructions = {}
 var controlHextet = null
 
 const drawChar = (char, address, r, g, b) => {
-    const charX = (address % charPerRow) + 1 //this makes sense, just convert the index number to x and y coordinates
-    const charY = Math.floor(address / charPerRow) + 1
+    const charX = charWidth * (1 + (address % charPerRow))  //this makes sense, just convert the index number to x and y coordinates
+    const charY = charHeight * (Math.floor(address / charPerRow) + 1) - 2
 
     const randomFlicker = Math.random() < 0.0025 ? Math.random() : 0;
 
     ctx.fillStyle = `rgb(${r}, ${Math.floor(g * 215 / 255) + 40},  ${b}, ${1 - 0.25 * randomFlicker})`
 
-    ctx.fillText(char, charX * charWidth, charY * charHeight)
+    ctx.fillText(char, charX, charY)
 
     ctx.fillStyle = `rgb(${r}, ${Math.floor(g * 215 / 255) + 40},  ${b}, ${0.05-0.035*randomFlicker})`
     for (let i = -3; i <= 3; i++) {
         for (let j = -2; j <= 2; j++) {
-            ctx.fillText(char, charX * charWidth + i, charY * charHeight + j)
+            ctx.fillText(char, charX + i, charY + j)
         }
     }
 }
@@ -83,8 +84,8 @@ const displayScreen = () => {
     } 
 }
 
-const createScreenOutput = () => {
-    return {
+const createScreenOutput = () => (
+    {
         getUint16: (address) => VRAMinstructions[address] != undefined ? VRAMinstructions[address][1] : (' ').charCodeAt(0),
         getUint8: () => 0,
         setUint16: (address, data) => {
@@ -102,4 +103,4 @@ const createScreenOutput = () => {
         },
         setUint8: () => 0,
     }
-}
+)

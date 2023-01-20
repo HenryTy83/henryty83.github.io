@@ -1,3 +1,4 @@
+// inspired by low Level Javascript's tutorial
 class CPU {
     constructor(resetVector, interruptVector, memory) {
         this.memory = memory
