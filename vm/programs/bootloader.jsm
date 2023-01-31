@@ -1,16 +1,14 @@
 //                                               useful global constants
-.global _memory_map-program_mem $0000
-.global _memory_map-working_mem $4000
-.global _memory_map-screen_address $8000
-.global _memory_map-screen_address-end $8751
-.global _memory_map-keyboard $8751
-.global _memory_map-sleep_timer $8752
+.global _memory_map-screen_address $a000
+.global _memory_map-screen_address-end $a751
+.global _memory_map-keyboard $a751
+.global _memory_map-sleep_timer $a752
 .global _memory_map-hard_drive $c000
 
-.global _hardware-default_stack_pointer $7fde
-.global _hardware-interrupt_vector-keyboard $7fe0
+.global _hardware-default_stack_pointer $8fde
+.global _hardware-interrupt_vector-keyboard $8fe0
 
-.org $a000
+.org $b000
 .global_label _memory_map-rom:
 function-main:
 mov $ffff, CLK

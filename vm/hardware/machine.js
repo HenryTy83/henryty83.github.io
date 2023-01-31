@@ -27,8 +27,8 @@ const writeProgram = (cpu, actualStart, fileName, hardDriveSector = 0) => {
 // const rawProgram = loadFile('./programs/matrix.jsm')
 // const rawProgram = loadFile('./programs/JSword.jsm')
 
-const ram = new Region(0x0000, 0x7fff)
-const rom = new Region(0xa000, 0xbfff)
+const ram = new Region(0x0000, 0x9fff)
+const rom = new Region(0xb000, 0xbfff)
 const hardDrive = new Region(0xc000, 0xffff, new segmentedDrive(0x4000, 0xffff + 1))
 
 // peripherals
@@ -36,12 +36,12 @@ const screenOutput = createScreenOutput();
 const keyboardInput = new Keyboard(0b000);
 const sleepTimerDevice = SleepTimer(0b001);
 
-const screen = new Region(0x8000, 0x8750, createScreenOutput())
-const keyboard = new Region(0x8751, 0x8751, keyboardInput)
-const sleepTimer = new Region(0x8752, 0x8752, sleepTimerDevice)
+const screen = new Region(0xa000, 0xa750, createScreenOutput())
+const keyboard = new Region(0xa751, 0xa751, keyboardInput)
+const sleepTimer = new Region(0xa752, 0xa752, sleepTimerDevice)
 
 const memoryMappage = new Mapping([ram, screen, keyboard, sleepTimer, rom, hardDrive])
-const cpu = new CPU(defaultResetVector, 0x7fe0, memoryMappage)
+const cpu = new CPU(0xbffe, 0x8fe0, memoryMappage)
 
 loadProgram(cpu.memory, 0)(assemble(Parser.read(loadFile('./programs/bootloader.jsm'), 0)))
 rom.memory.setUInt16 = () => 0

@@ -43,7 +43,7 @@ const drawChar = (char, address, r, g, b) => {
 
     ctx.fillText(char, charX, charY)
 
-    ctx.fillStyle = `rgb(${r}, ${Math.floor(g * 215 / 255) + 40},  ${b}, ${0.05-0.035*randomFlicker})`
+    ctx.fillStyle = `rgb(${r}, ${Math.floor(g * 215 / 255) + 40},  ${b}, ${0.04-0.02*randomFlicker})`
     for (let i = -3; i <= 3; i++) {
         for (let j = -2; j <= 2; j++) {
             ctx.fillText(char, charX + i, charY + j)

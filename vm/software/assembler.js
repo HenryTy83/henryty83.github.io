@@ -1,4 +1,4 @@
-const defaultResetVector = 0xbffe
+
 var globals = {}
 var allLabels = [globals]
 

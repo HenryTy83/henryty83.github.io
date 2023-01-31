@@ -1,3 +1,4 @@
+.org $9000
 .data16 _file-length { !reset_vector }
 
 .global font-reset $8000
@@ -17,27 +18,31 @@
 function-setup:
 mov 0, IM
 mov $ffff, CLK
+
+mov $4000, [!free_spots]
+mov $1000, [!free_spots + $02]
+
 mov !font-reset, [!_memory_map-screen_address]
 
-//                                                                         textStyle(true, true, color(0, 255, 0), 1, 32)
+//                                                                         textStyle(true, true, color(0, 255, 0), 1, 1600)
 mov (!font-italic + !font-bold + !font-green), [!_memory_map-screen_address]
 //                                                                         text('TJSVMTDHAA', 0, 0)
 mov !tjsvmtdhaa, x
 mov (!_memory_map-screen_address + $01), y
 mov $01, r7
-cal $20, [!function-draw_splash_screen]
+cal $10, [!function-draw_splash_screen]
 
 
 //                                                                         textStyle(false, false, color(0, 255, 0))
 mov (!font-green), [!_memory_map-screen_address]
-//                                                                         text('The JavaScript Virtual Machine That Doesn't Have An Acronym', 0, 0, 0, 10)
+//                                                                         text('The JavaScript Virtual Machine That Doesn't Have An Acronym', 0, 0, 0, 300)
 mov !acronym_expand, x
 mov &SP, y
 mov $00, r7
-cal $0a, [!function-draw_splash_screen]
+cal $03, [!function-draw_splash_screen]
 
-//                                                                         sleep(5)
-cal $05, [!function-sleep]
+//                                                                         sleep(800)
+cal $08, [!function-sleep]
 
 //                                                                         text('Henry Ty, 2022-3', 0, 1, 0, 48)
 mov !credits, x
@@ -89,4 +94,38 @@ mov [!_memory_map-sleep_timer], acc
 jlt d, [!function-sleep]
 rts
 
+//                                          takes a size to reserve and returns the address
+.global_label kernel-malloc:
+mov &FP, w
+inc w
+mov !free_spots, x
+function-malloc-search:
+mov &x, acc
+jgt w, [!function-malloc-found]
+add x, $04
+mov acc, x
+jmp [!function-malloc-search]
+function-malloc-found:
+mov &x, acc
+sub acc, w
+mov acc, d
+mov acc, &x
+inc x
+inc x
+mov &x, mar
+mov mar, &acc
+mov mar, &FP
+add mar, w
+mov acc, &x
+rts
+
+//                                          frees up an address
+.global_label kernel-free:
+mov &FP, mar
+mov &mar, w
+mov !free_spots 
+rts
+
 .data16 reset_vector { !function-setup }
+
+.data16 free_spots { $0000 }
