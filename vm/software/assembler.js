@@ -50,7 +50,6 @@ const substituteVariable = (label, labels) => {
     if (labels[labels[label]] != undefined) {
         return substituteVariable(labels[label], labels)
     }
-
     return undefined
 }
 
@@ -76,18 +75,18 @@ const createLabelLookup = (program, startAddress) => {
                         break
                     case 'global_data8':
                         globals[instruction.args[0]] = bytePointer
-                        bytePointer += parseInt(instruction.args.slice(2, -1).length)
+                        bytePointer += parseInt(instruction.args.slice(2, -1).join('').split(',').length)
                     case 'data8':
                         labels[instruction.args[0]] = bytePointer
-                        bytePointer += parseInt(instruction.args.slice(2, -1).length)
+                        bytePointer += parseInt(instruction.args.slice(2, -1).join('').split(',').length)
                         break
                     case 'global_data16':
                         globals[instruction.args[0]] = bytePointer
-                        bytePointer += parseInt(instruction.args.slice(2, -1).length * 2)
+                        bytePointer += parseInt(instruction.args.slice(2, -1).join('').split(',').length * 2)
                         break
                     case 'data16':
                         labels[instruction.args[0]] = bytePointer
-                        bytePointer += parseInt(instruction.args.slice(2, -1).length * 2)
+                        bytePointer += parseInt(instruction.args.slice(2, -1).join('').split(',').length * 2)
                         break
                     case 'global_label':
                         globals[instruction.args[0].slice(0, -1)] = bytePointer
@@ -164,71 +163,107 @@ const assemble = (program, startAddress = 0) => {
             return global
         }
 
+        if (name[0] != '$') throw new Error(`UNKNOWN LABEL: ${name}`)
         return undefined
     }
 
-    const parseBracket = (address) => {
-        var expression = address.split(' ')
-        try {
-            if (expression.includes(''))throw new Error('UNEXPECTED WHITESPACE')
-
-            for (var i in expression) {
-                if (expression[i][0] == '$') {
-                    expression[i] = parseInt(expression[i].slice(1), 16)
-                } else if (expression[i] == '(') {
-                    for (var j = expression.length; j > i; j--) {
-                        if (expression[j] == ')') {
-                            expression.splice(i, 0, parseBracket(expression.splice(i, j + 1).slice(1, -2).join(' ')))
-                        }
-                    }
-                } else if (!isNaN(parseInt(expression[i]))) {
-                    expression[i] = parseInt(expression[i])
-                } else if ('+-*/'.includes(expression[i])) {
-
-                } else {
-                    var lookedUp = fetchVariable(expression[i].slice(1))
-                    if (lookedUp != undefined) {
-                        expression[i] = lookedUp
-                    } else {
-                        console.error(`UNKNOWN VARIABLE WITH NAME '${name}'`)
-                        throw new Error(`UNKNOWN ELEMENT: could not parse ${expression[i]}`)
-                    }
-                }
+    const tokenizeBracket = (expression) => {
+        var tokenized = []
+        var startIndex = 0
+        for (var i in expression) {
+            if (isOperator(expression[i])) {
+                tokenized.push(expression.slice(startIndex, i).trim())
+                tokenized.push(expression[i])
+                startIndex = parseInt(i) + 1
             }
-
-            if (expression.length == 1) {
-                return expression[0]
-            }
-
-            for (var i = 1; i < expression.length - 1; i++) {
-                if (expression[i] == '*') {
-                    expression[i] = expression[i - 1] * expression[i + 1]
-                    expression.splice(i + 1, 1)
-                    expression.splice(i - 1, 1)
-                }
-            }
-
-            for (var i = 0; i < expression.length - 1; i++) {
-                if (expression[i] == '-') {
-                    expression[i + 1] *= -1
-                    expression[i] = '+'
-                }
-            }
-
-            for (var i = 1; i < expression.length - 1; i++) {
-                if (expression[i] == '+') {
-                    expression[i] = expression[i - 1] + expression[i + 1]
-                    expression.splice(i + 1, 1)
-                    expression.splice(i - 1, 1)
-                }
-            }
-
-            return parseBracket(expression.join(' '))
-        }
-        catch (err) {
-            throw new Error(`Tried parsing bracket expression '${address}', recived error: ${err}`)
         }
 
+        if (!isOperator(expression.slice(-1))) tokenized.push(expression.slice(startIndex).trim())
+
+        return tokenized.filter(x => x.length != 0)
+    }
+
+    const isOperator = (char) => ['+', '*', '-', '/', '(', ')'].includes(char)
+
+    const parseBracket = (expression) => {
+        var tokenized = tokenizeBracket(expression)
+
+        var sanitized = []
+        var operations = 0
+
+        for (var i = 0; i < tokenized.length; i++) {
+            const findEnclosedIndex = (start) => {
+                for (j = start + 1; j < tokenized.length; j++) {
+                    if (tokenized[j] == ')') return j
+                    if (tokenized[j] == '(') j = findEnclosedIndex(j + 1)
+                }
+
+                throw new Error(`UNMATCHED PARENTHESES`)
+            }
+
+            if (tokenized[i] == '(') {
+                var closing = findEnclosedIndex(parseInt(i) + 1)
+                var inner = tokenized.slice(parseInt(i) + 1, closing)
+                sanitized.push(parseBracket(inner.join('')))
+                i = parseInt(closing)
+            }
+
+            else if (tokenized[i][0] == '!') {
+                sanitized.push(fetchVariable(tokenized[i].slice(1)))
+            }
+
+            else if (tokenized[i][0] == '$') {
+                sanitized.push(parseInt(tokenized[i].slice(1), 16))
+            }
+
+            else if (isOperator(tokenized[i]) && !['(', ')'].includes(tokenized[i])) {
+                sanitized.push(tokenized[i])
+                operations++
+            }
+        }
+
+        for (var j = 0; j <= operations; j++) {
+            for (var i = 0; i < sanitized.length; i++) {
+                if (sanitized[i] == '*') {
+                    sanitized[i + 1] = parseInt(sanitized[i - 1]) * parseInt(sanitized[i + 1])
+                    sanitized.splice(i - 1, 2)
+                    i += 1
+                }
+
+                else if (sanitized[i] == '/') {
+                    sanitized[i + 1] = parseInt(sanitized[i - 1]) / parseInt(sanitized[i + 1])
+                    sanitized.splice(i - 1, 2)
+                    i += 1
+                }
+            }
+
+            for (var i = 0; i < sanitized.length; i++) {
+                if (sanitized[i] == '+') {
+                    sanitized[i + 1] = parseInt(sanitized[i - 1]) + parseInt(sanitized[i + 1])
+                    sanitized.splice(i - 1, 2)
+                    i += 1
+                }
+
+                else if (sanitized[i] == '-') {
+                    sanitized[i + 1] = parseInt(sanitized[i - 1]) - parseInt(sanitized[i + 1])
+                    sanitized.splice(i - 1, 2)
+                    i += 1
+                }
+            }
+        }
+        return sanitized[0]
+    }
+
+    const parseData = (args) => {
+        var data = []
+
+        var sanitized = args.join('').split(',')
+
+        for (var value of sanitized) {
+            data.push(parseBracket(value))
+        }
+
+        return data
     }
 
     for (var word of program) {
@@ -245,28 +280,15 @@ const assemble = (program, startAddress = 0) => {
                         break
                     case 'global_data8':
                     case 'data8':
-                        for (var byte of word.args.slice(2, -1)) {
-                            var hexValue = byte.slice(1)
-                            if (fetchVariable(hexValue) != undefined) {
-                                hexValue = fetchVariable(hexValue)
-                            } else {
-                                hexValue = parseInt(hexValue, 16)
-                            }
-                            machineCode[programCounter++] = hexValue & 0xff
+                        for (var byte of parseData(word.args.slice(2, -1))) {
+                            machineCode[programCounter++] = byte & 0xff
                         }
                         break
                     case 'global_data16':
                     case 'data16':
-                        for (var byte of word.args.slice(2, -1)) {
-                            var hexValue = byte.slice(1)
-                            if (fetchVariable(hexValue) != undefined) {
-                                hexValue = fetchVariable(hexValue)
-                            } else {
-                                hexValue = parseInt(hexValue, 16)
-                            }
-
-                            machineCode[programCounter++] = (hexValue & 0xff00) >> 8
-                            machineCode[programCounter++] = hexValue & 0xff
+                        for (var byte of parseData(word.args.slice(2, -1))) {
+                            machineCode[programCounter++] = (byte & 0xff00) >> 8
+                            machineCode[programCounter++] = byte & 0xff
                         }
                         break
                 }
@@ -288,7 +310,9 @@ const assemble = (program, startAddress = 0) => {
                 try {
                     machineCode[programCounter++] = instruction.opcode
                 } catch (err) {
-                    throw new Error(`Unable to find opcode with arguments ${expectedArguments}. Either recieved unknown instruction or never recieved an expected comma.`)
+                    throw new Error(`Line ${word.line}: ${word.rawCode} 
+                    
+Unable to find opcode with arguments ${expectedArguments}. Either recieved unknown instruction or never recieved an expected comma.`)
                 }
 
                 for (var i in word.args) {
@@ -307,7 +331,7 @@ const assemble = (program, startAddress = 0) => {
                             break
                         case 'VARIABLE':
                             var value = fetchVariable(argument.value)
-                            if (value == undefined)throw new Error(`UNKNOWN VARIABLE WITH NAME '${argument.value}'`)
+                            if (value == undefined) throw new Error(`UNKNOWN VARIABLE WITH NAME '${argument.value}'`)
                             machineCode[programCounter++] = (value & 0xff00) >> 8
                             machineCode[programCounter++] = value & 0x00ff
                             break
@@ -326,11 +350,9 @@ const assemble = (program, startAddress = 0) => {
     return machineCode
 }
 
-const loadProgram = (memory, startAddress = 0) => (code) => {
-    var i = 0
-    for (var byte in code) {
-        memory.setUint8(parseInt(byte) + startAddress, code[byte])
-        i++
+const findVarByName = (x) => {
+    for (var labels of allLabels) {
+        var out = substituteVariable(x, labels)
+        if (out != undefined)return out
     }
-    return i
 }

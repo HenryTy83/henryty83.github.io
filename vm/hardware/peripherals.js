@@ -4,6 +4,7 @@ class Keyboard {
         this.buffer = Memory(2 * this.bufferSize)
         this.writePointer = 0
         this.readPointer = 0
+        this.lastValue = 0
 
         this.waiting = false
         this.id = id
@@ -44,41 +45,43 @@ class Keyboard {
         }
 
         var specialKeyCode = keyCodeLookup[event.key]
-        return specialKeyCode != undefined ? specialKeyCode : 0
+        return specialKeyCode == undefined ? 0 : specialKeyCode
     }
 
     setInterruptFlag = () => {
         var response = cpu.requestInterrupt(this.id)
-        if (this.debug) console.log(response ? `KEYBOARD: Requested interrupt was accepted, moving to await...` : `KEYBOARD: Requested interrupt and was rejected, retrying...`)
-        
-        if (response) {
-            this.awaitResponse()
-        } else {
-            setTimeout(this.setInterruptFlag, this.sleepTime)
+    
+        switch (response) {
+            case -1:
+                this.waiting = false
+                if (this.debug) console.log(`KEYBOARD: Interrupt request rejected. Resetting...`)
+                this.readPointer = (this.readPointer + 2)  & this.bufferSize;
+                return
+            case 0:
+                if (this.debug) console.log(`KEYBOARD: Device busy. Waiting...`)
+                setTimeout(this.setInterruptFlag, this.sleepTime)
+                return
+            case 1:
+                if (this.debug) console.log(`KEYBOARD: Interrupt request accepted. Waiting...`)
+                return
         }
     }
 
-    awaitResponse = () => {
-        if (this.debug && cpu.interrupting) console.log(`KEYBOARD: Awaited response, still busy...`)
-        if (cpu.interrupting) {
-            setTimeout(this.awaitResponse, this.sleepTime)
-            return 0
-        }  
-    }
-
     getUint16 = (_) => {
-        var value = this.buffer.getUint16(this.readPointer);
+        if (this.readPointer == this.writePointer) return this.lastValue
+        
+        this.lastValue = this.buffer.getUint16(this.readPointer);
         this.readPointer = (this.readPointer + 2) & this.bufferSize;
 
         if (this.readPointer == this.writePointer) {
             this.waiting = false
-            if (this.debug)console.log(`KEYBOARD: Interrupt accepted, no more pending keys, resetting...`)
-            return value
+            if (this.debug)console.log(`KEYBOARD: Interrupt completed, no more pending keys, resetting...`)
+            return this.lastValue
         }
         
         this.setInterruptFlag()
-        if (this.debug)console.log(`KEYBOARD: Key queue still full. Requesting another interrupt...`)
-        return value
+        if (this.debug)console.log(`KEYBOARD: Key queue still nonempty. Requesting another interrupt...`)
+        return this.lastValue
     }
     setUint16 = (_) => 0
     getUint8 = (_) => 0
@@ -89,8 +92,8 @@ class Keyboard {
 var sleepCounter = 0
 var running = false
 const SleepTimer = (id, sleepTime = 10) => ({
-    getUint16: (address) => sleepCounter & 0xffff,
-    getUint8: (address) => 0,
+    getUint16: (_) => sleepCounter & 0xffff,
+    getUint8: (_) => 0,
     setUint16: (address, value) => {
         sleepCounter = value
         if (!running) {
@@ -98,5 +101,5 @@ const SleepTimer = (id, sleepTime = 10) => ({
             running = true
         }
     },
-    setUint8: (address, value) => 0,
+    setUint8: (_) => 0,
 })

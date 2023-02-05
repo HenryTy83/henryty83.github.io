@@ -134,20 +134,21 @@ class CPU {
     }
 
     requestInterrupt(id) {
-        if (!this.pendingInterrupt) {
-            this.irq = id
-            this.pendingInterrupt = true
-            return true
-        }
+        if ((this.readReg('IM') & id) == 0) return -1
+        if (this.pendingInterrupt) return 0
 
-        return false
+        this.irq = id
+        this.pendingInterrupt = true
+        return 1
     }
 
     checkInterrupt() {
         if (!this.interrupting) {
             // console.log(`Interrupting with status ${this.irq}, jumping to $${(this.interruptVector + 2 * (this.irq - 1)).toString(16).padStart(4, '0')}`)
             this.pendingInterrupt = false
-            this.enterInterrupt(this.memory.getUint16(this.interruptVector + 2 * this.irq))
+
+            // console.log(this.memory.getUint16(this.interruptVector + 2 * (this.irq-1)).toString(16))
+            this.enterInterrupt(this.memory.getUint16(this.interruptVector + 2 * (this.irq-1)))
         }
     }
 
@@ -164,6 +165,8 @@ class CPU {
         this.writeReg('FP', this.readReg('SP'))
 
         this.writeReg('PC', address)
+        
+        // this.debug = true
         this.interrupting = true
     }
 
@@ -183,25 +186,24 @@ class CPU {
         this.writeReg('PC', returnAddress)
         this.interrupting = false
 
+        // this.debug = false  
         // this.hexDump()
     }
 
-    unbreak() {
-        this.writeReg('CLK', this.prevClock)
-    }
+    unbreak = () => {this.writeReg('CLK', this.prevClock)}
 
     run() {
-        if (this.debug) {
-            if (!this.broke && this.breakpoints.includes(this.readReg('PC'))) {
-                this.prevClock = this.readReg('CLK')
-                this.writeReg('CLK', 0)
-                this.broke = true
-                console.log(`BREAKPOINT REACHED AT ADDRESS ${this.readReg('PC')}`)
-                return
-            } else {
-                this.broke = false
-            }
+        if (!this.broke && this.breakpoints.includes(this.readReg('PC'))) {
+            this.prevClock = this.readReg('CLK')
+            this.writeReg('CLK', 0)
+            this.broke = true
+            console.log(`BREAKPOINT REACHED AT ADDRESS $${this.readReg('PC').toString(16).padStart(4, '0')}. Resume with this.unbreak()`)
+            return
+        } else {
+            this.broke = false
+        }
 
+        if (this.debug) {
             if (this.cycleLimit != -1 && this.cycles > this.cycleLimit) {
                 cpu.halted = true
                 console.log('FORCED HALT DUE TO EXCEEDED RUNTIME')

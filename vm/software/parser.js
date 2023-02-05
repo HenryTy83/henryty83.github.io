@@ -69,7 +69,12 @@ class Arksecond {
             var commands = line.split(' ')
 
             if (commands[0] != '') {
-                try { program.push(this.parse(commands)) }
+                try { 
+                    var parsedCommand = this.parse(commands)
+                    parsedCommand.line = lineNumber
+                    parsedCommand.rawCode = line
+                    program.push(parsedCommand) 
+                }
                 catch (err) {
                     throw new Error(`PARSING ERROR: Recieved error '${err}' when reading line ${parseInt(lineNumber) + 1}: '${line}'`)
                 }

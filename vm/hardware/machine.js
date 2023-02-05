@@ -11,11 +11,20 @@ function loadFile(filePath) {
     return result.split(/\r?\n/);
 }
 
-const writeProgram = (cpu, actualStart, fileName, hardDriveSector = 0) => {
+const loadProgram = (memory, startAddress = 0, offset = 0) => (code) => {
+    var i = 0
+    for (var byte in code) {
+        memory.setUint8(parseInt(byte) + startAddress - offset, code[byte])
+        i++
+    }
+    return i
+}
+
+const writeProgram = (cpu, actualStart, assembledStart, fileName, hardDriveSector = 0) => {
     hardDrive.memory.setUint16(0, hardDriveSector)
-    length = loadProgram(cpu.memory, actualStart)(assemble(Parser.read(loadFile('./programs/' + fileName))))
-    console.log(`Wrote program '${fileName}' to disk at ${hardDriveSector} from $${actualStart.toString(16).padStart(4, '0')} to $${(actualStart + length).toString(16).padStart(4, '0')}`)
-    return actualStart + length + 1
+    length = loadProgram(cpu.memory, actualStart, assembledStart)(assemble(Parser.read(loadFile('./programs/' + fileName))))
+    console.log(`Wrote program '${fileName}' to disk at ${hardDriveSector} from $${actualStart.toString(16).padStart(4, '0')} to $${(actualStart + length - 1).toString(16).padStart(4, '0')}`)
+    return actualStart + length
 }
 
 
@@ -33,8 +42,8 @@ const hardDrive = new Region(0xc000, 0xffff, new segmentedDrive(0x4000, 0xffff +
 
 // peripherals
 const screenOutput = createScreenOutput();
-const keyboardInput = new Keyboard(0b000);
-const sleepTimerDevice = SleepTimer(0b001);
+const keyboardInput = new Keyboard(0b0001);
+const sleepTimerDevice = SleepTimer(0b010);
 
 const screen = new Region(0xa000, 0xa750, createScreenOutput())
 const keyboard = new Region(0xa751, 0xa751, keyboardInput)
@@ -47,8 +56,8 @@ loadProgram(cpu.memory, 0)(assemble(Parser.read(loadFile('./programs/bootloader.
 rom.memory.setUInt16 = () => 0
 rom.memory.setUint8 = () => 0
 
-writeProgram(cpu, 0xc001, 'JS-DOS.jsm', 0)
-writeProgram(cpu, 0xc001, 'JS-WORD.jsm', 1)
+writeProgram(cpu, 0xc001, 0x9000, 'JS-DOS.jsm', 0)
+writeProgram(cpu, 0xc001, 0x0000, 'JS-WORD.jsm', 1)
 
 const runCPU = () => {
     if (fadeInTime < 0) {
