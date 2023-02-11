@@ -39,7 +39,7 @@ mov (!font.italic + !font.bold + !font.green), [!_memory_map.screen_address]
 mov !tjsvmtdhaa, x
 mov (!_memory_map.screen_address + $01), y
 mov $01, r7
-cal $60, [!function.draw_splash_screen]
+cal $30, [!function.draw_splash_screen]
 
 
 //                                                                         textStyle(false, false, color(0, 255, 0))
@@ -48,10 +48,10 @@ mov (!font.green), [!_memory_map.screen_address]
 mov !acronym_expand, x
 mov &SP, y
 mov $00, r7
-cal $1c, [!function.draw_splash_screen]
+cal $05, [!function.draw_splash_screen]
 
 //                                                                         sleep(800)
-cal $80, [!function.sleep]
+cal $c0, [!function.sleep]
 
 mov $8fc6, [!bloop_sound]
 
@@ -60,7 +60,7 @@ mov !credits, x
 mov ($01 * !chars_per_row + !_memory_map.screen_address + $01), y
 mov (!font.italic + !font.bold + !font.green), [!_memory_map.screen_address]
 mov $00, r7
-cal $a0, [!function.draw_splash_screen]
+cal $b0, [!function.draw_splash_screen]
 
 jmp [!function.loop]
 
@@ -159,7 +159,7 @@ rts
 
 
 .data16 bloop_sound { $8fc6 }
-.def bloop_duration $4064
+.def bloop_duration $4035
 
 function.sleep:
 mov &FP, d

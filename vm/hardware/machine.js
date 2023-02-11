@@ -42,9 +42,9 @@ const hardDrive = new Region(0xc000, 0xffff, new segmentedDrive(0x4000, 0xffff +
 
 // peripherals
 const screenOutput = createScreenOutput()
-const keyboardInput = new Keyboard(0b0001)
-const sleepTimerDevice = SleepTimer(0b010)
-const soundDevice = createAudioDevice(0b0011)
+const keyboardInput = new Keyboard(0b0000)
+const sleepTimerDevice = SleepTimer(0b001)
+const soundDevice = createAudioDevice(0b0010)
 
 const screen = new Region(0xa000, 0xa750, createScreenOutput())
 const keyboard = new Region(0xa751, 0xa751, keyboardInput)

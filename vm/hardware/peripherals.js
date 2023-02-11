@@ -1,7 +1,10 @@
 const requestInterrupt = (id, sleepTime, accept, reject) => {
     var response = cpu.requestInterrupt(id)
-    return [reject, () => {setTimeout(() => {requestInterrupt(id, sleepTime, accept, reject)}, sleepTime)}, accept][response+1]()
+    return [reject, () => { setTimeout(() => { requestInterrupt(id, sleepTime, accept, reject) }, sleepTime) }, accept][response + 1]()
 }
+
+var totalPress = 0
+var totalReq = 0
 
 // keyboard
 class Keyboard {
@@ -24,6 +27,8 @@ class Keyboard {
                 this.buffer.setUint16(this.writePointer, keyCode)
                 this.writePointer = (this.writePointer + 2) & this.bufferSize
 
+                totalPress += 1
+
                 if (!this.waiting) {
                     this.waiting = true
                     this.onInterrupt()
@@ -32,7 +37,17 @@ class Keyboard {
         })
     }
 
-    onInterrupt() {requestInterrupt(this.id, this.sleepTime, () => {this.waiting = false}, () => {this.readPointer = (this.readPointer + 2) & this.bufferSize})}
+    onAccept() {this.waiting = false}
+    onReject() {this.read()}
+
+    onInterrupt() { requestInterrupt(this.id, this.sleepTime, this.onAccept, this.onReject)}
+
+    read = () => {
+        this.lastValue = this.buffer.getUint16(this.readPointer)
+        this.readPointer = (this.readPointer + 2) & this.bufferSize
+
+        return this.lastValue
+    }
 
     getKeyCode(event) {
         // why is keycode deprecated
@@ -57,19 +72,15 @@ class Keyboard {
     }
 
     getUint16 = (_) => {
+        totalReq += 1
+
+        this.waiting = false
         if (this.readPointer == this.writePointer) return this.lastValue
 
-        this.lastValue = this.buffer.getUint16(this.readPointer)
-        this.readPointer = (this.readPointer + 2) & this.bufferSize
+        this.read()
 
-        if (this.readPointer == this.writePointer) {
-            this.waiting = false
-            if (this.debug) console.log(`KEYBOARD: Interrupt completed, no more pending keys, resetting...`)
-            return this.lastValue
-        }
+        if (this.readPointer != this.writePointer) this.onInterrupt()
 
-        this.onInterrupt()
-        if (this.debug) console.log(`KEYBOARD: Key queue still nonempty. Requesting another interrupt...`)
         return this.lastValue
     }
     setUint16 = (_) => 0
@@ -125,8 +136,8 @@ const createNoise = (volume = 0) => {
     source.buffer = sineWaveBuffer
 
     source.connect(gain).connect(audioCtx.destination)
-    
-    source.parameters = {volume: volume, frequency: 0}
+
+    source.parameters = { volume: volume, frequency: 0 }
 
     return source
 }
@@ -138,7 +149,7 @@ const createWave = (type = 'sine') => (volume = 0, frequency = 440) => {
 
     wave.connect(gain).connect(audioCtx.destination)
 
-    wave.parameters = {volume: volume, frequency: frequency}
+    wave.parameters = { volume: volume, frequency: frequency }
 
     return wave
 }
@@ -153,24 +164,24 @@ const createAudioDevice = (id, sleepTime = 10) => {
         getUint8: () => 0,
         setUint16: (address, value) => {
             var channel = address
-            var instruction =      (value &             0b1100000000000000) >> 14
-            var interruptWhenDone = (value &              0b10000000000000) >> 13
-            var volume =                (value &           0b1111110000000) >> 7
-            var note =                     (value &             0b01111111)
-            var duration =           (value &             0b11111111111111)
+            var instruction = (value & 0b1100000000000000) >> 14
+            var interruptWhenDone = (value & 0b10000000000000) >> 13
+            var volume = (value & 0b1111110000000) >> 7
+            var note = (value & 0b01111111)
+            var duration = (value & 0b11111111111111)
 
             var frequency = 1.059463 ** (note - 0b111111) * 440
-            switch(instruction) {
+            switch (instruction) {
                 case 0b00:
-                    try {playing[channel].stop()}
-                    catch(err) {}
+                    try { playing[channel].stop() }
+                    catch (err) { }
                     isPlaying &= ~(1 << channel)
                     return
                 case 0b01:
                     isPlaying |= (1 << channel)
 
-                    try {playing[channel].stop()}
-                    catch(err) {}
+                    try { playing[channel].stop() }
+                    catch (err) { }
 
                     var toCopy = playing[channel].parameters
                     playing[channel] = channels[channel](toCopy.volume, toCopy.frequency)
@@ -188,14 +199,14 @@ const createAudioDevice = (id, sleepTime = 10) => {
                     }, duration)
                     return
                 case 0b10:
-                    try {playing[channel].stop()}
-                    catch(err) {}
-                    playing[channel] = channels[channel](volume+1, frequency)
+                    try { playing[channel].stop() }
+                    catch (err) { }
+                    playing[channel] = channels[channel](volume + 1, frequency)
                     return
                 case 0b11:
-                    try {playing[channel].stop()}
-                    catch(err) {}
-                    playing[channel] = channels[channel](volume+1, frequency)
+                    try { playing[channel].stop() }
+                    catch (err) { }
+                    playing[channel] = channels[channel](volume + 1, frequency)
                     playing[channel].start()
                     isPlaying |= (1 << channel)
                     return
