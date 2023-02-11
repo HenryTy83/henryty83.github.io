@@ -23,7 +23,6 @@ mov 0, mar
 cal mar, [!_program.bootloader.function.load_program_and_run]
 hlt
 
-// 
 .global_label _program.bootloader.function.load_program_and_run:
 mov &FP, mar
 cal mar, [!function.load_file]

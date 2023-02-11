@@ -66,6 +66,39 @@ cal mar, [!_program.bootloader.function.load_program_and_run]
 
 jmp [!function.loop]
 
+.global_label function.display_text_to_screen:
+mov &FP, mar
+mov (!_memory_map.screen_address + $01), y
+mov &mar, acc
+
+function.display_text_to_screen.loop:
+inc mar
+inc mar
+mov &mar, w
+mov w, &y
+inc y
+dec acc
+dec acc
+jgz [!function.display_text_to_screen.loop]
+
+mov mar, &FP
+rts
+
+.global_label throw_error:
+mov !font.reset, [!_memory_map.screen_address]
+mov !font.red, [!_memory_map.screen_address]
+mov &FP, mar
+cal mar, [!function.display_text_to_screen]
+
+mov !_software.reset, [!_hardware.interrupt_vector.keyboard]
+mov $1, IM
+mov 1, CLK
+
+error_thrown:
+jmp [!error_thrown]
+
+.data16 out_of_ram_error { $62, $45, $52, $52, $4F, $52, $3A, $20, $4F, $75, $74, $20, $6F, $66, $20, $75, $73, $65, $61, $62, $6C, $65, $20, $52, $41, $4D, $2E, $20, $50, $72, $65, $73, $73, $20, $61, $6E, $79, $20, $6B, $65, $79, $20, $74, $6F, $20, $72, $65, $73, $65, $74 }
+
 //                                                                          text([char] string, x, y, letterSleep, mainSleep)
 function.draw_splash_screen:
 mov &FP, r8
@@ -114,7 +147,7 @@ mov &x, acc
 jne $ffff, [!function.malloc.search]
 
 //                                          Ran out of free RAM (FATAL ERROR)
-int [!_software.reset]
+cal !out_of_ram_error, [!throw_error]
 
 function.malloc.found:
 inc mar

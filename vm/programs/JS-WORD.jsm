@@ -264,6 +264,10 @@ function.delete_char_and_shift:
 mov &FP, x
 add x, $02
 mov x, y
+mov &y, acc
+
+jnz [!function.delete_char_and_shift.loop]
+rts
 
 function.delete_char_and_shift.loop:
 mov &y, acc
