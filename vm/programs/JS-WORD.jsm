@@ -42,6 +42,9 @@ cal NUL, [!function.display_text_to_screen]
 mov [!cursor_offscreen], acc
 jnz [!function.loop]
 
+mov [!cursor_offscreen], acc
+jnz [!function.loop]
+
 function.loop.sleep:
 mov [!_memory_map.sleep_timer], acc
 jlt !frame_sleep, [!function.loop.sleep]
@@ -200,22 +203,36 @@ jmp [!function.key_typed.end]
 
 function.key_typed.is_down_arrow:
 sub !key.down_arrow, d
-jnz [!function.key_typed.no_special_keys]
+jnz [!function.key_typed.is_enter]
 cal NUL, [!function.find_next_newline]
 mov &FP, x
 jmp [!function.key_typed.end]
 
+function.key_typed.is_enter:
+sub !key.newline, d
+jnz [!function.key_typed.no_special_keys]
+mov &x, acc
+jnz [!function.key_typed.no_special_keys]
+cal $20, [!function.type_key]
+
 function.key_typed.no_special_keys:
-mov d, &x
-inc x
-inc x
-cal NUL, [!function.increment_text_length]
+cal d, [!function.type_key]
 
 function.key_typed.end:
 mov x, [!cursor_pos]
 
 function.key_typed.rti:
-rti
+bki [!function.loop.sleep.end]
+
+function.type_key:
+psh d
+mov &FP, d
+mov d, &x
+inc x
+inc x
+cal NUL, [!function.increment_text_length]
+pop d
+rts
 
 function.escape_key_pressed:
 cal NUL, [!function.save_text]
@@ -228,7 +245,6 @@ mov 0, y
 mov 0, mar
 mov !_program.JSDOS.skip_splash_screen, d
 cal mar, [!_program.bootloader.function.load_program_and_jump]
-hlt
 
 .data16 save_data_location { $ffff, $c001 }
 

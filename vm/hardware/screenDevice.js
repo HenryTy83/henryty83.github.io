@@ -10,6 +10,9 @@ const charHeight = Math.floor(canvas.height / (rows));
 const charWidth = Math.floor(canvas.width / charPerRow);
 
 const defaultFont = `${charHeight}px modernDOS`
+const emojiFont = `${(charWidth + charHeight) / 2}px modernDOS`
+
+const backgroundColors = [0, 20, 0]
 
 console.log('LOADING MACHINE...')
 DOSfont.load().then(function (font) { //what the hell is a promise
@@ -19,42 +22,45 @@ DOSfont.load().then(function (font) { //what the hell is a promise
 
     try {
         button.style.backgroundColor = 'rgb(255, 0, 0)'
+        console.log('LOAD SUCCESSFUL. POWERING ON...')
+
+        cpu.startup()
     }
     catch (err) { 
         console.error(`LOAD FAILED, RESTARTING...`)
         this.location.reload()
     }
-
-    console.log('LOAD SUCCESSFUL. POWERING ON...')
-
-    cpu.startup()
 });
 
 var VRAMinstructions = {}
 var controlHextet = null
 
 const drawChar = (char, address, r, g, b) => {
+    ctx.save()
+
     const charX = charWidth * (1 + (address % charPerRow))  //this makes sense, just convert the index number to x and y coordinates
     const charY = charHeight * (Math.floor(address / charPerRow) + 1) - 2
 
     const randomFlicker = Math.random() < 0.0025 ? Math.random() : 0;
 
-    ctx.fillStyle = `rgb(${r}, ${Math.floor(g * 215 / 255) + 40},  ${b}, ${1 - 0.25 * randomFlicker})`
+    ctx.fillStyle = `rgb(${Math.floor(r * 215 / 255) + 30}, ${Math.floor(g * 215 / 255) + 40},  ${Math.floor(b * 215 / 255) + 40}, ${1 - 0.25 * randomFlicker})`
 
-    ctx.fillText(char, charX, charY)
+    ctx.fillText(char, charX, charY, charWidth)
 
-    ctx.fillStyle = `rgb(${r}, ${Math.floor(g * 215 / 255) + 40},  ${b}, ${0.04-0.02*randomFlicker})`
-    for (let i = -3; i <= 3; i++) {
-        for (let j = -2; j <= 2; j++) {
-            ctx.fillText(char, charX + i, charY + j)
+    ctx.fillStyle = `rgb(${Math.floor(r * 215 / 255) + backgroundColors[0]}, ${Math.floor(g * 215 / 255) + backgroundColors[1]},  ${Math.floor(b * 215 / 255) + backgroundColors[2]}, ${0.02-0.91*randomFlicker})`
+    for (let i = -4; i <= 4; i++) {
+        for (let j = -3; j <= 3; j++) {
+            ctx.fillText(char, charX + i, charY + j, charWidth)
         }
     }
+
+    ctx.restore()
 }
 
 const background = () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height); //clear the screen
 
-    ctx.fillStyle = 'rgb(0, 40, 0)';
+    ctx.fillStyle = `rgb(${backgroundColors[0]}, ${backgroundColors[1]}, ${backgroundColors[2]})`;
     ctx.fillRect(0, 0, canvas.width, canvas.height)
 }
 
@@ -63,7 +69,7 @@ const displayScreen = () => {
     for (var address in VRAMinstructions) {
         [control, data] = VRAMinstructions[address]
 
-        ctx.font = defaultFont
+        ctx.font = data > 0x2400 ? emojiFont : defaultFont
 
         if (control & 0b0100000000000000) {
             ctx.font = 'italic ' + ctx.font
@@ -76,7 +82,7 @@ const displayScreen = () => {
         var greenChannel = ((control & 0b000011110000) >> 4) * 17
         var blueChannel = ((control & 0b000000001111)) * 17
 
-        drawChar(String.fromCharCode(data), address, redChannel, greenChannel, blueChannel);
+        drawChar(String.fromCodePoint(data), address, redChannel, greenChannel, blueChannel);
     }
 
     if (cpu.poweredOn) {

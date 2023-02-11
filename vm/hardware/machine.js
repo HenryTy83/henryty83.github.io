@@ -1,14 +1,14 @@
 // import programs from program file, assemble, and load
 // file-reading code from https://stackoverflow.com/questions/36921947/read-a-server-side-file-using-javascript
 function loadFile(filePath) {
-    var result = null;
-    var xmlhttp = new XMLHttpRequest();
-    xmlhttp.open('GET', filePath, false);
-    xmlhttp.send();
+    var result = null
+    var xmlhttp = new XMLHttpRequest()
+    xmlhttp.open('GET', filePath, false)
+    xmlhttp.send()
     if (xmlhttp.status == 200) {
-        result = xmlhttp.responseText;
+        result = xmlhttp.responseText
     }
-    return result.split(/\r?\n/);
+    return result.split(/\r?\n/)
 }
 
 const loadProgram = (memory, startAddress = 0, offset = 0) => (code) => {
@@ -41,28 +41,30 @@ const rom = new Region(0xb000, 0xbfff)
 const hardDrive = new Region(0xc000, 0xffff, new segmentedDrive(0x4000, 0xffff + 1))
 
 // peripherals
-const screenOutput = createScreenOutput();
-const keyboardInput = new Keyboard(0b0001);
-const sleepTimerDevice = SleepTimer(0b010);
+const screenOutput = createScreenOutput()
+const keyboardInput = new Keyboard(0b0001)
+const sleepTimerDevice = SleepTimer(0b010)
+const soundDevice = createAudioDevice(0b0011)
 
 const screen = new Region(0xa000, 0xa750, createScreenOutput())
 const keyboard = new Region(0xa751, 0xa751, keyboardInput)
-const sleepTimer = new Region(0xa752, 0xa752, sleepTimerDevice)
+const sleepTimer = new Region(0xa752, 0xa753, sleepTimerDevice)
+const soundCard = new Region(0xa754, 0xa757, soundDevice)
 
-const memoryMappage = new Mapping([ram, screen, keyboard, sleepTimer, rom, hardDrive])
+const memoryMappage = new Mapping([ram, screen, keyboard, sleepTimer, soundCard, rom, hardDrive])
 const cpu = new CPU(0xbffe, 0x8fe0, memoryMappage)
 
 loadProgram(cpu.memory, 0)(assemble(Parser.read(loadFile('./programs/bootloader.jsm'), 0)))
 rom.memory.setUInt16 = () => 0
 rom.memory.setUint8 = () => 0
 
-writeProgram(cpu, 0xc001, 0x9000, 'JS-DOS.jsm', 0)
+writeProgram(cpu, 0xc001, 0x6000, 'JS-DOS.jsm', 0)
 writeProgram(cpu, 0xc001, 0x0000, 'JS-WORD.jsm', 1)
 
 const runCPU = () => {
     if (fadeInTime < 0) {
         for (var i = 0; i < cpu.readReg('CLK'); i++) {
-            cpu.run();
+            cpu.run()
             if (cpu.halted) {
                 console.log('EXECUTION HALTED')
                 button.style.backgroundColor = 'rgb(255, 255, 0)'
