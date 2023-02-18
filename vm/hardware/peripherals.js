@@ -1,3 +1,16 @@
+const requestInterrupt = (id, sleepTime, device) => {
+    var response = cpu.requestInterrupt(id)
+    switch(response) {
+        case -1: 
+            return device.onReject()
+        case 0:
+            return setTimeout(() => {requestInterrupt(id, sleepTime, device)}, sleepTime)
+        case 1:
+            return device.onAccept()
+    }
+}
+
+// keyboard
 class Keyboard {
     constructor(id, sleepTime = 10) {
         this.bufferSize = 0b11111111
@@ -16,7 +29,7 @@ class Keyboard {
             // console.log(keyCode.toString(16))
             if (fadeInTime < 0 && keyCode != 0) {
                 this.buffer.setUint16(this.writePointer, keyCode)
-                this.writePointer = (this.writePointer + 2)  & this.bufferSize;
+                this.writePointer = (this.writePointer + 2) & this.bufferSize
 
                 if (!this.waiting) {
                     this.waiting = true
@@ -25,6 +38,19 @@ class Keyboard {
             }
         })
     }
+
+    read() {
+        this.waiting = false
+        this.lastValue = this.buffer.getUint16(this.readPointer)
+        this.readPointer = (this.readPointer + 2) & this.bufferSize
+
+        return this.lastValue
+    }
+
+    onAccept() {this.waiting = false}
+    onReject() {this.read()}
+
+    onInterrupt() { requestInterrupt(this.id, this.sleepTime, this)}
 
     getKeyCode(event) {
         // why is keycode deprecated
@@ -68,6 +94,7 @@ class Keyboard {
     }
 
     getUint16 = (_) => {
+        this.waiting = false
         if (this.readPointer == this.writePointer) return this.lastValue
         
         this.lastValue = this.buffer.getUint16(this.readPointer);

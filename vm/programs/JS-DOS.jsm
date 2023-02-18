@@ -66,6 +66,31 @@ cal mar, [!_program.bootloader.function.load_program_and_run]
 
 jmp [!function.loop]
 
+.global_label throw_error:
+mov 0, x
+mov 0, y
+cal [!console.move_cursor]
+
+mov &FP, mar
+mov !font.reset, [!_memory_map.screen_address]
+mov (!font.bold + !font.red), [!_memory_map.screen_address]
+cal mar, [!console.print]
+
+mov !error_noise, [!_memory_map.sound.square]
+mov !error_noise_duration, [!_memory_map.sound.square]
+
+mov !_software.reset, [!_hardware.interrupt_vector.keyboard]
+mov 1, IM
+mov 1, CLK
+
+error_thrown:
+jmp [!error_thrown]
+
+.def error_noise $be14
+.def error_noise_duration $40b4
+
+.data16 out_of_ram_error { $2639, $20, $46, $41, $54, $41, $4C, $20, $45, $52, $52, $4F, $52, $3A, $20, $4F, $75, $74, $20, $6F, $66, $20, $75, $73, $65, $61, $62, $6C, $65, $20, $52, $41, $4D, $2E, $20, $50, $72, $65, $73, $73, $20, $61, $6E, $79, $20, $6B, $65, $79, $20, $74, $6F, $20, $72, $65, $73, $65, $74, $00 }
+
 //                                                                          text([char] string, x, y, letterSleep, mainSleep)
 function.draw_splash_screen:
 mov &FP, r8
@@ -90,10 +115,70 @@ jnz [!function.draw_splash_screen]
 mov y, &FP
 rts
 
+.data16 bloop_sound { $8fc6 }
+.def bloop_duration $4035
+
 function.sleep:
 mov &FP, d
 mov [!_memory_map.sleep_timer], acc
 jlt d, [!function.sleep]
+rts
+
+
+.data16 cursor_pos { (!_memory_map.screen_address + $01) }
+
+.global_label console.char:
+mul y, !chars_per_row
+add x, acc
+add acc, (!_memory_map.screen_address + $01)
+mov &FP, d
+mov d, &acc
+rts
+
+.global_label console.move_cursor:
+mul y, !chars_per_row
+add x, acc
+add acc, (!_memory_map.screen_address + $01)
+mov acc, [!cursor_pos]
+rts
+
+.def key.newline $0a
+
+.global_label console.print:
+mov &FP, x
+mov [!cursor_pos], y
+
+console.print.loop:
+sub y, !_memory_map.screen_address.end
+jez [!console.print.done]
+
+
+console.print.increment_pointers:
+mov &x, acc
+jez [!console.print.done]
+inc x
+inc x
+jeq !key.newline, [!console.print.new_line]
+mov acc, &y
+inc y
+jmp [!console.print.loop]
+
+console.print.new_line:
+mov 0, d
+sub y, (!_memory_map.screen_address + $01)
+mov acc, y
+console.print.find_next_line:
+mul d, !chars_per_row
+sub acc, y
+inc d
+jlz [!console.print.find_next_line]
+dec d
+mul d, !chars_per_row
+add acc, (!_memory_map.screen_address + $01)
+mov acc, y
+jmp [!console.print.loop]
+
+console.print.done:
 rts
 
 //                                          takes a size to reserve and returns the address
@@ -122,7 +207,7 @@ mov mar, &FP
 add mar, w
 mov mar, r7
 mov acc, r8
-cal NUL, [!function.malloc.insert_reservation]
+cal [!function.malloc.insert_reservation]
 rts
 
 function.malloc.insert_reservation:

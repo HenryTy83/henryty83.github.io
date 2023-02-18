@@ -446,50 +446,57 @@ const instructionSet = {
         args: ['REGISTER']
     },
                 
-    cal_reg: {
+    cal: {
         opcode: 0x54,
+        length: 3,
+        mnemonic: 'cal',
+        args: ['ADDRESS']
+    },
+
+    cal_reg: {
+        opcode: 0x55,
         length: 4,
         mnemonic: 'cal',
         args: ['REGISTER', 'ADDRESS']
     },
 
     cal_lit: {
-        opcode: 0x55,
+        opcode: 0x56,
         length: 5,
         mnemonic: 'cal',
         args: ['LITERAL', 'ADDRESS']
     },
                 
     rts: {
-        opcode: 0x56,
+        opcode: 0x57,
         length: 1,
         mnemonic: 'rts',
         args: []
     },
 
     brk: {
-        opcode: 0x57,
+        opcode: 0x58,
         length: 3,
         mnemonic: 'brk',
         args: ['ADDRESS']
     },
 
     rti: {
-        opcode: 0x58,
+        opcode: 0x59,
         length: 1,
         mnemonic: 'rti',
         args: []
     },
 
     bki: {
-        opcode: 0x59,
+        opcode: 0x5a,
         length: 3,
         mnemonic: 'bki',
         args: ['ADDRESS']
     },
 
     int: {
-        opcode: 0x5a,
+        opcode: 0x5b,
         length: 3,
         mnemonic: 'int',
         args: ['ADDRESS']

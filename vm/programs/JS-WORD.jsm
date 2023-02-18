@@ -35,12 +35,11 @@ function.loop:
 mov !font.reset, [!_memory_map.screen_address]
 mov !font.green, [!_memory_map.screen_address]
 
-mov [!starting_pos], x
-mov (!_memory_map.screen_address + $01), y
-cal NUL, [!function.display_text_to_screen]
-
-mov [!cursor_offscreen], acc
-jnz [!function.loop]
+mov 0, x
+mov 0, y
+cal [!console.move_cursor]
+mov [!starting_pos], mar
+cal mar, [!console.print]
 
 function.loop.sleep:
 mov [!_memory_map.sleep_timer], acc
@@ -63,81 +62,6 @@ jmp [!function.loop]
 
 .def chars_per_row $4e
 .def total_rows $18
-
-function.display_text_to_screen:
-mov 0, d
-mov 1, w
-
-mov [!cursor_pos], acc
-jlt x, [!function.display_text_to_screen.decrement_starting_pos]
-
-function.display_text_to_screen.find_target_pos:
-mul d, !chars_per_row
-add acc, y
-mov acc, y
-
-function.display_text_to_screen.loop:
-sub y, !_memory_map.screen_address.end
-jez [!function.display_text_to_screen.done]
-
-mov [!cursor_pos], acc
-jeq x, [!function.display_text_to_screen.draw_cursor]
-
-function.display_text_to_screen.cursor_skip:
-mov &x, acc
-jez [!function.display_text_to_screen.done]
-jeq !key.newline, [!function.display_text_to_screen.increment_pointers]
-mov acc, &y
-
-function.display_text_to_screen.increment_pointers:
-mov &x, acc
-jez [!function.display_text_to_screen.done]
-inc x
-inc x
-jeq !key.newline, [!function.display_text_to_screen.new_line]
-inc y
-jmp [!function.display_text_to_screen.loop]
-
-function.display_text_to_screen.new_line:
-mov 0, d
-sub y, (!_memory_map.screen_address + $01)
-mov acc, y
-function.display_text_to_screen.find_next_line:
-mul d, !chars_per_row
-sub acc, y
-inc d
-jlz [!function.display_text_to_screen.find_next_line]
-dec d
-mul d, !chars_per_row
-add acc, (!_memory_map.screen_address + $01)
-mov acc, y
-jmp [!function.display_text_to_screen.loop]
-
-function.display_text_to_screen.draw_cursor:
-mov 0, w
-mov [!cursor_character], acc
-jez [!function.display_text_to_screen.cursor_skip]
-mov acc, &y
-mov &x, acc
-jnz [!function.display_text_to_screen.increment_pointers]
-
-function.display_text_to_screen.done:
-mov w, acc
-jez [!function.display_text_to_screen.return]
-
-mov [!starting_pos], x
-inc x
-inc x
-mov x, [!starting_pos]
-
-function.display_text_to_screen.return:
-mov w, [!cursor_offscreen]
-rts
-
-function.display_text_to_screen.decrement_starting_pos:
-mov [!cursor_pos], x
-mov x, [!starting_pos]
-rts
 
 // important keys
 .def key.backspace $08
@@ -182,7 +106,7 @@ jmp [!function.key_typed.end]
 function.key_typed.is_up_arrow:
 sub !key.up_arrow, d
 jnz [!function.key_typed.is_right_arrow]
-cal NUL, [!function.find_previous_newline]
+cal [!function.find_previous_newline]
 mov &FP, x
 jmp [!function.key_typed.end]
 
@@ -200,8 +124,8 @@ jmp [!function.key_typed.end]
 
 function.key_typed.is_down_arrow:
 sub !key.down_arrow, d
-jnz [!function.key_typed.no_special_keys]
-cal NUL, [!function.find_next_newline]
+jnz [!function.key_typed.is_enter]
+cal [!function.find_next_newline]
 mov &FP, x
 jmp [!function.key_typed.end]
 
@@ -215,10 +139,20 @@ function.key_typed.end:
 mov x, [!cursor_pos]
 
 function.key_typed.rti:
-rti
+bki [!function.loop.sleep.end]
+
+function.type_key:
+psh d
+mov &FP, d
+mov d, &x
+inc x
+inc x
+cal [!function.increment_text_length]
+pop d
+rts
 
 function.escape_key_pressed:
-cal NUL, [!function.save_text]
+cal [!function.save_text]
 bki [!function.break]
 
 function.break:
@@ -274,7 +208,7 @@ inc y
 inc y
 jmp [!function.delete_char_and_shift.loop]
 function.delete_char_and_shift.end:
-cal NUL, [!function.decrement_text_length]
+cal [!function.decrement_text_length]
 rts
 
 function.insert_space_and_unshift:
@@ -291,7 +225,7 @@ mov acc, d
 jmp [!function.insert_space_and_unshift.loop]
 function.insert_space_and_unshift.end:
 mov 0, &x
-cal NUL, [!function.increment_text_length]
+cal [!function.increment_text_length]
 rts
 
 function.find_previous_newline:
