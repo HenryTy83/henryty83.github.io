@@ -1,5 +1,5 @@
-.org $9000
-.data16 _file.length { (!reset_vector - $9000 + $02) }
+.org $6000
+.data16 _file.length { (!reset_vector - $6000 + $02) }
 
 .global font.reset $8000
 .global font.italic $4000
@@ -16,42 +16,51 @@
 .data16 credits { $00a9, $0020, $0048, $0065, $006e, $0072, $0079, $0020, $0054, $0079, $002c, $0020, $0032, $0030, $0032, $0032, $002d, $0033, $0000, $0000 }
 
 function.setup:
+mov [!_memory_map.keyboard], NUL
 mov 0, IM
 mov $ffff, CLK
 
 mov 0, [!reservations]
-mov $3fff, [!reservations + $02]
-mov $a000, [!reservations + $04]
+mov 0, [!reservations + $02]
+mov $6000, [!reservations + $04]
 mov $ffff, [!reservations + $06] 
 
 mov !font.reset, [!_memory_map.screen_address]
 
-//                                                                         textStyle(true, true, color(0, 255, 0), 1, 1600)
+.def scratch_sound $8380
+.def scratch_duration $4360
+
+mov !scratch_sound, [!_memory_map.sound.noise]
+mov !scratch_duration, [!_memory_map.sound.noise]
+
+//                                                                         textStyle(true, true, color(0, 255, 0), 1)
 mov (!font.italic + !font.bold + !font.green), [!_memory_map.screen_address]
-//                                                                         text('TJSVMTDHAA', 0, 0)
+//                                                                         text('TJSVMTDHAA', 0, 0, 1, 320)
 mov !tjsvmtdhaa, x
 mov (!_memory_map.screen_address + $01), y
 mov $01, r7
-cal $10, [!function.draw_splash_screen]
+cal $30, [!function.draw_splash_screen]
 
 
 //                                                                         textStyle(false, false, color(0, 255, 0))
 mov (!font.green), [!_memory_map.screen_address]
-//                                                                         text('The JavaScript Virtual Machine That Doesn't Have An Acronym', 0, 0, 0, 300)
+//                                                                         text('The JavaScript Virtual Machine That Doesn't Have An Acronym', 0, 0, 0, 600)
 mov !acronym_expand, x
 mov &SP, y
 mov $00, r7
-cal $03, [!function.draw_splash_screen]
+cal $05, [!function.draw_splash_screen]
 
 //                                                                         sleep(800)
-cal $08, [!function.sleep]
+cal $c0, [!function.sleep]
 
-//                                                                         text('Henry Ty, 2022-3', 0, 1, 0, 10)
+mov $8fc6, [!bloop_sound]
+
+//                                                                         text('Henry Ty, 2022-3', 0, 1, 0, 800)
 mov !credits, x
 mov ($01 * !chars_per_row + !_memory_map.screen_address + $01), y
 mov (!font.italic + !font.bold + !font.green), [!_memory_map.screen_address]
 mov $00, r7
-cal $10, [!function.draw_splash_screen]
+cal $b0, [!function.draw_splash_screen]
 
 jmp [!function.loop]
 
@@ -62,7 +71,14 @@ function.loop:
 mov (!_memory_map.hard_drive + $01), x
 mov 0, y
 mov 1, mar
-cal mar, [!_program.bootloader.function.load_program_and_run]
+cal mar, [!bootloader.function.load_file]
+mov &SP, mar
+mov &mar, acc
+add acc, mar
+dec acc
+dec acc
+mov acc, [!reservations + $02]
+mov &acc, PC
 
 jmp [!function.loop]
 
@@ -108,6 +124,13 @@ jmp [!function.draw_splash_screen]
 function.draw_splash_screen.end:
 mov 0, [!_memory_map.sleep_timer]
 cal r8, [!function.sleep]
+
+mov [!bloop_sound], acc
+mov acc, [!_memory_map.sound.sine]
+add acc, $03
+mov acc, [!bloop_sound]
+
+mov !bloop_duration, [!_memory_map.sound.sine]
 
 mov &x, acc
 jnz [!function.draw_splash_screen]
@@ -199,12 +222,12 @@ mov &x, acc
 jne $ffff, [!function.malloc.search]
 
 //                                          Ran out of free RAM (FATAL ERROR)
-int [!_software.reset]
+cal !out_of_ram_error, [!throw_error]
 
 function.malloc.found:
+add mar, w
 inc mar
 mov mar, &FP
-add mar, w
 mov mar, r7
 mov acc, r8
 cal [!function.malloc.insert_reservation]

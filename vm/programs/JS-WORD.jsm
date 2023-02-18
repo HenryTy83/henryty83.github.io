@@ -41,6 +41,9 @@ cal [!console.move_cursor]
 mov [!starting_pos], mar
 cal mar, [!console.print]
 
+mov [!cursor_offscreen], acc
+jnz [!function.loop]
+
 function.loop.sleep:
 mov [!_memory_map.sleep_timer], acc
 jlt !frame_sleep, [!function.loop.sleep]
@@ -125,15 +128,21 @@ jmp [!function.key_typed.end]
 function.key_typed.is_down_arrow:
 sub !key.down_arrow, d
 jnz [!function.key_typed.is_enter]
+
 cal [!function.find_next_newline]
+
 mov &FP, x
 jmp [!function.key_typed.end]
 
+function.key_typed.is_enter:
+sub !key.newline, d
+jnz [!function.key_typed.no_special_keys]
+mov &x, acc
+jnz [!function.key_typed.no_special_keys]
+cal $20, [!function.type_key]
+
 function.key_typed.no_special_keys:
-mov d, &x
-inc x
-inc x
-cal NUL, [!function.increment_text_length]
+cal d, [!function.type_key]
 
 function.key_typed.end:
 mov x, [!cursor_pos]
@@ -147,7 +156,9 @@ mov &FP, d
 mov d, &x
 inc x
 inc x
+
 cal [!function.increment_text_length]
+
 pop d
 rts
 
@@ -162,7 +173,6 @@ mov 0, y
 mov 0, mar
 mov !_program.JSDOS.skip_splash_screen, d
 cal mar, [!_program.bootloader.function.load_program_and_jump]
-hlt
 
 .data16 save_data_location { $ffff, $c001 }
 
@@ -198,6 +208,10 @@ function.delete_char_and_shift:
 mov &FP, x
 add x, $02
 mov x, y
+mov &y, acc
+
+jnz [!function.delete_char_and_shift.loop]
+rts
 
 function.delete_char_and_shift.loop:
 mov &y, acc

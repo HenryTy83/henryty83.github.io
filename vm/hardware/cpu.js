@@ -134,7 +134,7 @@ class CPU {
     }
 
     requestInterrupt(id) {
-        if ((this.readReg('IM') & id) == 0) return -1
+        if ((this.readReg('IM') & (1 << id)) == 0) return -1
         if (this.pendingInterrupt) return 0
 
         this.irq = id
@@ -148,7 +148,7 @@ class CPU {
             this.pendingInterrupt = false
 
             // console.log(this.memory.getUint16(this.interruptVector + 2 * (this.irq-1)).toString(16))
-            this.enterInterrupt(this.memory.getUint16(this.interruptVector + 2 * (this.irq-1)))
+            this.enterInterrupt(this.memory.getUint16(this.interruptVector + 2 * (this.irq)))
         }
     }
 

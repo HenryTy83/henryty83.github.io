@@ -3,10 +3,17 @@
 .global _memory_map.screen_address.end $a751
 .global _memory_map.keyboard $a751
 .global _memory_map.sleep_timer $a752
+.global _memory_map.sleep_alarm $a753
+.global _memory_map.sound.noise $a754
+.global _memory_map.sound.sine $a755
+.global _memory_map.sound.square $a756
+.global _memory_map.sound.sawtooth $a757
 .global _memory_map.hard_drive $c000
 
 .global _hardware.default_stack_pointer $8fde
 .global _hardware.interrupt_vector.keyboard $8fe0
+.global _hardware.interrupt_vector.sleep_alarm $8fe2
+.global _hardware.interrupt_vector.sound $8fe4
 
 .org $b000
 .global_label _memory_map.rom:
@@ -18,12 +25,11 @@ mov 0, IM
 mov !_hardware.default_stack_pointer, SP
 //                                               load a program from sector 0
 mov (!_memory_map.hard_drive + $01), x
-mov $9000, y
+mov $6000, y
 mov 0, mar
 cal mar, [!_program.bootloader.function.load_program_and_run]
 hlt
 
-// 
 .global_label _program.bootloader.function.load_program_and_run:
 mov &FP, mar
 cal mar, [!function.load_file]
