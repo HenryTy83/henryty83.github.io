@@ -554,6 +554,9 @@ class CPU {
             case instructionSet.peek.opcode:
                 this.setReg(this.fetchSingleReg(), this.memory.getUint16(this.readReg('SP') + 2))
                 return
+            case instructionSet.cal.opcode:
+                this.subroutine(0)
+                return
             case instructionSet.cal_reg.opcode:
                 this.subroutine(this.getReg(this.fetchSingleReg()))
                 return

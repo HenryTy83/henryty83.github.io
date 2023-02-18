@@ -312,7 +312,7 @@ const assemble = (program, startAddress = 0) => {
                 } catch (err) {
                     throw new Error(`Line ${word.line}: ${word.rawCode} 
                     
-Unable to find opcode with arguments ${expectedArguments}. Either recieved unknown instruction or never recieved an expected comma.`)
+Unable to find opcode with arguments ${expectedArguments}. Likely expected a comma but never recieved one.`)
                 }
 
                 for (var i in word.args) {

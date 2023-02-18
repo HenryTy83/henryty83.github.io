@@ -1,11 +1,14 @@
-const requestInterrupt = (id, sleepTime, accept, reject) => {
+const requestInterrupt = (id, sleepTime, device) => {
     var response = cpu.requestInterrupt(id)
-    return [reject, () => { setTimeout(() => { requestInterrupt(id, sleepTime, accept, reject) }, sleepTime) }, accept][response + 1]()
+    switch(response) {
+        case -1: 
+            return device.onReject()
+        case 0:
+            return setTimeout(() => {requestInterrupt(id, sleepTime, device)}, sleepTime)
+        case 1:
+            return device.onAccept()
+    }
 }
-
-var totalPress = 0
-var totalReq = 0
-
 // keyboard
 class Keyboard {
     constructor(id, sleepTime = 10) {
@@ -27,8 +30,6 @@ class Keyboard {
                 this.buffer.setUint16(this.writePointer, keyCode)
                 this.writePointer = (this.writePointer + 2) & this.bufferSize
 
-                totalPress += 1
-
                 if (!this.waiting) {
                     this.waiting = true
                     this.onInterrupt()
@@ -37,18 +38,18 @@ class Keyboard {
         })
     }
 
-    onAccept() {this.waiting = false}
-    onReject() {this.read()}
-
-    onInterrupt() { requestInterrupt(this.id, this.sleepTime, this.onAccept, this.onReject)}
-
-    read = () => {
+    read() {
+        this.waiting = false
         this.lastValue = this.buffer.getUint16(this.readPointer)
         this.readPointer = (this.readPointer + 2) & this.bufferSize
 
         return this.lastValue
     }
 
+    onAccept() {this.waiting = false}
+    onReject() {this.read()}
+
+    onInterrupt() { requestInterrupt(this.id, this.sleepTime, this)}
     getKeyCode(event) {
         // why is keycode deprecated
         // i have to do this myself
@@ -72,8 +73,6 @@ class Keyboard {
     }
 
     getUint16 = (_) => {
-        totalReq += 1
-
         this.waiting = false
         if (this.readPointer == this.writePointer) return this.lastValue
 
