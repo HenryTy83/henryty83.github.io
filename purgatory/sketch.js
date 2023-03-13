@@ -11,13 +11,11 @@ let particle;
 let xoff = 0;
 let yoff = 10000;
 let obstacles = []; 
-let speed = 10;
+let gameSpeed = 10;
 let score = 0;
 let screen = 0;
-let deathTimer = 0;
 let hell;
-let forever;
-let rebirths;
+let deathTimer = 0;
 let theEnd;
 
 const sceneW = 1200;
@@ -29,7 +27,8 @@ function preload() {
 }
 
 function setup() {
-  createCanvas(1200, 600);
+  createCanvas(1200, 600).parent("canvas");
+
 
   walls.push(new Boundary(0, 10, sceneW, 10));
   walls.push(new Boundary(0, sceneH-10, sceneW, sceneH-10));
@@ -41,28 +40,17 @@ function setup() {
 
   textAlign(CENTER)
   rectMode(CENTER)
-
-  history.pushState(0, 0, "../despair");
-
-  rebirths = getItem("rebirths")
-  if (rebirths == null) {
-    rebirths = 0;
-  }
-
-  forever = getItem("forever")
-  if (forever == null) {
-    forever = 1000000;
-  }
 }
 
 function runGame() {
+  if (random(1) < 0.0001)gameSpeed*=10
   if (keyIsDown(LEFT_ARROW) || keyIsDown(65)) {
     if (particle.pos.y > 100) {
-      particle.pos.y -= speed/2;
+      particle.pos.y -= gameSpeed/2;
     }
   } else if (keyIsDown(RIGHT_ARROW) || keyIsDown(68)) {
     if (particle.pos.y < height - 100) {
-      particle.pos.y += speed/2;
+      particle.pos.y += gameSpeed/2;
     }
   } 
 
@@ -72,9 +60,20 @@ function runGame() {
 
   background(0);
 
-  image(theEnd, width/2-100/2, height/2-100, 100, 100);
+  rectMode(CORNER)
+
+  for (var y=height/2 + 100/2; y<height; y++) {
+    stroke(lerp(0, 100, (y-height/2 + 50/2)/height))
+    line(0, y, width, y)
+    noStroke()
+  }
+
+  image(theEnd, width/2-100/2, height/2-100/2, 100, 100);
+
   fill(0, 0, 0, 150 + 100*max(0, sin(frameCount/30)+0.5))
-  rect(width/2, height/2-100/2, 100, 100)
+  rect(width/2 - 100/2, height/2-100/2, 100, 100)
+
+  rectMode(CENTER)
 
   const scene = particle.look(walls);
   const w = sceneW / scene.length;
@@ -93,7 +92,7 @@ function runGame() {
 
   fill(255)
   textSize(20)
-  text("USE W AND S OR ARROW KEYS", width/2, height - 20)
+  text("USE A AND D OR ARROW KEYS", width/2, height - 20)
   text("GATES OF REDEMPTION PASSED: " + score, width/2, 20)
 }
 
@@ -101,23 +100,12 @@ function titleScreen() {
   background(0)
   fill(255)
   textSize(100)
-  text(rebirths == 10 ? "HELL" : "PURGATORY", width/2, 100)
+  text("PURGATORY", width/2, 100)
+
   textSize(50)
-  text(rebirths == 0 ? "CLICK TO ACKNOWLEDGE YOUR SINS" : "YOU MAY LEAVE, \n BUT THE LORD REMEMBERS YOUR SINS \n (CLICK TO REPENT)", width/2, height/2)
+  text("CLICK TO ACKNOWLEDGE YOUR SINS", width/2, height/2)
 
-  if (mouseIsPressed) {
-    if (rebirths < 10) {
-      screen = 1;
-      storeItem("rebirths", rebirths + 1)
-      hell.play()
-    }
-
-    else {
-      storeItem("rebirths", null)
-      storeItem("forever", null)
-      location.reload();
-    }
-  }
+  if (mouseIsPressed) screen = 1
 }
 
 
@@ -125,18 +113,16 @@ function died() {
   background(200)
   textSize(100)
   fill(0)
-  text("YOU DIED \n FINAL SCORE: " + score, width/2, height/2)
+  text("YOU FAILED \n FINAL SCORE: " + score, width/2, height/2)
   textSize(50)
   fill(0, 0, 0, map(deathTimer, 100, 300, 0, 255))
-  text("BUT EVEN IN DEATH, YOU CANNOT ESCAPE", width/2, height*3/4 + 50)
-  deathTimer++;
-  forever += 100;
+  text("REACH THE DOOR TO ACHIEVE SALVATION", width/2, height*3/4 + 50)
 
   if (deathTimer > 300) {
     deathTimer = 0;
     obstacles = [];
     score = 0;
-    speed = 10;
+    gameSpeed = 10;
     for (let i=2; i<walls.length; i++) {
       walls[i] = null
     }
@@ -144,9 +130,9 @@ function died() {
     obstacles[1] = new obstacle(width*3/2)
 
     screen = 1
-
-    storeItem("forever", forever)
   }
+
+  deathTimer ++;
 }
 
 function draw() {
@@ -164,19 +150,8 @@ function draw() {
   }
 
   if (screen != 0) {
-    fill(150)
-    textSize(20)
-    text("SINS LEFT TO ABSOLVE: " + forever, width/2, 50)
-    text("REBIRTHS: " + rebirths, width/2, 75)
-    forever --;
-
     if (!hell.isPlaying()) {
       hell.play()
     }
-  }
-
-  if (forever < 0) {
-    alert('A MESSAGE FROM GOD: bruh how did you even do this')
-    window.location.href = "https:/henryty88.github.io/huang";
   }
 }

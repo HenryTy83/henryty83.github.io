@@ -59,7 +59,7 @@ function setup() {
     ellipseMode(RADIUS)
 
     bouncers = []
-    totalBouncers = (width*height) / 10000
+    totalBouncers = (width*height) / 7500
 
     for (let i = 0; i < totalBouncers; i++) {
         bouncers.push(new mover())

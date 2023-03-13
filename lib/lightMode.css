@@ -1,0 +1,24 @@
+head, body {
+    background-color: #f5f5f5;
+    color: black;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+
+#main {
+    width: 1200px;
+    margin: auto;
+}
+
+:link {
+    color: #808080;
+}
+
+:visited {
+    color: #808080;
+}
+
+#canvas {
+    width: inherit;
+    height: inherit;
+    margin: 0px;
+}

@@ -14,6 +14,7 @@ let round5
 let font
 let bg
 let titleSong, roundSong, resultSong, finalRoundSong, endSong;
+let canvas;
 
 function preload() {
     round5 = loadStrings('./text/lastRound.txt')
@@ -40,7 +41,9 @@ function setup() {
     rectMode(CORNER)
     textAlign(CENTER)
 
-    createCanvas(1200, 600)
+    canvas = createCanvas(1200, 600)
+    canvas.parent("canvas")
+    
     seed = getURLParams().game
 
     if (seed == undefined) {

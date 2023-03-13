@@ -27,14 +27,14 @@ class obstacle {
     }
 
     update(i) {
-        walls[this.wallIndex].a.x -= speed
-        walls[this.wallIndex].b.x -= speed
-        walls[this.wallIndex+1].a.x -= speed
-        walls[this.wallIndex+1].b.x -= speed
-        walls[this.wallIndex+2].a.x -= speed
-        walls[this.wallIndex+2].b.x -= speed
-        walls[this.wallIndex+3].a.x -= speed
-        walls[this.wallIndex+3].b.x -= speed
+        walls[this.wallIndex].a.x -= gameSpeed
+        walls[this.wallIndex].b.x -= gameSpeed
+        walls[this.wallIndex+1].a.x -= gameSpeed
+        walls[this.wallIndex+1].b.x -= gameSpeed
+        walls[this.wallIndex+2].a.x -= gameSpeed
+        walls[this.wallIndex+2].b.x -= gameSpeed
+        walls[this.wallIndex+3].a.x -= gameSpeed
+        walls[this.wallIndex+3].b.x -= gameSpeed
 
         if (walls[this.wallIndex].a.x < 10) {
             walls[this.wallIndex].a.x = 10
@@ -54,7 +54,7 @@ class obstacle {
             else {
                 //survived
                 score ++;
-                speed *= 1.01
+                gameSpeed += 0.01*gameSpeed * (25-gameSpeed)
 
                 walls[this.wallIndex] = null;
                 walls[this.wallIndex+1] = null;

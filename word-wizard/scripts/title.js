@@ -7,7 +7,7 @@ function titleSetup() {
 }
 
 function title() {
-    if (!titleSong.isPlaying())titleSong.play()
+    if (!titleSong.isPlaying() && mouseIsPressed)titleSong.loop()
 
     textSize(100)
     fill(255)
@@ -24,7 +24,7 @@ function title() {
 
     textSize(10)
     fill(255)
-    text('© Henry Ty 2021-2', 60, height - 20)
+    text('Henry Ty 2021-2', 60, height - 20)
 }
 
 let winButtons = []
