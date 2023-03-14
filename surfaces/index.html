@@ -8,26 +8,28 @@
 
     <style>
       #main {
-        width: 400px;
+        width: 600px;
         margin: auto;
       }
     </style>
 
-    <title>Snake Remastered</title>
+    <title>The gallery of surfaces</title>
   </head>
   <body">
     <div id="main">
       <a href="../" id="header"><img src="../images/logoWhite.png" alt="Henry 天 Ty"></a>
 
-      <div class="canvas" id="canvas">
-        <script src="snake.js"></script> 
-      </div>
+    <script src="../lib/matrix.js"></script>
+    <script src="surfaces.js"></script> 
 
-      <p id="instructions">Up, down, left, and right arrow keys to move. Any other key freezes the snake</p>
+    <div class="canvas" id="cubeCanvas"></div>
+    <div class="canvas" id="hypercubeCanvas"></div>
+    <div class="canvas" id="sphereCanvas"></div>
+    <div class="canvas" id="hypersphereCanvas"></div>
+    <div class="canvas" id="torusCanvas"></div>
 
       <p id="credits">
         Created by <a href="https://henryty88.github.io">Henry Ty</a> <br>
-        <a href="old">Old version</a> based on code by <a href="https://youtu.be/AaGK-fj-BAM">The Coding Train</a> <br>
       </p>
     </div>
   </body>

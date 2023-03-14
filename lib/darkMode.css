@@ -17,7 +17,7 @@ head, body {
     color: #808080;
 }
 
-#canvas {
+.canvas {
     width: inherit;
     height: inherit;
     margin: 0px;
