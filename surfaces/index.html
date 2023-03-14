@@ -13,24 +13,31 @@
       }
     </style>
 
-    <title>The gallery of surfaces</title>
+    <title>The Gallery of Multi-Dimensional Surfaces</title>
   </head>
   <body">
     <div id="main">
       <a href="../" id="header"><img src="../images/logoWhite.png" alt="Henry 天 Ty"></a>
 
+    <h1>Welcome to the Gallery!</h1>
+
+    <p id="instructions">
+        All of these shapes are rendered entirely in a 2D environment (designed in 3 or 4 dimensions and then projected into 2D) using a custom-made matrix library to rotate and project the objects. Simply mouseover a shape to see it spin. Enjoy!
+    </p>
+
     <script src="../lib/matrix.js"></script>
     <script src="surfaces.js"></script> 
 
-    <div class="canvas" id="cubeCanvas"></div>
-    <div class="canvas" id="hypercubeCanvas"></div>
-    <div class="canvas" id="sphereCanvas"></div>
-    <div class="canvas" id="hypersphereCanvas"></div>
-    <div class="canvas" id="torusCanvas"></div>
+    <div class="canvas" id="cubeCanvas"></div> <h2>3-D Cube</h2> <br><br><br>
+    <div class="canvas" id="hypercubeCanvas"></div> <h2>4-D Cube</h2><br><br><br>
+    <div class="canvas" id="sphereCanvas"></div> <h2>3-D Sphere</h2><br><br><br>
+    <div class="canvas" id="hypersphereCanvas"></div><h2>4-D Sphere</h2><br><br><br>
+    <div class="canvas" id="torusCanvas"></div><h2>Torus</h2> <br>
 
       <p id="credits">
         Created by <a href="https://henryty88.github.io">Henry Ty</a> <br>
       </p>
+      <br>
     </div>
   </body>
 </html>
