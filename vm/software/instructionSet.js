@@ -571,6 +571,7 @@ const generateInstructions = () => {
 const instructions = generateInstructions()
 
 const registers = new CPU().generateLookup()
+const registerNames = new CPU().registerNames;
 
 const findByMnemonic = (m) => {
     const matches = []

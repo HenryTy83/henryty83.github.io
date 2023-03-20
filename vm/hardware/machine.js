@@ -8,7 +8,7 @@ function loadFile(filePath) {
     if (xmlhttp.status == 200) {
         result = xmlhttp.responseText
     }
-    return result.split(/\r?\n/)
+    return result.split(/\r?\n/).join('\n')
 }
 
 const loadProgram = (memory, startAddress = 0, offset = 0) => (code) => {
@@ -22,7 +22,7 @@ const loadProgram = (memory, startAddress = 0, offset = 0) => (code) => {
 
 const writeProgram = (cpu, actualStart, assembledStart, fileName, hardDriveSector = 0) => {
     hardDrive.memory.setUint16(0, hardDriveSector)
-    length = loadProgram(cpu.memory, actualStart, assembledStart)(assemble(Parser.read(loadFile('./programs/' + fileName))))
+    length = loadProgram(cpu.memory, actualStart, assembledStart)(assemble(Tokenizer.read(loadFile('./programs/' + fileName)), actualStart))
     console.log(`Wrote program '${fileName}' to disk at ${hardDriveSector} from $${actualStart.toString(16).padStart(4, '0')} to $${(actualStart + length - 1).toString(16).padStart(4, '0')}`)
     return actualStart + length
 }
@@ -48,20 +48,24 @@ const soundDevice = createAudioDevice(0b0010)
 
 const screen = new Region(0xa000, 0xa750, createScreenOutput())
 const keyboard = new Region(0xa751, 0xa751, keyboardInput)
-const sleepTimer = new Region(0xa752, 0xa753, sleepTimerDevice)
-const soundCard = new Region(0xa754, 0xa757, soundDevice)
+const sleepTimer = new Region(0xa752, 0xa752, sleepTimerDevice)
+const soundCard = new Region(0xa753, 0xa756, soundDevice)
 
 const memoryMappage = new Mapping([ram, screen, keyboard, sleepTimer, soundCard, rom, hardDrive])
 const cpu = new CPU(0xbffe, 0x8fe0, memoryMappage)
 
-loadProgram(cpu.memory, 0)(assemble(Parser.read(loadFile('./programs/bootloader.jsm'), 0)))
+loadProgram(cpu.memory, 0)(assemble(Tokenizer.read(loadFile('./programs/bootloader.jsm'), 0)))
 rom.memory.setUInt16 = () => 0
 rom.memory.setUint8 = () => 0
 
 writeProgram(cpu, 0xc001, 0x6000, 'JS-DOS.jsm', 0)
 writeProgram(cpu, 0xc001, 0x0000, 'JS-WORD.jsm', 1)
 
-const runCPU = () => {
+cpu.startup();
+button.style.backgroundColor = 'rgb(255, 0, 0)'
+
+const runCPU = (timeLimit) => {
+    var deadline = Date.now() + timeLimit;
     if (fadeInTime < 0) {
         for (var i = 0; i < cpu.readReg('CLK'); i++) {
             cpu.run()
@@ -70,7 +74,24 @@ const runCPU = () => {
                 button.style.backgroundColor = 'rgb(255, 255, 0)'
                 return
             }
+
+            if (Date.now() >= deadline)return
         }
-        requestAnimationFrame(runCPU)
     }
+}
+
+const startUp = () => { 
+    betterTimeout = new Timer();
+    
+    const runEverything = () => {
+        betterTimeout.checkTimers();
+
+        runCPU(betterTimeout.timers.length == 0 ? 1000 : 10);
+
+        displayScreen();
+
+        if (cpu.poweredOn) requestAnimationFrame(runEverything);
+    }
+
+    runEverything();
 }

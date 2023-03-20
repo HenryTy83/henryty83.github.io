@@ -1,6 +1,6 @@
 // inspired by low Level Javascript's tutorial
 class CPU {
-    constructor(resetVector, interruptVector, memory) {
+    constructor(resetVector, interruptVector, memory = null) {
         this.memory = memory
 
         // store registers as n as 16 bit registers
@@ -23,6 +23,8 @@ class CPU {
 
         this.registers = Memory(this.registerNames.length * 2)
 
+        if (memory == null) return this;
+
         // set hard coded values
         this.writeReg('1', 1)
         this.interruptVector = interruptVector
@@ -43,6 +45,7 @@ class CPU {
         this.breakpoints = [] // freeze execution when PC = breakpoint
         this.broke = false
         this.cycleLimit = -1 // halt if cycles > cycleLimit
+
     }
 
     startup() {

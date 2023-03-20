@@ -22,3 +22,8 @@ head, body {
     height: inherit;
     margin: 0px;
 }
+
+.spacer {
+    position: relative;
+    clear: both;
+}

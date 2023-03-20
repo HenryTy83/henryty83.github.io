@@ -24,12 +24,10 @@ const fadeIn = () => { // its 4am
     if (fadeInTime < 0) {
         clearTimeout(powerUp)
 
-        requestAnimationFrame(runCPU)
-        requestAnimationFrame(displayScreen)
+        startUp();
     }
 }
 
-var button = document.getElementById('power')
 const powerToggle = () => { //its 3 AM
     if (!cpu.poweredOn) { return; }
 

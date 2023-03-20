@@ -87,34 +87,61 @@ class Keyboard {
     setUint8 = (_) => 0
 }
 
-// sleep timer + counter
-const SleepTimer = (id, sleepTime = 10) => {
-    var sleepCounter = 0
-    var now = Date.now()
-    var running = false
+// better timer because setTimeout sucks
+class Timer {
+    constructor() {
+        this.timers = [];
+        this.sleepStart = Date.now();
+        this.running = true
+    } 
 
-    var timerValue = 0
+    checkTimers() { 
+        var now = Date.now()
+        for (var i = this.timers.length - 1; i >= 0; i--) { 
+            var timer = this.timers[i]
+            if (timer[0] < now) { 
+                timer[1]();
+                if (timer[2] < 0) {
+                    this.timers.splice(i, 1)
+                }
+                else { 
+                    timer[0] += timer[2]
+                }
+            }
+        }
+    }
+
+    delay(ms, f) { 
+        this.timers.push(
+            [
+                Date.now() + ms,
+                f,
+                -1
+            ]
+        )
+    }
+
+    interval(ms, f) { 
+        this.timers.push(
+            [
+                Date.now() + ms,
+                f,
+                ms
+            ]
+        )
+    }
+}
+var betterTimeout; 
+
+// sleep timer
+const SleepTimer = (id, sleepTime = 10) => {
+    var timerStart = Math.floor(Date.now() / 10);
 
     return {
-        getUint16: (address) => address == 0 ? sleepCounter & 0xffff : timerValue,
+        getUint16: (address) => (Math.floor(Date.now() / 10) - timerStart) & 0xffff,
         getUint8: (_) => 0,
-        setUint16: (address, value) => {
-            if (address == 1) {
-                timerValue = value
-                setTimeout(() => cpu.requestInterrupt(id), timerValue)
-                return
-            }
-
-            sleepCounter = value
-            if (!running) {
-                setInterval(() => {
-                    sleepCounter += Math.round((Date.now() - now) / sleepTime)
-                    now = Date.now()
-                }, sleepTime)
-                running = true
-            }
-        },
-        setUint8: (_) => 0,
+        setUint16: (address, value) => timerStart = Math.floor(Date.now() / 10) + value,
+        setUint8: (_) => Math.floor(Date.now() / 10) - timerStart,
     }
 }
 
@@ -124,15 +151,15 @@ const createNoise = (volume = 0) => {
     const audioCtx = new AudioContext()
     var sampleRate = 44100
 
-    var sineWaveBuffer = audioCtx.createBuffer(1, 30 * sampleRate, sampleRate)
-    for (let i = 0; i < sineWaveBuffer.length; i++) {
-        sineWaveBuffer.getChannelData(0)[i] = Math.random() * 2 - 1
+    var noiseBuffer = audioCtx.createBuffer(1, 30 * sampleRate, sampleRate)
+    for (let i = 0; i < noiseBuffer.length; i++) {
+        noiseBuffer.getChannelData(0)[i] = Math.random() * 2 - 1
     }
 
     const gain = new GainNode(audioCtx, { gain: volume / 320 })
     const source = audioCtx.createBufferSource()
     source.loop = true
-    source.buffer = sineWaveBuffer
+    source.buffer = noiseBuffer
 
     source.connect(gain).connect(audioCtx.destination)
 
@@ -167,7 +194,7 @@ const createAudioDevice = (id, sleepTime = 10) => {
             var interruptWhenDone = (value & 0b10000000000000) >> 13
             var volume = (value & 0b1111110000000) >> 7
             var note = (value & 0b01111111)
-            var duration = (value & 0b11111111111111)
+            var duration = (value & 0b11111111111111) * 10
 
             var frequency = 1.059463 ** (note - 0b111111) * 440
             switch (instruction) {
@@ -188,14 +215,14 @@ const createAudioDevice = (id, sleepTime = 10) => {
 
                     // wtf
                     playing[channel].start()
-                    setTimeout(interruptWhenDone == 0 ? () => {
+                    betterTimeout.delay(duration, interruptWhenDone == 0 ? () => {
                         playing[channel].stop()
                         isPlaying &= (1 << channel)
                     } : () => {
                         playing[channel].stop()
                         requestInterrupt(id, sleepTime)
                         isPlaying &= (1 << channel)
-                    }, duration)
+                    })
                     return
                 case 0b10:
                     try { playing[channel].stop() }

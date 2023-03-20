@@ -1,92 +1,41 @@
 <!DOCTYPE html>
 <html>
 
-<head> <!--I don't understand HTML this is a mess-->
+<head>
   <title>TJSVMTDHAA</title>
-  <link
-      rel="preload"
-      as="style"
-      onload="this.rel = 'stylesheet'"
-      href='./decorations/modernDOS.ttf'>
-  <style>
-    @font-face { font-family: modernDOS; src: url('./decorations/modernDOS.ttf'); } 
 
-.button {
-  background-color: #777777;
-  position: absolute;
-  left: 950px;
-  top: 642px; 
-  padding: 10px 10px;
-  border-radius: 100%;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  border: 2px solid #888888;
-}
+  <link rel="stylesheet" src='./decorations/modernDOS.ttf'>
+  <!--font from https://www.dafont.com/modern-dos.font -->
 
-    .slider {
-  width: 500px;
-  height: 15px;
-  left: 125px;
-  bottom: 45px; 
-  border-radius: 5px;  
-  background: #d3d3d3;
-  outline: none;
-  opacity: 0.7;
-  -webkit-transition: .2s;
-  transition: opacity .2s;
-}
-
-.slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 25px;
-  height: 25px;
-  border-radius: 50%; 
-  background: #04AA6D;
-  cursor: pointer;
-}
-
-.slider::-moz-range-thumb {
-  width: 25px;
-  height: 25px;
-  border-radius: 50%;
-  background: #04AA6D;
-  cursor: pointer;
-}
-  </style> 
-  <!--what the hell is css-->
-
+  <link rel="stylesheet" href="../lib/darkMode.css">
+  <link rel="stylesheet" href="style.css">
 </head>
 
-<body style="background-color:rgb(0, 0, 0); font-family: modernDOS; color:rgb(0, 255, 0);"> <!--font from https://www.dafont.com/modern-dos.font -->
-  <h2>TJSVMTDHAA (tee-jes-VIM-ta-da): "The Javascript Virtual Machine That Doesn't Have An Acronym"</h2> 
+<body>
+  <div id="main">
+    <a class="header" href="../"><img src="../images/logoWhite.png" alt="Henry 天 Ty"></a>
+
+    <h1 style="font-size: 1.4em;">TJSVMTDHAA (ti-jes-VIM-da-ha): "The Javascript Virtual Machine That Doesn't Have An
+      Acronym"</h1>
+
+
+    <canvas class="canvas" id="screen" width="960" height="533.33"></canvas>
+    <button class="button" onclick="powerToggle();" id="power"></button>
+  </div>
 
   <script src="./hardware/memoryMapping.js"></script>
-  <script src="./hardware/cpu.js"></script>
   <script src="./hardware/peripherals.js"></script>
+  <script src="./hardware/screenDevice.js"></script>
+
+  <script src="./decorations/aesthetics.js"></script>
+  <script src="./hardware/cpu.js"></script>
 
   <script src="./software/instructionSet.js"></script>
-  <script src="./software/objectLang.js"></script>
   <script src="./software/parser.js"></script>
   <script src="./software/assembler.js"></script>
 
-  <canvas id="screen" width="960", height="533.33", style="border:10px solid rgb(25, 25, 22); background-color: rgba(0, 0, 0, 255);"></canvas>
+  <script src="./hardware/machine.js"></script>
 
-  <script src="./hardware/screenDevice.js"></script>
-
-  <button class="button" onclick="powerToggle();" id="power"></button>
-  <!-- <div class="slidecontainer"> <!--https://www.w3schools.com/howto/howto_js_rangeslider.asp
-    <br>
-    OVERCLOCK: <input type="range" min="0" max="65535" value="0" class="slider" id="myRange">
-  </div> -->
-  
-  <script src="./decorations/aesthetics.js"></script>
-
-  <script src="./hardware/machine.js"></script> 
-
-  <br>
-  <button onclick="window.location.href='../'">BACK</button>
 </body>
 
 </html>

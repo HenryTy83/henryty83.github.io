@@ -1,4 +1,3 @@
-
 var globals = {}
 var allLabels = [globals]
 
@@ -20,13 +19,15 @@ const findLengthOfInstruction = (args) => {
         'REGISTER': 1,
         'ADDRESS': 2,
         'VARIABLE': 2,
-        'PARENTHESES': 2,
+        'EXPRESSION_PARENTHESIS': 2,
+        'EXPRESSION': 2,
         'LITERAL': 2
     }
 
     var length = 1
     var previousReg = false
     for (var argument of args) {
+        console.log(argument.type)
         length += lengths[argument.type]
         if (argument.type == 'REGISTER' || argument.type == 'INDIRECT_REGISTER') {
             if (previousReg) {
@@ -57,59 +58,45 @@ const createLabelLookup = (program, startAddress) => {
     const labels = {}
     var bytePointer = startAddress
 
-    for (var instruction of program) {
-        switch (instruction.type) {
+    for (var command of program) {
+        console.log(JSON.stringify(command, null, '   '))
+        console.log(bytePointer)
+        switch (command.type) {
             case 'LABEL':
-                labels[instruction.value] = bytePointer
+                labels[command.value] = bytePointer
+                break
+            case 'GLOBAL_LABEL':
+                globals[command.value] = bytePointer
                 break
             case 'INSTRUCTION':
-                bytePointer += findLengthOfInstruction(instruction.args)
+                bytePointer += findLengthOfInstruction(command.args)
                 break
-            case 'KEYWORD':
-                switch (instruction.value) {
-                    case 'org':
-                        bytePointer = parseInt(instruction.args[0].slice(1), 16)
-                        if (isNaN(bytePointer)) {
-                            throw new Error(`PARSING ERROR: EXPECTED A LITERAL AND RECIEVED ${instruction.args[0]} INSTEAD`)
-                        }
-                        break
-                    case 'global_data8':
-                        globals[instruction.args[0]] = bytePointer
-                        bytePointer += parseInt(instruction.args.slice(2, -1).join('').split(',').length)
-                    case 'data8':
-                        labels[instruction.args[0]] = bytePointer
-                        bytePointer += parseInt(instruction.args.slice(2, -1).join('').split(',').length)
-                        break
-                    case 'global_data16':
-                        globals[instruction.args[0]] = bytePointer
-                        bytePointer += parseInt(instruction.args.slice(2, -1).join('').split(',').length * 2)
-                        break
-                    case 'data16':
-                        labels[instruction.args[0]] = bytePointer
-                        bytePointer += parseInt(instruction.args.slice(2, -1).join('').split(',').length * 2)
-                        break
-                    case 'global_label':
-                        globals[instruction.args[0].slice(0, -1)] = bytePointer
-                        break
-                    case 'global':
-                        globals[instruction.args[0]] = decodeVariable(instruction.args[1])
-                        break
-                    case 'def':
-                        labels[instruction.args[0]] = decodeVariable(instruction.args[1])
-                        break
-                }
-        }
-    }
+            case 'ORG':
+                bytePointer = command.args[0].value
+                break
+            case 'GLOBAL_DATA8':
+                globals[command.value] = bytePointer
+                bytePointer += command.args[0].value
+                break
+            case 'DATA8':
+                labels[command.value] = bytePointer
+                bytePointer += command.args[0].value
+                break
+            case 'GLOBAL_DATA16':
+                globals[command.value] = bytePointer
+                bytePointer += command.args[0].value * 2
+                break
+            case 'DATA16':
+                labels[command.value] = bytePointer
+                bytePointer += command.args[0].value * 2
+                break
+            case 'GLOBAL_DEF':
+                globals[command.value] = command.args[0].value
+                break
+            case 'DEF':
+                labels[command.value] = command.args[0].value
+                break
 
-    for (var label in labels) {
-        if (typeof parseInt((labels[label]) != 'number')) {
-            var value = substituteVariable(label, labels)
-
-            if (value == undefined) {
-                console.log(labels);
-                throw new Error(`PARSING ERROR: UNDEFINED VARIABLE WITH NAME '${label}'`)
-            }
-            labels[label] = value
         }
     }
 
@@ -163,27 +150,8 @@ const assemble = (program, startAddress = 0) => {
             return global
         }
 
-        if (name[0] != '$') throw new Error(`UNKNOWN LABEL: ${name}`)
         return undefined
     }
-
-    const tokenizeBracket = (expression) => {
-        var tokenized = []
-        var startIndex = 0
-        for (var i in expression) {
-            if (isOperator(expression[i])) {
-                tokenized.push(expression.slice(startIndex, i).trim())
-                tokenized.push(expression[i])
-                startIndex = parseInt(i) + 1
-            }
-        }
-
-        if (!isOperator(expression.slice(-1))) tokenized.push(expression.slice(startIndex).trim())
-
-        return tokenized.filter(x => x.length != 0)
-    }
-
-    const isOperator = (char) => ['+', '*', '-', '/', '(', ')'].includes(char)
 
     const parseBracket = (expression) => {
         var tokenized = tokenizeBracket(expression)
@@ -206,17 +174,11 @@ const assemble = (program, startAddress = 0) => {
                 var inner = tokenized.slice(parseInt(i) + 1, closing)
                 sanitized.push(parseBracket(inner.join('')))
                 i = parseInt(closing)
-            }
-
-            else if (tokenized[i][0] == '!') {
+            } else if (tokenized[i][0] == '!') {
                 sanitized.push(fetchVariable(tokenized[i].slice(1)))
-            }
-
-            else if (tokenized[i][0] == '$') {
+            } else if (tokenized[i][0] == '$') {
                 sanitized.push(parseInt(tokenized[i].slice(1), 16))
-            }
-
-            else if (isOperator(tokenized[i]) && !['(', ')'].includes(tokenized[i])) {
+            } else if (isOperator(tokenized[i]) && !['(', ')'].includes(tokenized[i])) {
                 sanitized.push(tokenized[i])
                 operations++
             }
@@ -228,9 +190,7 @@ const assemble = (program, startAddress = 0) => {
                     sanitized[i + 1] = parseInt(sanitized[i - 1]) * parseInt(sanitized[i + 1])
                     sanitized.splice(i - 1, 2)
                     i += 1
-                }
-
-                else if (sanitized[i] == '/') {
+                } else if (sanitized[i] == '/') {
                     sanitized[i + 1] = parseInt(sanitized[i - 1]) / parseInt(sanitized[i + 1])
                     sanitized.splice(i - 1, 2)
                     i += 1
@@ -242,9 +202,7 @@ const assemble = (program, startAddress = 0) => {
                     sanitized[i + 1] = parseInt(sanitized[i - 1]) + parseInt(sanitized[i + 1])
                     sanitized.splice(i - 1, 2)
                     i += 1
-                }
-
-                else if (sanitized[i] == '-') {
+                } else if (sanitized[i] == '-') {
                     sanitized[i + 1] = parseInt(sanitized[i - 1]) - parseInt(sanitized[i + 1])
                     sanitized.splice(i - 1, 2)
                     i += 1
@@ -353,6 +311,6 @@ Unable to find opcode with arguments ${expectedArguments}. Likely expected a com
 const findVarByName = (x) => {
     for (var labels of allLabels) {
         var out = substituteVariable(x, labels)
-        if (out != undefined)return out
+        if (out != undefined) return out
     }
 }

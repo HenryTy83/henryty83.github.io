@@ -1,6 +1,7 @@
-const canvas = document.getElementById('screen'); //This code is a mess, taken from 50 different websites.
+const canvas = window.document.getElementById('screen'); //This code is a mess, taken from 50 different websites.
 const ctx = canvas.getContext('2d');
 const DOSfont = new FontFace('modernDOS', 'url(./decorations/modernDOS.ttf)');
+const button = window.document.getElementById('power');
 
 var powerOn = false;
 
@@ -19,17 +20,6 @@ DOSfont.load().then(function (font) { //what the hell is a promise
     document.fonts.add(font);
     ctx.font = defaultFont
     ctx.textAlign = 'start'
-
-    try {
-        button.style.backgroundColor = 'rgb(255, 0, 0)'
-        console.log('LOAD SUCCESSFUL. POWERING ON...')
-
-        cpu.startup()
-    }
-    catch (err) { 
-        console.error(`LOAD FAILED, RESTARTING...`)
-        this.location.reload()
-    }
 });
 
 var VRAMinstructions = {}
@@ -84,10 +74,6 @@ const displayScreen = () => {
 
         drawChar(String.fromCodePoint(data), address, redChannel, greenChannel, blueChannel);
     }
-
-    if (cpu.poweredOn) {
-        requestAnimationFrame(displayScreen)
-    } 
 }
 
 const createScreenOutput = () => (

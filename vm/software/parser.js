@@ -1,123 +1,216 @@
-// no regexes (regicies?), only if-else/switch, because I'm not implementing regexes into the vm
-class Arksecond {
-    constructor() {
-    }
-
-    santize(raw) {
-        var sanitized = []
-        for (var line of raw) {
-            var cleanLine = line
-
-            for (var i in cleanLine) {
-                if (cleanLine[0] != ' ') {
-                    cleanLine = cleanLine.slice(i)
-                    break
-                }
-            }
-
-            for (var i in cleanLine) {
-                if (cleanLine[cleanLine.length-1-i] != ' ') {
-                    cleanLine = cleanLine.slice(0, cleanLine.length - i)
-                    break
-                }
-            }
-
-            sanitized.push(cleanLine)
+class Tokenizer {
+    static sanitize(text) {
+        var noComments = '';
+        for (var line of text.split('\n')) { 
+            if (!line.startsWith('//')) noComments += line;
         }
+
+        var sanitized = [];
+        for (var line of noComments.split(/[;:]/)) {
+            line = line.trim();
+
+            if (line != '') sanitized.push(line)
+        };
 
         return sanitized
     }
 
-    parse(line) {
-        var name = line[0]
-        var type = this.classify(name)
+    static classify(line) {
+        if (line.length == 1) return 'LABEL'
 
-        switch (type) { 
-            case 'COMMENT':
-                return new Token(type, line.join(' '))
-            case 'PARENTHESES':
-                return new Token(type, new Token('PARENTHESES', name.slice(1, -1)))
-            case 'ADDRESS':
-                return new Token(type, new Token('BRACKET', name.slice(1, -1)))
-            case 'LITERAL':
-                return new Token(type, parseInt(name.slice(1), 16))
-            case 'KEYWORD':
-                return new Token(type, name.slice(1), line.slice(1))
-            case 'BLANK':
-                throw new Error(`UNEXPECTED WHITESPACE`)
-            case 'NULL':
-                throw new Error(`'${name}' has unknown type`)
-            case 'INSTRUCTION':
-            case 'REGISTER':
-                break
-            case 'LABEL':
-                name = name.slice(0, -1)
-                break
-            default:
-                name = line[0].slice(1)
-                break
+        var keyword = line[0];
+
+        const keywordLookup = {
+            '.org': 'ORG',
+            '.def': 'DEF',
+            '.global': 'GLOBAL_DEF',
+            '.global_label': 'GLOBAL_LABEL',
+            '.data16': 'DATA16',
+            '.data8': 'DATA8',
+            '.global_data16': 'GLOBAL_DATA16',
+            '.global_data8': 'GLOBAL_DATA8'
         }
 
-        return line.length == 1 ? new Token(type, name) : new Token(type, name, line.slice(1).join(' ').split(/,\s*/).map(arg => this.parse([arg])))
+        var category = keywordLookup[keyword];
+
+        return category != null ? category : line[line.length - 1] == ':' ? 'LABEL' : 'INSTRUCTION'
     }
 
-    read(text) {   
-        const program = []
+    static classifyArgument(word) {
+        var prefix = word.slice(0, 1)
+        var prefixDict = {
+            '!': 'VARIABLE',
+            '(': 'EXPRESSION_PARENTHESIS',
+            '{': 'DATA_BRACKET',
+            '[': 'ADDRESS_BRACKET',
+        }
 
-        for (var lineNumber in text) {
-            var line = text[lineNumber]
-            var commands = line.split(' ')
+        if (prefixDict[prefix] != null) return prefixDict[prefix]
 
-            if (commands[0] != '') {
-                try { 
-                    var parsedCommand = this.parse(commands)
-                    parsedCommand.line = lineNumber
-                    parsedCommand.rawCode = line
-                    program.push(parsedCommand) 
-                }
-                catch (err) {
-                    throw new Error(`PARSING ERROR: Recieved error '${err}' when reading line ${parseInt(lineNumber) + 1}: '${line}'`)
-                }
+        const isOnlyValidChars = (word, chars) => {
+            for (var char of word) {
+                if (!chars.includes(char)) return false
+            }
+            return true
+        }
+
+        if (prefix == '\'' && word.length == 2) return 'CHR_LITERAL'
+        if (prefix == '$' && isOnlyValidChars(word.slice(1), '0123456789abcdefABCDEF')) return 'HEX_LITERAL'
+        if (prefix == 'b' && isOnlyValidChars(word.slice(1), '01')) return 'BIN_LITERAL'
+        if (prefix == '&' && registerNames.includes(word.slice(1))) return 'INDIRECT_REGISTER'
+
+        if (registerNames.includes(word)) return 'REGISTER'
+
+
+        if (isOnlyValidChars(word, '0123456789')) return 'DEC_LITERAL';
+
+        return 'LABEL'
+    }
+
+    static findClosing(char, args) {
+        for (var i = 1; i < args.length; i++) {
+            if (args[i] == char) return i;
+
+            if (args[i] == {
+                    ')': '(',
+                    '}': '{',
+                    ']': '['
+                } [char]) i += Tokenizer.findClosing(char, args.slice(i)) + 1
+        }
+
+        return -1;
+    }
+
+    static parseExpression = (args) => {
+        const operators = '+-*/&|^'
+        var output = []
+        var expression = ''
+        for (var i in args) {
+            if (operators.includes(args[i])) {
+                output.push(!isNaN(parseInt(expression)) ? new Token('LITERAL', parseInt(expression)) : new Token('VARIABLE', expression))
+                output.push(args[i])
+                expression = ''
+            } else {
+                expression += args[i]
             }
         }
 
-        return program
+        output.push(!isNaN(parseInt(expression)) ? new Token('LITERAL', parseInt(expression)) : new Token('VARIABLE', expression))
+        return output
+    }
+    
+    static createExpression(args) {
+        const operators = '+-*/&|^'
+
+        if (args.length == 1) return new Token('EXPRESSION', args[0])
+
+        try {
+            for (var i = 1; i < args.length; i++) {
+                var currentOperation = args[i]
+                if (!operators.includes(currentOperation)) throw new Error('bad expression')
+
+                var a = args[i - 1]
+                var b = args[i + 1]
+
+                args.splice(i - 1, 2)
+                console.log(args)
+                i--;
+
+                args[i] = new Token('OPERATION', currentOperation, [a, b])
+            }
+        } catch (err) {
+            throw new Error(`ERROR PARSING EXPRESSION ${args.map(x=>JSON.stringify(x, null, '    ')).join('\n')}`)
+        }
+        return Tokenizer.createExpression(args)
     }
 
-    classify(word) {
-        if (word.length == 0) {return 'BLANK'}
+    static parseArgs(args) {
+        if (args.length == 0) return [];
 
-        const typesLookup = {
-            '$': 'LITERAL',
-            '&': 'INDIRECT_REGISTER',
-            '[': 'ADDRESS',
-            '!': 'VARIABLE',
-            '/': 'COMMENT',
-            '.': 'KEYWORD',
-            '{': 'DATA',
-            '(': 'PARENTHESES'
+        var parsed = [];
+        for (var i = 0; i < args.length; i++) {
+            var arg = args[i]
+            var type = Tokenizer.classifyArgument(arg)
+            switch (type) {
+                case ('REGISTER'):
+                    parsed.push(new Token('REGISTER', arg))
+                    break;
+                case ('INDIRECT_REGISTER'):
+                    parsed.push(new Token('INDIRECT_REGISTER', arg.slice(1)))
+                    break;
+                case ('HEX_LITERAL'):
+                    parsed.push(new Token('LITERAL', parseInt(arg.slice(1), 16)))
+                    break;
+                case ('BIN_LITERAL'):
+                    parsed.push(new Token('LITERAL', parseInt(arg.slice(1), 2)))
+                    break;
+                case ('DEC_LITERAL'):
+                    parsed.push(new Token('LITERAL', parseInt(arg, 10)))
+                    break;
+                case ('CHR_LITERAL'):
+                    parsed.push(new Token('LITERAL', arg.charCodeAt(1)))
+                    break;
+                case ('ADDRESS_BRACKET'):
+                    var closing = Tokenizer.findClosing(']', arg.split(''))
+                    parsed.push(new Token('ADDRESS', Tokenizer.createExpression(Tokenizer.parseExpression(arg.slice(1, closing)))))
+                    break;
+                case ('EXPRESSION_PARENTHESES'):
+                    var closing = Tokenizer.findClosing(')', arg.split(''))
+                    parsed.push(new Token('EXPRESSION', Tokenizer.createExpression(Tokenizer.parseExpression(arg.slice(1, closing)))))
+                    break;
+                case ('DATA_BRACKET'):
+                    var data = args.join('').slice(1, -1).split(',')
+                    parsed.push(new Token('DATA', data.length, Tokenizer.parseArgs(data)))
+                    break;
+                default:
+                    parsed.push(new Token(type, arg))
+                    break;
+            }
+        }
+        //console.log(parsed.map(x=>JSON.stringify(x, null, '    ')).join('\n'))
+        return parsed
+    }
+
+    static parse(line) {
+        line = line.split(/[\s]+/)
+
+        line = [line[0], ...line.slice(1).join('').split(',')]
+
+        var type = Tokenizer.classify(line)
+        switch (type) { 
+            case 'LABEL':
+            case 'GLOBAL_LABEL':
+                return new Token(type, line[1])
+            case 'DEF':
+            case 'GLOBAL_DEF':
+            case 'DATA16':
+            case 'DATA8':
+            case 'GLOBAL_DATA16':
+            case 'GLOBAL_DATA8':
+                return new Token(type, line[1], Tokenizer.parseArgs(line.slice(2)))
+            default:
+                return new Token(type, line[0], Tokenizer.parseArgs(line.slice(1)))
+        }
+    }
+
+    static read(text) {
+        var sanitized = Tokenizer.sanitize(text)
+        //console.log(sanitized.join('\n'))
+        var tokenized = [];
+
+        for (var command of sanitized) {
+            tokenized.push(Tokenizer.parse(command))
         }
 
-        var startType = typesLookup[word[0]]
-
-        if (startType != null) {
-            return startType
-        }
-
-        else if (word.slice(-1) == ':') {
-            return 'LABEL'
-        }
-            
-        else if (instructions.includes(word)) { 
-            return 'INSTRUCTION'
-        }
-
-        else if (word in registers) { 
-            return 'REGISTER'
-        }
-
-        return 'NULL'
+        console.log(tokenized.map(x=>JSON.stringify(x, null, '    ')).join('\n\n'))
+        return tokenized
     }
 }
 
-const Parser = new Arksecond()
+class Token {
+    constructor(type, value, args = []) {
+        this.type = type
+        this.value = value
+        this.args = args
+    }
+}

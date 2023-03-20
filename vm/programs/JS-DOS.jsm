@@ -28,7 +28,7 @@ mov $ffff, [!reservations + $06]
 mov !font.reset, [!_memory_map.screen_address]
 
 .def scratch_sound $8380
-.def scratch_duration $4360
+.def scratch_duration $401e
 
 mov !scratch_sound, [!_memory_map.sound.noise]
 mov !scratch_duration, [!_memory_map.sound.noise]
@@ -38,8 +38,8 @@ mov (!font.italic + !font.bold + !font.green), [!_memory_map.screen_address]
 //                                                                         text('TJSVMTDHAA', 0, 0, 1, 320)
 mov !tjsvmtdhaa, x
 mov (!_memory_map.screen_address + $01), y
-mov $01, r7
-cal $30, [!function.draw_splash_screen]
+mov $02, r7
+cal $60, [!function.draw_splash_screen]
 
 
 //                                                                         textStyle(false, false, color(0, 255, 0))
@@ -51,7 +51,7 @@ mov $00, r7
 cal $05, [!function.draw_splash_screen]
 
 //                                                                         sleep(800)
-cal $c0, [!function.sleep]
+cal $40, [!function.sleep]
 
 mov $8fc6, [!bloop_sound]
 
@@ -103,7 +103,7 @@ error_thrown:
 jmp [!error_thrown]
 
 .def error_noise $be14
-.def error_noise_duration $40b4
+.def error_noise_duration $401e
 
 .data16 out_of_ram_error { $2639, $20, $46, $41, $54, $41, $4C, $20, $45, $52, $52, $4F, $52, $3A, $20, $4F, $75, $74, $20, $6F, $66, $20, $75, $73, $65, $61, $62, $6C, $65, $20, $52, $41, $4D, $2E, $20, $50, $72, $65, $73, $73, $20, $61, $6E, $79, $20, $6B, $65, $79, $20, $74, $6F, $20, $72, $65, $73, $65, $74, $00 }
 
@@ -139,7 +139,7 @@ mov y, &FP
 rts
 
 .data16 bloop_sound { $8fc6 }
-.def bloop_duration $4035
+.def bloop_duration $401e
 
 function.sleep:
 mov &FP, d
