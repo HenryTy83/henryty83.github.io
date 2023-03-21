@@ -1,21 +1,21 @@
 //                                               useful global constants
-.global _memory_map.screen_address, $a000;
-.global _memory_map.screen_address.end, $a751;
-.global _memory_map.keyboard, $a751;
-.global _memory_map.sleep_timer, $a752;
-.global _memory_map.sound.noise, $a753;
-.global _memory_map.sound.sine, $a754;
-.global _memory_map.sound.square, $a755;
-.global _memory_map.sound.sawtooth, $a756;
-.global _memory_map.hard_drive, $c000;
+.global_def _memory_map.screen_address, $a000;
+.global_def _memory_map.screen_address.end, $a751;
+.global_def _memory_map.keyboard, $a751;
+.global_def _memory_map.sleep_timer, $a752;
+.global_def _memory_map.sound.noise, $a753;
+.global_def _memory_map.sound.sine, $a754;
+.global_def _memory_map.sound.square, $a755;
+.global_def _memory_map.sound.sawtooth, $a756;
+.global_def _memory_map.hard_drive, $c000;
 
-.global _hardware.default_stack_pointer, $8fde;
-.global _hardware.interrupt_vector.keyboard, $8fe0;
-.global _hardware.interrupt_vector.sound, $8fe2;
+.global_def _hardware.default_stack_pointer, $8fde;
+.global_def _hardware.interrupt_vector.keyboard, $8fe0;
+.global_def _hardware.interrupt_vector.sound, $8fe2;
 
 .org $b000;
 .global_label _memory_map.rom:
-function.main:
+.label function.main:
 mov $ffff, CLK;
 //                                               mask all interrupts
 mov 0, IM;
@@ -48,7 +48,7 @@ mov 0, [!_memory_map.sleep_timer];
 
 brk [!function.load_program_and_run.loaded];
 
-function.load_program_and_run.loaded:
+.label function.load_program_and_run.loaded:
 mov mar, PC;
 
 //                                                         (x y d cal) = (target_addr source_addr jump_address sector_number)
@@ -60,7 +60,7 @@ hlt;
 
 //                                               loading a program: (x y cal) = (target_addr source_addr sector_number)
 .global_label bootloader.function.load_file:
-function.load_file:
+.label function.load_file:
 //                                               mask all interrupts
 psh IM;
 mov 0, IM;
@@ -87,7 +87,8 @@ mov 0, IM;
 mov &FP, acc;
 mov y, &FP;
 
-function.mov_data.loop:mov 0, [!_memory_map.sleep_timer];
+.label function.mov_data.loop:
+mov 0, [!_memory_map.sleep_timer];
 mov &x, d;
 mov d, &y;
 

@@ -27,7 +27,7 @@ const findLengthOfInstruction = (args) => {
     var length = 1
     var previousReg = false
     for (var argument of args) {
-        console.log(argument.type)
+        // console.log(argument.type)
         length += lengths[argument.type]
         if (argument.type == 'REGISTER' || argument.type == 'INDIRECT_REGISTER') {
             if (previousReg) {
@@ -59,8 +59,8 @@ const createLabelLookup = (program, startAddress) => {
     var bytePointer = startAddress
 
     for (var command of program) {
-        console.log(JSON.stringify(command, null, '   '))
-        console.log(bytePointer)
+        // console.log(JSON.stringify(command, null, '   '))
+        // console.log(bytePointer)
         switch (command.type) {
             case 'LABEL':
                 labels[command.value] = bytePointer
@@ -140,121 +140,34 @@ const assemble = (program, startAddress = 0) => {
     }
 
     const fetchVariable = (name) => {
-        var local = variables[name]
+        var local = variables[name.slice(1)]
         if (local != undefined) {
             return local
         }
 
-        var global = globals[name]
+        var global = globals[name.slice(1)]
         if (global != undefined) {
             return global
         }
 
-        return undefined
-    }
-
-    const parseBracket = (expression) => {
-        var tokenized = tokenizeBracket(expression)
-
-        var sanitized = []
-        var operations = 0
-
-        for (var i = 0; i < tokenized.length; i++) {
-            const findEnclosedIndex = (start) => {
-                for (j = start + 1; j < tokenized.length; j++) {
-                    if (tokenized[j] == ')') return j
-                    if (tokenized[j] == '(') j = findEnclosedIndex(j + 1)
-                }
-
-                throw new Error(`UNMATCHED PARENTHESES`)
-            }
-
-            if (tokenized[i] == '(') {
-                var closing = findEnclosedIndex(parseInt(i) + 1)
-                var inner = tokenized.slice(parseInt(i) + 1, closing)
-                sanitized.push(parseBracket(inner.join('')))
-                i = parseInt(closing)
-            } else if (tokenized[i][0] == '!') {
-                sanitized.push(fetchVariable(tokenized[i].slice(1)))
-            } else if (tokenized[i][0] == '$') {
-                sanitized.push(parseInt(tokenized[i].slice(1), 16))
-            } else if (isOperator(tokenized[i]) && !['(', ')'].includes(tokenized[i])) {
-                sanitized.push(tokenized[i])
-                operations++
-            }
-        }
-
-        for (var j = 0; j <= operations; j++) {
-            for (var i = 0; i < sanitized.length; i++) {
-                if (sanitized[i] == '*') {
-                    sanitized[i + 1] = parseInt(sanitized[i - 1]) * parseInt(sanitized[i + 1])
-                    sanitized.splice(i - 1, 2)
-                    i += 1
-                } else if (sanitized[i] == '/') {
-                    sanitized[i + 1] = parseInt(sanitized[i - 1]) / parseInt(sanitized[i + 1])
-                    sanitized.splice(i - 1, 2)
-                    i += 1
-                }
-            }
-
-            for (var i = 0; i < sanitized.length; i++) {
-                if (sanitized[i] == '+') {
-                    sanitized[i + 1] = parseInt(sanitized[i - 1]) + parseInt(sanitized[i + 1])
-                    sanitized.splice(i - 1, 2)
-                    i += 1
-                } else if (sanitized[i] == '-') {
-                    sanitized[i + 1] = parseInt(sanitized[i - 1]) - parseInt(sanitized[i + 1])
-                    sanitized.splice(i - 1, 2)
-                    i += 1
-                }
-            }
-        }
-        return sanitized[0]
-    }
-
-    const parseData = (args) => {
-        var data = []
-
-        var sanitized = args.join('').split(',')
-
-        for (var value of sanitized) {
-            data.push(parseBracket(value))
-        }
-
-        return data
+        return name
     }
 
     for (var word of program) {
         switch (word.type) {
-            case 'COMMENT':
             case 'LABEL':
-                break
-            default:
-                throw new Error(`PARSE ERROR: Expected INSTRUCTION but retrieved a ${word.type} instead with the word ${word}`)
-            case 'KEYWORD':
-                switch (word.value) {
-                    case 'org':
-                        programCounter = fetchVariable(word.args[0]) != undefined ? fetchVariable(word.args[0]) : parseInt(word.args[0].slice(1), 16)
-                        break
-                    case 'global_data8':
-                    case 'data8':
-                        for (var byte of parseData(word.args.slice(2, -1))) {
-                            machineCode[programCounter++] = byte & 0xff
-                        }
-                        break
-                    case 'global_data16':
-                    case 'data16':
-                        for (var byte of parseData(word.args.slice(2, -1))) {
-                            machineCode[programCounter++] = (byte & 0xff00) >> 8
-                            machineCode[programCounter++] = byte & 0xff
-                        }
-                        break
-                }
+            case 'ORG':
+            case 'DATA16':
+            case 'DATA8':
+            case 'GLOBAL_DATA16':
+            case 'GLOBAL_DATA8':
+            case 'DEF':
+            case 'GLOBAL_DEF':
+            case 'GLOBAL_LABEL':
                 break
             case 'INSTRUCTION':
                 expectedArguments = word.args.map(token => {
-                    if (token.type == 'VARIABLE') return 'LITERAL'
-                    else if (token.type == 'PARENTHESES') return 'LITERAL'
+                    if (['EXPRESSION', 'EXPRESSION_PARENTHESIS', 'VARIABLE'].includes(token.type)) return 'LITERAL'
                     return token.type
                 })
 
@@ -298,10 +211,13 @@ Unable to find opcode with arguments ${expectedArguments}. Likely expected a com
                             assembleRegister(registers[argument.value], word.args, i)
                             break
                         default:
-                            throw new Error(`PARSER ERROR: Encountered word with unknown type "${argument.type} in line ${word}:"`)
+                            throw new Error(`PARSER ERROR: Encountered word with unknown type "${argument.type} in line ${JSON.stringify(word, null, '    ')}:"`)
                     }
                 }
                 break
+            
+            default:
+                throw new Error(`PARSE ERROR: Expected INSTRUCTION but retrieved a ${word.type} instead with the word ${word}`)
         }
     }
 

@@ -20,20 +20,9 @@ class Tokenizer {
 
         var keyword = line[0];
 
-        const keywordLookup = {
-            '.org': 'ORG',
-            '.def': 'DEF',
-            '.global': 'GLOBAL_DEF',
-            '.global_label': 'GLOBAL_LABEL',
-            '.data16': 'DATA16',
-            '.data8': 'DATA8',
-            '.global_data16': 'GLOBAL_DATA16',
-            '.global_data8': 'GLOBAL_DATA8'
-        }
 
-        var category = keywordLookup[keyword];
-
-        return category != null ? category : line[line.length - 1] == ':' ? 'LABEL' : 'INSTRUCTION'
+        if (keyword[0] == '.') return keyword.slice(1).toUpperCase();
+        return 'INSTRUCTION'
     }
 
     static classifyArgument(word) {
@@ -193,13 +182,24 @@ class Tokenizer {
         }
     }
 
+    static findLineNumber = (text, command) => { 
+        for (var i = 0; i < text.split('\n').length; i++) { 
+            if (text.split('\n')[i].startsWith(command)) return i+1
+        }
+
+        return -1
+    }
+
     static read(text) {
         var sanitized = Tokenizer.sanitize(text)
         //console.log(sanitized.join('\n'))
         var tokenized = [];
 
         for (var command of sanitized) {
-            tokenized.push(Tokenizer.parse(command))
+            var parsed = Tokenizer.parse(command)
+            parsed.line = Tokenizer.findLineNumber(text, command)
+            parsed.rawCode = text.split('\n')[parsed.line-1];
+            tokenized.push(parsed)
         }
 
         console.log(tokenized.map(x=>JSON.stringify(x, null, '    ')).join('\n\n'))

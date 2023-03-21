@@ -1,7 +1,7 @@
 .org $6000
-.data16 _file.length { (!reset_vector - $6000 + $02) }
+.data16 _file.length, { (!reset_vector - $6000 + $02) }
 
-.global font.reset $8000
+.global font.reset, $8000
 .global font.italic $4000
 .global font.bold $2000
 

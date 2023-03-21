@@ -58,8 +58,8 @@ loadProgram(cpu.memory, 0)(assemble(Tokenizer.read(loadFile('./programs/bootload
 rom.memory.setUInt16 = () => 0
 rom.memory.setUint8 = () => 0
 
-writeProgram(cpu, 0xc001, 0x6000, 'JS-DOS.jsm', 0)
-writeProgram(cpu, 0xc001, 0x0000, 'JS-WORD.jsm', 1)
+// writeProgram(cpu, 0xc001, 0x6000, 'JS-DOS.jsm', 0)
+// writeProgram(cpu, 0xc001, 0x0000, 'JS-WORD.jsm', 1)
 
 cpu.startup();
 button.style.backgroundColor = 'rgb(255, 0, 0)'
