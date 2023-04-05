@@ -141,7 +141,7 @@ class Tokenizer {
                     break;
                 case ('ADDRESS_BRACKET'):
                     var closing = Tokenizer.findClosing(']', arg.split(''))
-                    parsed.push(new Token('ADDRESS', Tokenizer.createExpression(Tokenizer.parseExpression(arg.slice(1, closing)))))
+                    parsed.push(new Token('EXPRESSION', Tokenizer.createExpression(Tokenizer.parseExpression(arg.slice(1, closing)))))
                     break;
                 case ('EXPRESSION_PARENTHESES'):
                     var closing = Tokenizer.findClosing(')', arg.split(''))

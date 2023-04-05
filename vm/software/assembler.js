@@ -191,8 +191,9 @@ Unable to find opcode with arguments ${expectedArguments}. Likely expected a com
 
                     switch (argument.type) {
                         case 'ADDRESS':
-                        case 'PARENTHESES':
-                            var address = parseBracket(argument.value.value)
+                        case 'E':
+                            console.log(argument.value)
+                            var address = parseBracket(argument.value)
                             machineCode[programCounter++] = (address & 0xff00) >> 8
                             machineCode[programCounter++] = address & 0x00ff
                             break
