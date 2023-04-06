@@ -14,6 +14,7 @@ function loadFile(filePath) {
 const loadProgram = (memory, startAddress = 0, offset = 0) => (code) => {
     var i = 0
     for (var byte in code) {
+        // console.log(`$${(parseInt(byte) + startAddress - offset).toString(16)}: $${code[byte].toString(16).padStart(2, '0')}`)
         memory.setUint8(parseInt(byte) + startAddress - offset, code[byte])
         i++
     }
@@ -22,7 +23,7 @@ const loadProgram = (memory, startAddress = 0, offset = 0) => (code) => {
 
 const writeProgram = (cpu, actualStart, assembledStart, fileName, hardDriveSector = 0) => {
     hardDrive.memory.setUint16(0, hardDriveSector)
-    length = loadProgram(cpu.memory, actualStart, assembledStart)(assemble(Tokenizer.read(loadFile('./programs/' + fileName)), actualStart))
+    length = loadProgram(cpu.memory, actualStart, assembledStart)(assemble(Tokenizer.read(loadFile('./programs/' + fileName)), assembledStart))
     console.log(`Wrote program '${fileName}' to disk at ${hardDriveSector} from $${actualStart.toString(16).padStart(4, '0')} to $${(actualStart + length - 1).toString(16).padStart(4, '0')}`)
     return actualStart + length
 }
@@ -54,11 +55,11 @@ const soundCard = new Region(0xa753, 0xa756, soundDevice)
 const memoryMappage = new Mapping([ram, screen, keyboard, sleepTimer, soundCard, rom, hardDrive])
 const cpu = new CPU(0xbffe, 0x8fe0, memoryMappage)
 
-loadProgram(cpu.memory, 0)(assemble(Tokenizer.read(loadFile('./programs/bootloader.jsm'), 0)))
+writeProgram(cpu, 0x0000, 0x0000, 'bootloader.jsm', 0)
 rom.memory.setUInt16 = () => 0
 rom.memory.setUint8 = () => 0
 
-// writeProgram(cpu, 0xc001, 0x6000, 'JS-DOS.jsm', 0)
+writeProgram(cpu, 0xc001, 0x6000, 'JS-DOS.jsm', 0)
 // writeProgram(cpu, 0xc001, 0x0000, 'JS-WORD.jsm', 1)
 
 cpu.startup();
@@ -86,7 +87,7 @@ const startUp = () => {
     const runEverything = () => {
         betterTimeout.checkTimers();
 
-        runCPU(betterTimeout.timers.length == 0 ? 1000 : 10);
+        runCPU(betterTimeout.timers.length == 0 ? 1000 : 100);
 
         displayScreen();
 

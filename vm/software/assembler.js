@@ -19,7 +19,7 @@ const findLengthOfInstruction = (args) => {
         'REGISTER': 1,
         'ADDRESS': 2,
         'VARIABLE': 2,
-        'EXPRESSION_PARENTHESIS': 2,
+        'ADDRESS_EXPRESSION': 2,
         'EXPRESSION': 2,
         'LITERAL': 2
     }
@@ -41,16 +41,10 @@ const findLengthOfInstruction = (args) => {
     return length
 }
 
-const decodeVariable = (name) => (isNaN(parseInt(name.slice(1), 16))) ? name : parseInt(name.slice(1), 16)
-
 const substituteVariable = (label, labels) => {
-    if (typeof labels[label] == 'number') {
-        return labels[label]
-    }
+    if (labels[label] != undefined) return labels[label]
+    if (globals[label] != undefined) return globals[label]
 
-    if (labels[labels[label]] != undefined) {
-        return substituteVariable(labels[label], labels)
-    }
     return undefined
 }
 
@@ -72,7 +66,7 @@ const createLabelLookup = (program, startAddress) => {
                 bytePointer += findLengthOfInstruction(command.args)
                 break
             case 'ORG':
-                bytePointer = command.args[0].value
+                bytePointer = command.value
                 break
             case 'GLOBAL_DATA8':
                 globals[command.value] = bytePointer
@@ -116,9 +110,66 @@ const arraysEqual = (a, b) => {
     return true
 }
 
+const evaluateExpression = (expression, labels) => {
+    const performOperation = (expression) => {
+        switch(expression.value) {
+            case '+':
+                return evaluateExpression(expression.args[0], labels) + evaluateExpression(expression.args[1], labels)
+            case '-':
+                return evaluateExpression(expression.args[0], labels) - evaluateExpression(expression.args[1], labels)
+            case '*':
+                return evaluateExpression(expression.args[0], labels) * evaluateExpression(expression.args[1], labels)
+            case '/':
+                return evaluateExpression(expression.args[0], labels) / evaluateExpression(expression.args[1], labels)
+            case '^':
+                return evaluateExpression(expression.args[0], labels) ^ evaluateExpression(expression.args[1], labels)
+            case '&':
+                return evaluateExpression(expression.args[0], labels) & evaluateExpression(expression.args[1], labels)
+            case '|':
+                return evaluateExpression(expression.args[0], labels) | evaluateExpression(expression.args[1], labels)
+            default:
+                throw new Error(`Unknown operation ${expression.value} in expression ${JSON.stringify(expression, null, '   ')}`)
+        }
+    }
+
+    switch(expression.type) {
+        case 'LITERAL':
+            return expression.value
+        case 'VARIABLE':
+            var substitute = substituteVariable(expression.value.slice(1), labels)
+            if (substitute == undefined) throw new Error(`Unknown variable ${expression.value}`)
+            return substituteVariable(expression.value.slice(1), labels)
+        case 'OPERATION':
+            return performOperation(expression, labels)
+        case 'EXPRESSION':
+            return evaluateExpression(expression.value, labels)
+        default:
+            throw new Error(`Unknown expression type ${expression.value} in expression ${JSON.stringify(expression, null, '   ')}`)
+    }
+}
+
 const assemble = (program, startAddress = 0) => {
+    // variable initiation
     const variables = createLabelLookup(program, startAddress)
     allLabels.push(variables)
+
+    // variable substitution
+    for (var i in program) {
+        var word = program[i]
+        for (var j in word.args) {
+            var arg = word.args[j]
+            if (arg.type == 'EXPRESSION') program[i].args[j] = new Token('LITERAL', evaluateExpression(arg.value, variables))
+            else if (arg.type == 'ADDRESS_EXPRESSION') program[i].args[j] = new Token('ADDRESS', evaluateExpression(arg.value, variables))
+            else if (arg.type == 'DATA') {
+                for (k in arg.args) {
+                    program[i].args[j].args[k] = new Token('LITERAL', evaluateExpression(arg.args[k], variables))
+                }
+            }
+        }
+    }
+    console.log(program)
+    
+    //everything else
     var programCounter = startAddress
     const machineCode = {}
 
@@ -139,38 +190,35 @@ const assemble = (program, startAddress = 0) => {
         }
     }
 
-    const fetchVariable = (name) => {
-        var local = variables[name.slice(1)]
-        if (local != undefined) {
-            return local
-        }
-
-        var global = globals[name.slice(1)]
-        if (global != undefined) {
-            return global
-        }
-
-        return name
-    }
-
     for (var word of program) {
         switch (word.type) {
             case 'LABEL':
-            case 'ORG':
-            case 'DATA16':
-            case 'DATA8':
-            case 'GLOBAL_DATA16':
-            case 'GLOBAL_DATA8':
             case 'DEF':
             case 'GLOBAL_DEF':
             case 'GLOBAL_LABEL':
                 break
-            case 'INSTRUCTION':
-                expectedArguments = word.args.map(token => {
-                    if (['EXPRESSION', 'EXPRESSION_PARENTHESIS', 'VARIABLE'].includes(token.type)) return 'LITERAL'
-                    return token.type
-                })
+            
+            case 'ORG':
+                programCounter = word.value
+                break
 
+            case 'DATA16':
+            case 'GLOBAL_DATA16':
+                for (var hextet of word.args[0].args) {
+                    machineCode[programCounter++] = (hextet.value & 0xff00) >> 8
+                    machineCode[programCounter++] = hextet.value & 0x00ff
+                }
+                break
+
+            case 'DATA8':
+            case 'GLOBAL_DATA8':
+                for (var byte of word.args) {
+                    machineCode[programCounter++] = byte & 0x00ff
+                }
+                break
+
+            case 'INSTRUCTION':
+                expectedArguments = word.args.map(x => x.type)
                 var possibleCommands = findByMnemonic(word.value)
                 if (possibleCommands == []) {
                     throw new Error(`Unknown instruction: ${word.value}`)
@@ -191,21 +239,12 @@ Unable to find opcode with arguments ${expectedArguments}. Likely expected a com
 
                     switch (argument.type) {
                         case 'ADDRESS':
-                        case 'E':
-                            console.log(argument.value)
-                            var address = parseBracket(argument.value)
-                            machineCode[programCounter++] = (address & 0xff00) >> 8
-                            machineCode[programCounter++] = address & 0x00ff
+                            machineCode[programCounter++] = (argument.value & 0xff00) >> 8
+                            machineCode[programCounter++] = argument.value & 0x00ff
                             break
                         case 'LITERAL':
                             machineCode[programCounter++] = (argument.value & 0xff00) >> 8
                             machineCode[programCounter++] = argument.value & 0x00ff
-                            break
-                        case 'VARIABLE':
-                            var value = fetchVariable(argument.value)
-                            if (value == undefined) throw new Error(`UNKNOWN VARIABLE WITH NAME '${argument.value}'`)
-                            machineCode[programCounter++] = (value & 0xff00) >> 8
-                            machineCode[programCounter++] = value & 0x00ff
                             break
                         case 'REGISTER':
                         case 'INDIRECT_REGISTER':

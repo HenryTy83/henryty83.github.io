@@ -9,7 +9,7 @@ registers:
     IM: interrupt mask
     0: always yields 0 (write only)
     1: always yields 1 (write only)
-    NUL: idk
+    NUL: used as a dummy target
     CLK: clock speed controller
     accumulator
     x, y, d, w: general purpose registers

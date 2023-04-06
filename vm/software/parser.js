@@ -19,17 +19,33 @@ class Tokenizer {
         if (line.length == 1) return 'LABEL'
 
         var keyword = line[0];
-
-
         if (keyword[0] == '.') return keyword.slice(1).toUpperCase();
         return 'INSTRUCTION'
     }
 
+    static evaluateLiteral(word) {
+        var prefix = word[0]
+        
+        const isOnlyValidChars = (word, chars) => {
+            for (var char of word) {
+                if (!chars.includes(char)) return false
+            }
+            return true
+        }
+
+        if (prefix == '\'' && word.length == 2) return String.charCodeAt(word[1])
+        if (prefix == '$' && isOnlyValidChars(word.slice(1), '0123456789abcdefABCDEF')) return parseInt(word.slice(1), 16)
+        if (prefix == 'b' && isOnlyValidChars(word.slice(1), '01')) return parseInt(word.slice(1), 2)
+        if (isOnlyValidChars(word, '0123456789')) return parseInt(word, 10)
+
+        return null
+    }
+
     static classifyArgument(word) {
-        var prefix = word.slice(0, 1)
+        var prefix = word[0]
         var prefixDict = {
             '!': 'VARIABLE',
-            '(': 'EXPRESSION_PARENTHESIS',
+            '(': 'EXPRESSION',
             '{': 'DATA_BRACKET',
             '[': 'ADDRESS_BRACKET',
         }
@@ -50,8 +66,6 @@ class Tokenizer {
 
         if (registerNames.includes(word)) return 'REGISTER'
 
-
-        if (isOnlyValidChars(word, '0123456789')) return 'DEC_LITERAL';
 
         return 'LABEL'
     }
@@ -76,7 +90,7 @@ class Tokenizer {
         var expression = ''
         for (var i in args) {
             if (operators.includes(args[i])) {
-                output.push(!isNaN(parseInt(expression)) ? new Token('LITERAL', parseInt(expression)) : new Token('VARIABLE', expression))
+                output.push(Tokenizer.evaluateLiteral(expression) != null ? new Token('LITERAL', Tokenizer.evaluateLiteral(expression)) : new Token('VARIABLE', expression))
                 output.push(args[i])
                 expression = ''
             } else {
@@ -84,7 +98,8 @@ class Tokenizer {
             }
         }
 
-        output.push(!isNaN(parseInt(expression)) ? new Token('LITERAL', parseInt(expression)) : new Token('VARIABLE', expression))
+        output.push(Tokenizer.evaluateLiteral(expression) != null ? new Token('LITERAL', Tokenizer.evaluateLiteral(expression)) : new Token('VARIABLE', expression))
+
         return output
     }
     
@@ -96,19 +111,18 @@ class Tokenizer {
         try {
             for (var i = 1; i < args.length; i++) {
                 var currentOperation = args[i]
-                if (!operators.includes(currentOperation)) throw new Error('bad expression')
+                if (!operators.includes(currentOperation)) throw new Error(`bad operator: ${currentOperation}`)
 
                 var a = args[i - 1]
                 var b = args[i + 1]
 
                 args.splice(i - 1, 2)
-                console.log(args)
                 i--;
 
                 args[i] = new Token('OPERATION', currentOperation, [a, b])
             }
         } catch (err) {
-            throw new Error(`ERROR PARSING EXPRESSION ${args.map(x=>JSON.stringify(x, null, '    ')).join('\n')}`)
+            throw new Error(`ERROR PARSING EXPRESSION ${args.map(x=>JSON.stringify(x, null, '    ')).join('\n')}\n\n${err}`)
         }
         return Tokenizer.createExpression(args)
     }
@@ -119,6 +133,9 @@ class Tokenizer {
         var parsed = [];
         for (var i = 0; i < args.length; i++) {
             var arg = args[i]
+
+            if (arg == "") break;
+
             var type = Tokenizer.classifyArgument(arg)
             switch (type) {
                 case ('REGISTER'):
@@ -141,9 +158,12 @@ class Tokenizer {
                     break;
                 case ('ADDRESS_BRACKET'):
                     var closing = Tokenizer.findClosing(']', arg.split(''))
-                    parsed.push(new Token('EXPRESSION', Tokenizer.createExpression(Tokenizer.parseExpression(arg.slice(1, closing)))))
+                    parsed.push(new Token('ADDRESS_EXPRESSION', Tokenizer.createExpression(Tokenizer.parseExpression(arg.slice(1, closing)))))
                     break;
-                case ('EXPRESSION_PARENTHESES'):
+                case ('VARIABLE'):
+                    parsed.push(new Token('EXPRESSION', new Token('VARIABLE', arg)))
+                    break
+                case ('EXPRESSION'):
                     var closing = Tokenizer.findClosing(')', arg.split(''))
                     parsed.push(new Token('EXPRESSION', Tokenizer.createExpression(Tokenizer.parseExpression(arg.slice(1, closing)))))
                     break;
@@ -177,6 +197,8 @@ class Tokenizer {
             case 'GLOBAL_DATA16':
             case 'GLOBAL_DATA8':
                 return new Token(type, line[1], Tokenizer.parseArgs(line.slice(2)))
+            case 'ORG':
+                return new Token(type, Tokenizer.evaluateLiteral(line[1]))
             default:
                 return new Token(type, line[0], Tokenizer.parseArgs(line.slice(1)))
         }
@@ -202,7 +224,6 @@ class Tokenizer {
             tokenized.push(parsed)
         }
 
-        console.log(tokenized.map(x=>JSON.stringify(x, null, '    ')).join('\n\n'))
         return tokenized
     }
 }
