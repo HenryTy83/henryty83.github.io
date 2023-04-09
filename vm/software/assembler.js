@@ -137,7 +137,7 @@ const evaluateExpression = (expression, labels) => {
             return expression.value
         case 'VARIABLE':
             var substitute = substituteVariable(expression.value.slice(1), labels)
-            if (substitute == undefined) throw new Error(`Unknown variable ${expression.value}`)
+            if (substitute == undefined) throw new Error(`Unknown variable ${expression.value.slice(1)}`)
             return substituteVariable(expression.value.slice(1), labels)
         case 'OPERATION':
             return performOperation(expression, labels)
@@ -231,7 +231,8 @@ const assemble = (program, startAddress = 0) => {
                 } catch (err) {
                     throw new Error(`Line ${word.line}: ${word.rawCode} 
                     
-Unable to find opcode with arguments ${expectedArguments}. Likely expected a comma but never recieved one.`)
+Unable to find opcode with arguments ${expectedArguments}. Likely expected a comma but never recieved one in word:
+${JSON.stringify(word, null, '    ')}`)
                 }
 
                 for (var i in word.args) {
@@ -269,4 +270,6 @@ const findVarByName = (x) => {
         var out = substituteVariable(x, labels)
         if (out != undefined) return out
     }
+
+    return undefined
 }

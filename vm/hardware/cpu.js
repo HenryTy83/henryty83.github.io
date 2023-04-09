@@ -147,7 +147,7 @@ class CPU {
 
     checkInterrupt() {
         if (!this.interrupting) {
-            // console.log(`Interrupting with status ${this.irq}, jumping to $${(this.interruptVector + 2 * (this.irq - 1)).toString(16).padStart(4, '0')}`)
+            if (this.debug) console.log(`Interrupting with status ${this.irq}, jumping to $${this.memory.getUint16(this.interruptVector + 2 * this.irq).toString(16).padStart(4, '0')}`)
             this.pendingInterrupt = false
 
             // console.log(this.memory.getUint16(this.interruptVector + 2 * (this.irq-1)).toString(16))

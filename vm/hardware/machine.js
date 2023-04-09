@@ -87,7 +87,7 @@ const startUp = () => {
     const runEverything = () => {
         betterTimeout.checkTimers();
 
-        runCPU(betterTimeout.timers.length == 0 ? 1000 : 100);
+        runCPU(betterTimeout.timers.length == 0 ? 10000 : 100);
 
         displayScreen();
 

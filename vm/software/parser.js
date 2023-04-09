@@ -1,8 +1,8 @@
 class Tokenizer {
     static sanitize(text) {
         var noComments = '';
-        for (var line of text.split('\n')) { 
-            if (!line.startsWith('//')) noComments += line;
+        for (var line of text.split('\n')) {
+            if (!line.trim().startsWith('//')) noComments += line;
         }
 
         var sanitized = [];
@@ -25,7 +25,7 @@ class Tokenizer {
 
     static evaluateLiteral(word) {
         var prefix = word[0]
-        
+
         const isOnlyValidChars = (word, chars) => {
             for (var char of word) {
                 if (!chars.includes(char)) return false
@@ -62,10 +62,11 @@ class Tokenizer {
         if (prefix == '\'' && word.length == 2) return 'CHR_LITERAL'
         if (prefix == '$' && isOnlyValidChars(word.slice(1), '0123456789abcdefABCDEF')) return 'HEX_LITERAL'
         if (prefix == 'b' && isOnlyValidChars(word.slice(1), '01')) return 'BIN_LITERAL'
+        if (isOnlyValidChars(word, '0123456789')) return 'DEC_LITERAL';
+
         if (prefix == '&' && registerNames.includes(word.slice(1))) return 'INDIRECT_REGISTER'
 
         if (registerNames.includes(word)) return 'REGISTER'
-
 
         return 'LABEL'
     }
@@ -75,38 +76,52 @@ class Tokenizer {
             if (args[i] == char) return i;
 
             if (args[i] == {
-                    ')': '(',
-                    '}': '{',
-                    ']': '['
-                } [char]) i += Tokenizer.findClosing(char, args.slice(i)) + 1
+                ')': '(',
+                '}': '{',
+                ']': '['
+            }[char]) i += Tokenizer.findClosing(char, args.slice(i)) + 1
         }
 
         return -1;
     }
 
     static parseExpression = (args) => {
-        const operators = '+-*/&|^'
+        const operators = '+-*/&|^)'
         var output = []
         var expression = ''
-        for (var i in args) {
-            if (operators.includes(args[i])) {
-                output.push(Tokenizer.evaluateLiteral(expression) != null ? new Token('LITERAL', Tokenizer.evaluateLiteral(expression)) : new Token('VARIABLE', expression))
-                output.push(args[i])
-                expression = ''
-            } else {
-                expression += args[i]
+        for (var i = 0; i < args.length; i++) {
+            if (args[i] == '(') {
+                output.push('(')
+            }
+
+            else {
+                if (operators.includes(args[i])) {
+                    if (expression.length > 0) output.push(Tokenizer.evaluateLiteral(expression) != null ? new Token('LITERAL', Tokenizer.evaluateLiteral(expression)) : new Token('VARIABLE', expression))
+                    output.push(args[i])
+                    expression = ''
+                } else {
+                    expression += args[i]
+                }
             }
         }
 
-        output.push(Tokenizer.evaluateLiteral(expression) != null ? new Token('LITERAL', Tokenizer.evaluateLiteral(expression)) : new Token('VARIABLE', expression))
+        if (expression.length > 0) output.push(Tokenizer.evaluateLiteral(expression) != null ? new Token('LITERAL', Tokenizer.evaluateLiteral(expression)) : new Token('VARIABLE', expression))
 
         return output
     }
-    
+
     static createExpression(args) {
         const operators = '+-*/&|^'
 
         if (args.length == 1) return new Token('EXPRESSION', args[0])
+
+        for (var i = 0; i < args.length; i++) {
+            if (args[i] == '(') {
+                var end = Tokenizer.findClosing(')', args.slice(i))
+                var parsedParenthesis = Tokenizer.createExpression(args.splice(i, end + 1).slice(1, -1))
+                args.splice(i, 0, parsedParenthesis)
+            }
+        }
 
         try {
             for (var i = 1; i < args.length; i++) {
@@ -122,7 +137,7 @@ class Tokenizer {
                 args[i] = new Token('OPERATION', currentOperation, [a, b])
             }
         } catch (err) {
-            throw new Error(`ERROR PARSING EXPRESSION ${args.map(x=>JSON.stringify(x, null, '    ')).join('\n')}\n\n${err}`)
+            throw new Error(`ERROR PARSING EXPRESSION ${args.map(x => JSON.stringify(x, null, '    ')).join('\n')}\n\n${err}`)
         }
         return Tokenizer.createExpression(args)
     }
@@ -186,7 +201,7 @@ class Tokenizer {
         line = [line[0], ...line.slice(1).join('').split(',')]
 
         var type = Tokenizer.classify(line)
-        switch (type) { 
+        switch (type) {
             case 'LABEL':
             case 'GLOBAL_LABEL':
                 return new Token(type, line[1])
@@ -204,9 +219,9 @@ class Tokenizer {
         }
     }
 
-    static findLineNumber = (text, command) => { 
-        for (var i = 0; i < text.split('\n').length; i++) { 
-            if (text.split('\n')[i].startsWith(command)) return i+1
+    static findLineNumber = (text, command) => {
+        for (var i = 0; i < text.split('\n').length; i++) {
+            if (text.split('\n')[i].startsWith(command)) return i + 1
         }
 
         return -1
@@ -220,7 +235,7 @@ class Tokenizer {
         for (var command of sanitized) {
             var parsed = Tokenizer.parse(command)
             parsed.line = Tokenizer.findLineNumber(text, command)
-            parsed.rawCode = text.split('\n')[parsed.line-1];
+            parsed.rawCode = text.split('\n')[parsed.line - 1];
             tokenized.push(parsed)
         }
 
