@@ -55,42 +55,47 @@ const createLabelLookup = (program, startAddress) => {
     for (var command of program) {
         // console.log(JSON.stringify(command, null, '   '))
         // console.log(bytePointer)
-        switch (command.type) {
-            case 'LABEL':
-                labels[command.value] = bytePointer
-                break
-            case 'GLOBAL_LABEL':
-                globals[command.value] = bytePointer
-                break
-            case 'INSTRUCTION':
-                bytePointer += findLengthOfInstruction(command.args)
-                break
-            case 'ORG':
-                bytePointer = command.value
-                break
-            case 'GLOBAL_DATA8':
-                globals[command.value] = bytePointer
-                bytePointer += command.args[0].value
-                break
-            case 'DATA8':
-                labels[command.value] = bytePointer
-                bytePointer += command.args[0].value
-                break
-            case 'GLOBAL_DATA16':
-                globals[command.value] = bytePointer
-                bytePointer += command.args[0].value * 2
-                break
-            case 'DATA16':
-                labels[command.value] = bytePointer
-                bytePointer += command.args[0].value * 2
-                break
-            case 'GLOBAL_DEF':
-                globals[command.value] = command.args[0].value
-                break
-            case 'DEF':
-                labels[command.value] = command.args[0].value
-                break
+        try {
+            switch (command.type) {
+                case 'LABEL':
+                    labels[command.value] = bytePointer
+                    break
+                case 'GLOBAL_LABEL':
+                    globals[command.value] = bytePointer
+                    break
+                case 'INSTRUCTION':
+                    bytePointer += findLengthOfInstruction(command.args)
+                    break
+                case 'ORG':
+                    bytePointer = command.value
+                    break
+                case 'GLOBAL_DATA8':
+                    globals[command.value] = bytePointer
+                    bytePointer += command.args[0].value
+                    break
+                case 'DATA8':
+                    labels[command.value] = bytePointer
+                    bytePointer += command.args[0].value
+                    break
+                case 'GLOBAL_DATA16':
+                    globals[command.value] = bytePointer
+                    bytePointer += command.args[0].value * 2
+                    break
+                case 'DATA16':
+                    labels[command.value] = bytePointer
+                    bytePointer += command.args[0].value * 2
+                    break
+                case 'GLOBAL_DEF':
+                    globals[command.value] = command.args[0].value
+                    break
+                case 'DEF':
+                    labels[command.value] = command.args[0].value
+                    break
 
+            }
+        }
+        catch (err) {
+            throw new Error(`Tried interpreting command ${JSON.stringify(command, null, '    ')} and recieved error: ${err}`);
         }
     }
 
@@ -112,7 +117,7 @@ const arraysEqual = (a, b) => {
 
 const evaluateExpression = (expression, labels) => {
     const performOperation = (expression) => {
-        switch(expression.value) {
+        switch (expression.value) {
             case '+':
                 return evaluateExpression(expression.args[0], labels) + evaluateExpression(expression.args[1], labels)
             case '-':
@@ -132,7 +137,7 @@ const evaluateExpression = (expression, labels) => {
         }
     }
 
-    switch(expression.type) {
+    switch (expression.type) {
         case 'LITERAL':
             return expression.value
         case 'VARIABLE':
@@ -168,7 +173,7 @@ const assemble = (program, startAddress = 0) => {
         }
     }
     console.log(program)
-    
+
     //everything else
     var programCounter = startAddress
     const machineCode = {}
@@ -197,7 +202,7 @@ const assemble = (program, startAddress = 0) => {
             case 'GLOBAL_DEF':
             case 'GLOBAL_LABEL':
                 break
-            
+
             case 'ORG':
                 programCounter = word.value
                 break
@@ -256,7 +261,7 @@ ${JSON.stringify(word, null, '    ')}`)
                     }
                 }
                 break
-            
+
             default:
                 throw new Error(`PARSE ERROR: Expected INSTRUCTION but retrieved a ${word.type} instead with the word ${word}`)
         }

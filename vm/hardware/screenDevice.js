@@ -59,7 +59,7 @@ const displayScreen = () => {
     for (var address in VRAMinstructions) {
         [control, data] = VRAMinstructions[address]
 
-        ctx.font = data > 0x2400 ? emojiFont : defaultFont
+        //ctx.font = data > 0x2400 ? emojiFont : defaultFont
 
         if (control & 0b0100000000000000) {
             ctx.font = 'italic ' + ctx.font

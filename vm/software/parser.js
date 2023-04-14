@@ -1,8 +1,15 @@
 class Tokenizer {
     static sanitize(text) {
+        var lineLookup = {};
         var noComments = '';
-        for (var line of text.split('\n')) {
-            if (!line.trim().startsWith('//')) noComments += line;
+        
+        var brokenText = text.split('\n')
+        for (var i in brokenText) {
+            var line = brokenText[i]
+            if (!line.trim().startsWith('//')) { 
+                noComments += line 
+                lineLookup[line.trim()] = i
+            }
         }
 
         var sanitized = [];
@@ -12,7 +19,7 @@ class Tokenizer {
             if (line != '') sanitized.push(line)
         };
 
-        return sanitized
+        return [sanitized, lineLookup]
     }
 
     static classify(line) {
@@ -183,7 +190,7 @@ class Tokenizer {
                     parsed.push(new Token('EXPRESSION', Tokenizer.createExpression(Tokenizer.parseExpression(arg.slice(1, closing)))))
                     break;
                 case ('DATA_BRACKET'):
-                    var data = args.join('').slice(1, -1).split(',')
+                    var data = args.join(',').slice(1, -1).split(',')
                     parsed.push(new Token('DATA', data.length, Tokenizer.parseArgs(data)))
                     break;
                 default:
@@ -220,21 +227,26 @@ class Tokenizer {
     }
 
     static findLineNumber = (text, command) => {
-        for (var i = 0; i < text.split('\n').length; i++) {
-            if (text.split('\n')[i].startsWith(command)) return i + 1
+        var firstTry = text[command+';'];
+        if (firstTry != undefined) return firstTry;
+
+        for (var i in text) {
+            var nextTry = text[command.slice(0, i+1)];
+
+            if (nextTry != undefined) return nextTry;
         }
 
-        return -1
+        return -1;
     }
 
     static read(text) {
-        var sanitized = Tokenizer.sanitize(text)
+        var [sanitized, lineLookup] = Tokenizer.sanitize(text)
         //console.log(sanitized.join('\n'))
         var tokenized = [];
 
         for (var command of sanitized) {
             var parsed = Tokenizer.parse(command)
-            parsed.line = Tokenizer.findLineNumber(text, command)
+            parsed.line = Tokenizer.findLineNumber(lineLookup, command)
             parsed.rawCode = text.split('\n')[parsed.line - 1];
             tokenized.push(parsed)
         }

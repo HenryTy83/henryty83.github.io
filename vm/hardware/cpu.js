@@ -4,7 +4,7 @@ class CPU {
         this.memory = memory
 
         // store registers as n as 16 bit registers
-        this.registerNames = ['PC', 'SP', 'FP', 'IM', 'NUL', 'CLK', '0', '1', 'acc', 'd', 'x', 'y', 'w', 'mar', 'r7', 'r8']
+        this.registerNames = ['PC', 'SP', 'FP', 'IM', 'NUL', 'CLK', 'r0', 'r1', 'acc', 'd', 'x', 'y', 'w', 'mar', 'r7', 'r8']
 
         this.generateLookup = () => {
             var lookUp = {}
@@ -26,7 +26,7 @@ class CPU {
         if (memory == null) return this;
 
         // set hard coded values
-        this.writeReg('1', 1)
+        this.writeReg('r1', 1)
         this.interruptVector = interruptVector
         this.resetVector = resetVector
 
@@ -227,8 +227,8 @@ class CPU {
         this.execute(instruction)
         this.cycles++
 
-        this.writeReg('1', 1)
-        this.writeReg('0', 0)
+        this.writeReg('r1', 1)
+        this.writeReg('r0', 0)
     }
 
     execute(instruction) {
@@ -605,7 +605,7 @@ class CPU {
 
         for (let i in this.registerNames) {
             contents +=
-                `${`${`${this.registerNames[i]}:`.padEnd(4, ' ')} $${this.getReg(i).toString(16).padStart(4, '0')}`.padEnd(13, ' ')} ${['CLK', 'NUL', '0', '1'].includes(this.registerNames[i]) ? `` : `memory at $${(this.registerNames[i] == 'IM' ? this.interruptVector : this.getReg(i)).toString(16).padStart(4, '0')}: ${this.memoryDump((this.registerNames[i] == 'IM' ? this.interruptVector : this.getReg(i)), ['SP', 'IM'].includes(this.registerNames[i]) ? 16 : 8, this.registerNames[i] != 'IM')}`}\n`
+                `${`${`${this.registerNames[i]}:`.padEnd(4, ' ')} $${this.getReg(i).toString(16).padStart(4, '0')}`.padEnd(13, ' ')} ${['CLK', 'NUL', 'r0', 'r1'].includes(this.registerNames[i]) ? `` : `memory at $${(this.registerNames[i] == 'IM' ? this.interruptVector : this.getReg(i)).toString(16).padStart(4, '0')}: ${this.memoryDump((this.registerNames[i] == 'IM' ? this.interruptVector : this.getReg(i)), ['SP', 'IM'].includes(this.registerNames[i]) ? 16 : 8, this.registerNames[i] != 'IM')}`}\n`
             // debug functions dont need to be pretty
             // this hurts my eyes
         }

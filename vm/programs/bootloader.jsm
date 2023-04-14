@@ -6,13 +6,13 @@
 .global_label bootloader.main:
     mov $ffff, CLK;
     //                                               mask all interrupts
-    mov 0, IM;
+    mov r0, IM;
     //                                               set the stack pointer
     mov !_hardware.default_stack_pointer, SP;
     //                                               load a program from sector 0
     mov (!_memory_map.hard_drive + $01), x;
     mov $6000, y;
-    mov 0, mar;
+    mov r0, mar;
     cal mar, [!_program.bootloader.bootloader.load_program_and_run];
     hlt;
 
@@ -42,7 +42,7 @@
 .label bootloader.load_file:
 //                                               mask all interrupts
     psh IM;
-    mov 0, IM;
+    mov r0, IM;
 
 //                                               pass in argument
     mov &FP, mar;
@@ -61,7 +61,7 @@
 //                                               copy a string from one memory location to the other: (x y cal) -> mov &x &y (cal times)
 .global_label bootloader.mov_data:
     psh IM;
-    mov 0, IM;
+    mov r0, IM;
 
     mov &FP, acc;
     mov y, &FP;
