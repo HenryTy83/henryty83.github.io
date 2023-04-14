@@ -38,14 +38,14 @@ const writeProgram = (cpu, actualStart, assembledStart, fileName, hardDriveSecto
 // const rawProgram = loadFile('./programs/JSword.jsm')
 
 const ram = new Region(0x0000, 0x9fff)
-const rom = new Region(0xb000, 0xbfff)
+const rom = new Region(0xbf00, 0xbfff)
 const hardDrive = new Region(0xc000, 0xffff, new segmentedDrive(0x4000, 0xffff + 1))
 
 // peripherals
 const screenOutput = createScreenOutput()
-const keyboardInput = new Keyboard(0b0000)
-const sleepTimerDevice = SleepTimer(0b001)
-const soundDevice = createAudioDevice(0b0010)
+const keyboardInput = new Keyboard(0b000)
+const sleepTimerDevice = SleepTimer(null, 100)
+const soundDevice = createAudioDevice(0b001)
 
 const screen = new Region(0xa000, 0xa750, createScreenOutput())
 const keyboard = new Region(0xa751, 0xa751, keyboardInput)

@@ -246,7 +246,7 @@ class Tokenizer {
 
         for (var command of sanitized) {
             var parsed = Tokenizer.parse(command)
-            parsed.line = Tokenizer.findLineNumber(lineLookup, command)
+            parsed.line = parseInt(Tokenizer.findLineNumber(lineLookup, command)) + 1
             parsed.rawCode = text.split('\n')[parsed.line - 1];
             tokenized.push(parsed)
         }

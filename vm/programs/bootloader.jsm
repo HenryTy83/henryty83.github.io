@@ -1,7 +1,7 @@
 .global_def _hardware.default_stack_pointer, $8fde;
 .global_def _memory_map.hard_drive, $c000;
 
-.org $b000;
+.org $bf00;
 .global_label _memory_map.rom:
 .global_label bootloader.main:
     mov $ffff, CLK;

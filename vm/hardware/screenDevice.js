@@ -11,7 +11,6 @@ const charHeight = Math.floor(canvas.height / (rows));
 const charWidth = Math.floor(canvas.width / charPerRow);
 
 const defaultFont = `${charHeight}px modernDOS`
-const emojiFont = `${(charWidth + charHeight) / 2}px modernDOS`
 
 const backgroundColors = [0, 20, 0]
 
@@ -59,8 +58,6 @@ const displayScreen = () => {
     for (var address in VRAMinstructions) {
         [control, data] = VRAMinstructions[address]
 
-        //ctx.font = data > 0x2400 ? emojiFont : defaultFont
-
         if (control & 0b0100000000000000) {
             ctx.font = 'italic ' + ctx.font
         }
@@ -84,7 +81,7 @@ const createScreenOutput = () => (
             if (address == 0) {
                 controlHextet = data
 
-                if (data & 0b1000000000000000) {
+                if (data == 0b1000000000000000) {
                     background();
                     VRAMinstructions = {};
                     controlHextet = null;

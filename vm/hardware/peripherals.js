@@ -1,10 +1,10 @@
 const requestInterrupt = (id, sleepTime, device) => {
     var response = cpu.requestInterrupt(id)
-    switch(response) {
-        case -1: 
+    switch (response) {
+        case -1:
             return device.onReject()
         case 0:
-            return setTimeout(() => {requestInterrupt(id, sleepTime, device)}, sleepTime)
+            return setTimeout(() => { requestInterrupt(id, sleepTime, device) }, sleepTime)
         case 1:
             return device.onAccept()
     }
@@ -46,10 +46,14 @@ class Keyboard {
         return this.lastValue
     }
 
-    onAccept() {this.waiting = false}
-    onReject() {this.read()}
+    onAccept() {
+        this.waiting = false
+    }
+    onReject() {
+        this.read()
+    }
 
-    onInterrupt() { requestInterrupt(this.id, this.sleepTime, this)}
+    onInterrupt() { requestInterrupt(this.id, this.sleepTime, this) }
     getKeyCode(event) {
         // why is keycode deprecated
         // i have to do this myself
@@ -93,25 +97,25 @@ class Timer {
         this.timers = [];
         this.sleepStart = Date.now();
         this.running = true
-    } 
+    }
 
-    checkTimers() { 
+    checkTimers() {
         var now = Date.now()
-        for (var i = this.timers.length - 1; i >= 0; i--) { 
+        for (var i = this.timers.length - 1; i >= 0; i--) {
             var timer = this.timers[i]
-            if (timer[0] < now) { 
+            if (timer[0] < now) {
                 timer[1]();
                 if (timer[2] < 0) {
                     this.timers.splice(i, 1)
                 }
-                else { 
+                else {
                     timer[0] += timer[2]
                 }
             }
         }
     }
 
-    delay(ms, f) { 
+    delay(ms, f) {
         this.timers.push(
             [
                 Date.now() + ms,
@@ -121,7 +125,7 @@ class Timer {
         )
     }
 
-    interval(ms, f) { 
+    interval(ms, f) {
         this.timers.push(
             [
                 Date.now() + ms,
@@ -131,17 +135,17 @@ class Timer {
         )
     }
 }
-var betterTimeout; 
+var betterTimeout;
 
 // sleep timer
-const SleepTimer = (id, sleepTime = 10) => {
-    var timerStart = Math.floor(Date.now() / 10);
+const SleepTimer = (id, sleepTime = 100) => {
+    var timerStart = 0;
 
     return {
-        getUint16: (address) => (Math.floor(Date.now() / 10) - timerStart) & 0xffff,
+        getUint16: (address) => (Math.floor(Date.now() / sleepTime) - timerStart) & 0xffff,
         getUint8: (_) => 0,
-        setUint16: (address, value) => timerStart = Math.floor(Date.now() / 10) + value,
-        setUint8: (_) => Math.floor(Date.now() / 10) - timerStart,
+        setUint16: (address, value) => timerStart = Math.floor(Date.now() / sleepTime) + value,
+        setUint8: (_) => 0,
     }
 }
 

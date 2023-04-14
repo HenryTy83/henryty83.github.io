@@ -1,9 +1,9 @@
-.global_def font.red, 0b0000111100000000;
-.global_def font.green, b0000000011110000;
-.global_def font.blue, b0000000000001111;
-.global_def font.clear_screen, b100000000000;
-.global_def font.italics, b0100000000000000;
-.global_def font.bold, b0010000000000000;
+.global_def font.clear_screen,  b1000000000000000;
+.global_def font.italics,       b0100000000000000;
+.global_def font.bold,          b0010000000000000;
+.global_def font.red,           b0000111100000000;
+.global_def font.green,         b0000000011110000;
+.global_def font.blue,          b0000000000001111;
 
 .global_def string.newline, $0a;
 
@@ -26,32 +26,43 @@
 .data16 text.length, {(!reset.vector - !file.start + 2)};
 
 .label OS.main:
-    mov b1, IM;
+    //                              initialize malloc
+    mov r0,    [!mallocs + (4*0)];
+    mov $0fff, [!mallocs + (4*0 + 2)];
+    mov $a000, [!mallocs + (4*1)];
+    mov $4001, [!mallocs + (4*1) + 2];
+    mov $ffff, [!mallocs + (4*2)];
+    mov $ffff, [!mallocs + (4*2) + 2];
+
+    //                              initialize sleep timer and interrupts
     mov r0, [!_memory_map.sleep_timer];
 
-    //                              initialize malloc
-    mov $a000, [!mallocs + (4*0)];
-    mov $4001, [!mallocs + (4*0) + 2];
-    mov $ffff, [!mallocs + (4*1)];
-    mov $ffff, [!mallocs + (4*1) + 2];
-
-
-    mov (!font.green), [!_memory_map.screen_address];
+    cal !test_function, [!OS.IO.on_key_press];
+    mov b1111111111111111, IM;
     
-    mov r0, x;
-    mov r0, y;
-    cal [!IO.console.move_cursor];
+    .label OS.loop:
+        mov !font.clear_screen, [!_memory_map.screen_address];
+        mov (!font.green), [!_memory_map.screen_address];
 
-    cal !hello_world_string, [!IO.console.print];
+        mov r0, x;
+        mov r0, y;
+        cal [!OS.IO.console.move_cursor];
 
-    hlt; 
+        cal !hello_world_string, [!OS.IO.console.print];
 
-.label OS.loop:
-    jmp [!OS.loop];
+        mov [!pos.x], x;
+        mov [!pos.y], y;
+        cal [!OS.IO.console.move_cursor];
+        cal [!OS.IO.display_cursor];
+
+        cal r1, [!OS.sleep];
+        jmp [!OS.loop];
+
+.data16 pos.x, { 0 };
+.data16 pos.y, { 0 };
 
 .data16 hello_world_string, {'H, 'e, 'l, 'l, 'o, $20, 'W, 'o, 'r, 'l, 'd, '!, $0a,
-'S, 'e, 'c, 'o, 'n, 'd, $20, 'l, 'i, 'n, 'e, $20, $263A, $00 };
-
+'S, 'e, 'c, 'o, 'n, 'd, $20, 'l, 'i, 'n, 'e, $20, $263A, $0a, $00 };
 
 //                          Just halts for now
 .label OS.throw_fatal_error:
@@ -66,107 +77,180 @@
 
 //                          Dummy function for debug
 .label test_function:
-    cal $0000, [!OS.free];
+    mov [!pos.x], acc;
+    inc acc;
+    mov acc, [!pos.x];
     rts;
 
 
-.global_data16 IO.console.cursor.pos, { (!_memory_map.screen_address + 1) };
-.global_data16 IO.console.cursor.pos.x, { 0 };
-.global_data16 IO.console.cursor.pos.y, { 0 };
+//                          sleep for &FP * 100 ms
+.global_label OS.sleep:
+    mov &FP, d;
+    mov [!_memory_map.sleep_timer], acc;
+    add acc, d;
+
+    .label OS.sleep.loop:
+        jgt [!_memory_map.sleep_timer], [!OS.sleep.loop];
+        
+    rts;
+
+
+.global_data16 OS.IO.console.cursor.pos, { (!_memory_map.screen_address + 1) };
+.global_data16 OS.IO.console.cursor.pos.x, { 0 };
+.global_data16 OS.IO.console.cursor.pos.y, { 0 };
+.data16 OS.IO.console.cursor.char, { 0 };
+.data16 OS.IO.console.cursor.timer, { 0 };
+
+.global_data16 OS.IO.console.cursor.blink_time, { 3 };
+.global_data16 OS.IO.console.cursor.char_template, { $2588 };
+
+//                          displays the cursor
+.global_label OS.IO.display_cursor:
+    cal [!OS.IO.blink_cursor];
+    mov &SP, acc;
+
+    jez [!OS.IO.display_cursor.end];
+        mov [!OS.IO.console.cursor.pos], mar;
+        mov acc, &mar;
+    .label OS.IO.display_cursor.end:
+    
+    rts;
+
+//                          blinks the cursor
+.global_label OS.IO.blink_cursor:
+    mov [!_memory_map.sleep_timer], acc;
+    jlt [!OS.IO.console.cursor.timer], [!OS.IO.blink_cursor.skip];
+
+        mov [!OS.IO.console.cursor.blink_time], d;
+        add acc, d;
+        mov acc, [!OS.IO.console.cursor.timer];
+
+        mov [!OS.IO.console.cursor.char], acc;
+        mov [!OS.IO.console.cursor.char_template], d;
+        sub d, acc;
+        mov acc, [!OS.IO.console.cursor.char];
+
+    .label OS.IO.blink_cursor.skip:
+    mov [!OS.IO.console.cursor.char], acc;
+    mov acc, &FP; 
+    rts; 
 
 //                          Move the cursor to the coordinates in the x and y register
-.global_label IO.console.move_cursor:
+.global_label OS.IO.console.move_cursor:
     mul y, !screen.chars_per_row;
     add acc, x;
     add acc, (!_memory_map.screen_address + 1);
-    mov acc, [!IO.console.cursor.pos];
+
+    jlt !_memory_map.screen_address.end, [!OS.IO.console.move_cursor.valid_address];
+        sub !_memory_map.screen_address.end, r1;
+    .label OS.IO.console.move_cursor.valid_address:
+
+    mov acc, [!OS.IO.console.cursor.pos];
     mov acc, &FP;
-    mov x, [!IO.console.cursor.pos.x];
-    mov y, [!IO.console.cursor.pos.y];
+    mov x, [!OS.IO.console.cursor.pos.x];
+    mov y, [!OS.IO.console.cursor.pos.y];
     rts;
 
-.global_label IO.console.set_cursor_pos:
+//                          Draw a character to the coordinates in the x and y registers, without moving it
+.global_label OS.IO.console.draw_char:
+    mul y, !screen.chars_per_row;
+    add acc, x;
+    add acc, (!_memory_map.screen_address + 1);
+    mov &FP, w;
+    mov w, &acc;
+    mov acc, &FP;
+    rts;
+
+//                          Move the cursor to a raw address
+.global_label OS.IO.console.set_cursor_pos:
     mov &FP, acc;
-    mov acc, [!IO.console.cursor.pos];
+    mov acc, [!OS.IO.console.cursor.pos];
     
     sub acc, !_memory_map.screen_address;
     mov r0, y;
 
-    .label IO.console.set_cursor_pos.find_row;
-        jlt !screen.chars_per_row, [!IO.console.set_cursor_pos.find_column];
+    .label OS.IO.console.set_cursor_pos.find_row;
+        jlt !screen.chars_per_row, [!OS.IO.console.set_cursor_pos.find_column];
         inc y;
         sub acc, !screen.chars_per_row;
-        jmp [!IO.console.set_cursor_pos.find_row];
+        jmp [!OS.IO.console.set_cursor_pos.find_row];
     
-    .label IO.console.set_cursor_pos.find_column:
-        mov acc, [!IO.console.cursor.pos.x];
-        mov y, [!IO.console.cursor.pos.y];
-        rts;
+    .label OS.IO.console.set_cursor_pos.find_column:
+        mov acc, [!OS.IO.console.cursor.pos.x];
+        mov y, [!OS.IO.console.cursor.pos.y];
+    rts;
+
+//                          Write the cursors coords to the x and y registers
+
+.global_label OS.IO.console.get_cursor_pos:
+    mov [!OS.IO.console.cursor.pos], acc;
+    cal acc, [!OS.IO.console.set_cursor_pos];
+
+    mov &SP, acc;
+    mov acc, &FP;
+    rts;
 
 //                          Write a null-terminated string to the cursor pos
-.global_label IO.console.print:
+.global_label OS.IO.console.print:
     mov &FP, x;
-    mov [!IO.console.cursor.pos], y;
-    mov x, &FP;
+    mov [!OS.IO.console.cursor.pos], y;
+    mov y, &FP;
     
     mov &x, acc;
-    jez [!IO.console.print.end];
+    jez [!OS.IO.console.print.end];
 
-    .label IO.console.print.loop:
+    .label OS.IO.console.print.loop:
         mov acc, &y;
         
         inc x;
         inc x;  
         inc y;
 
-        .label IO.console.print.fetch_next_char:
+        .label OS.IO.console.print.fetch_next_char:
             mov &x, acc;
 
-            jne !string.newline, [!IO.console.print.check_end];
+            jne !string.newline, [!OS.IO.console.print.check_end];
 
             psh x;
-            mov y, [!IO.console.cursor.pos];
-            cal [!IO.console.newline];
+            mov y, [!OS.IO.console.cursor.pos];
+            cal [!OS.IO.console.newline];
             mov &SP, y;
             pop x;
             inc x;
             inc x;
-            jmp [!IO.console.print.fetch_next_char];
+            jmp [!OS.IO.console.print.fetch_next_char];
 
-            .label IO.console.print.check_end:
-                jnz [!IO.console.print.loop];
+            .label OS.IO.console.print.check_end:
+                jnz [!OS.IO.console.print.loop];
     
-    mov y, [!IO.console.cursor.pos];
-    .label IO.console.print.end:
+    mov y, [!OS.IO.console.cursor.pos];
+    .label OS.IO.console.print.end:
     rts;
 
 //                                  move the cursor to the next line
-.global_label IO.console.newline:
-    mov [!IO.console.cursor.pos], y;
-    cal y, [!IO.console.set_cursor_pos];
-    mov [!IO.console.cursor.pos.y], y;
+.global_label OS.IO.console.newline:
+    cal [!OS.IO.console.get_cursor_pos];
     inc y;
     mov r0, x;
-    cal [!IO.console.move_cursor];
+    cal [!OS.IO.console.move_cursor];
     mov &SP, x;
     mov x, &FP;
     rts;
 
+
+
 //                          Call with the address of a callback function and the function will be called with keypress as argument
-.global_label IO.on_key_press:
+.global_label OS.IO.on_key_press:
     mov &FP, mar;
     mov mar, [!key_press_callback];
-    mov !IO.handle_key_press, [!_hardware.interrupt_vector.keyboard];
+    mov !OS.IO.handle_key_press, [!_hardware.interrupt_vector.keyboard];
     rts;
 
-
-
-.label IO.handle_key_press:
+.label OS.IO.handle_key_press:
     mov [!_memory_map.keyboard], w;
-    cal w, [!IO.key_press_callback.run];
+    cal w, [!OS.IO.key_press_callback.run];
     rti;
-
-.label IO.key_press_callback.run:
+.label OS.IO.key_press_callback.run:
     mov [!key_press_callback], PC;
 
 .data16 key_press_callback, { !OS.reset };
@@ -254,7 +338,7 @@
             inc mar;
 
             jnz [!OS.malloc.found];
-        rts;
+    rts;
 
 
 
