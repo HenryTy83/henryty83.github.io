@@ -1,11 +1,13 @@
-.global_def font.clear_screen,  b1000000000000000;
-.global_def font.italics,       b0100000000000000;
-.global_def font.bold,          b0010000000000000;
-.global_def font.red,           b0000111100000000;
-.global_def font.green,         b0000000011110000;
-.global_def font.blue,          b0000000000001111;
+.global_def Font.clear_screen,  b1000000000000000;
+.global_def Font.italics,       b0100000000000000;
+.global_def Font.bold,          b0010000000000000;
+.global_def Font.red,           b0000111100000000;
+.global_def Font.green,         b0000000011110000;
+.global_def Font.blue,          b0000000000001111;
 
-.global_def string.newline, $0a;
+.global_def String.newline, $0a;
+.global_def String.space, $20;
+.global_def String.colon, $3a;
 
 .global_def _memory_map.screen_address, $a000;
 .global_def _memory_map.screen_address.end, $a751;
@@ -16,72 +18,33 @@
 .global_def _memory_map.sound.square, $a755;
 .global_def _memory_map.sound.sawtooth, $a756;
 
-.global_def _hardware.interrupt_vector.keyboard, $8fe0;
-.global_def _hardware.interrupt_vector.sound, $8fe2;
+.global_def _hardware.interrupt_vector.keyboard, $9fe0;
+.global_def _hardware.interrupt_vector.sound, $9fe2;
 
 .global_def screen.chars_per_row, $4e;
 
-.org $6000;
+.org $b000;
 .label file.start:
 .data16 text.length, {(!reset.vector - !file.start + 2)};
 
-.label OS.main:
-    //                              initialize malloc
-    mov r0,    [!mallocs + (4*0)];
-    mov $0fff, [!mallocs + (4*0 + 2)];
-    mov $a000, [!mallocs + (4*1)];
-    mov $4001, [!mallocs + (4*1) + 2];
-    mov $ffff, [!mallocs + (4*2)];
-    mov $ffff, [!mallocs + (4*2) + 2];
-
-    //                              initialize sleep timer and interrupts
-    mov r0, [!_memory_map.sleep_timer];
-
-    cal !test_function, [!OS.IO.on_key_press];
-    mov b1111111111111111, IM;
-    
-    .label OS.loop:
-        mov !font.clear_screen, [!_memory_map.screen_address];
-        mov (!font.green), [!_memory_map.screen_address];
-
-        mov r0, x;
-        mov r0, y;
-        cal [!OS.IO.console.move_cursor];
-
-        cal !hello_world_string, [!OS.IO.console.print];
-
-        mov [!pos.x], x;
-        mov [!pos.y], y;
-        cal [!OS.IO.console.move_cursor];
-        cal [!OS.IO.display_cursor];
-
-        cal r1, [!OS.sleep];
-        jmp [!OS.loop];
-
-.data16 pos.x, { 0 };
-.data16 pos.y, { 0 };
-
-.data16 hello_world_string, {'H, 'e, 'l, 'l, 'o, $20, 'W, 'o, 'r, 'l, 'd, '!, $0a,
-'S, 'e, 'c, 'o, 'n, 'd, $20, 'l, 'i, 'n, 'e, $20, $263A, $0a, $00 };
-
 //                          Just halts for now
 .label OS.throw_fatal_error:
+    mov !Font.red, [!_memory_map.screen_address];
+    mov r0, x;
+    mov r0, y;
+    cal !String.error, [!OS.IO.console.print];
     hlt;
 
+.data16 String.error, {
+    'F, 'a, 't, 'a, 'l, !String.space, 'E, 'r, 'r, 'o, 'r, !String.space, $2639, !String.newline, $00
+};
 
+.data16 String.out_of_ram_error, {
+    'O, 'u, 't, !String.space, 'o, 'f, !String.space, 'R, 'A, 'M, !String.newline, $00
+};
 
 .global_label OS.reset:
     bki [!bootloader.main];
-
-
-
-//                          Dummy function for debug
-.label test_function:
-    mov [!pos.x], acc;
-    inc acc;
-    mov acc, [!pos.x];
-    rts;
-
 
 //                          sleep for &FP * 100 ms
 .global_label OS.sleep:
@@ -91,7 +54,7 @@
 
     .label OS.sleep.loop:
         jgt [!_memory_map.sleep_timer], [!OS.sleep.loop];
-        
+    
     rts;
 
 
@@ -209,7 +172,7 @@
         .label OS.IO.console.print.fetch_next_char:
             mov &x, acc;
 
-            jne !string.newline, [!OS.IO.console.print.check_end];
+            jne !String.newline, [!OS.IO.console.print.check_end];
 
             psh x;
             mov y, [!OS.IO.console.cursor.pos];
@@ -339,6 +302,53 @@
 
             jnz [!OS.malloc.found];
     rts;
+
+
+
+
+
+.label OS.main:
+    //                              initialize malloc
+    mov r0,    [!mallocs + (4*0)];
+    mov $0fff, [!mallocs + (4*0 + 2)];
+    mov $a000, [!mallocs + (4*1)];
+    mov $4001, [!mallocs + (4*1) + 2];
+    mov $ffff, [!mallocs + (4*2)];
+    mov $ffff, [!mallocs + (4*2) + 2];
+
+    //                              initialize sleep timer and interrupts
+    mov r0, [!_memory_map.sleep_timer];
+
+    mov b1111111111111111, IM;
+    
+    .label OS.loop:
+        mov !Font.clear_screen, [!_memory_map.screen_address];
+        mov (!Font.green), [!_memory_map.screen_address];
+
+        mov r0, x;
+        mov r0, y;
+        cal [!OS.IO.console.move_cursor];
+
+        cal !OS.header_string, [!OS.IO.console.print];
+        cal [!OS.IO.display_cursor];
+
+        cal r1, [!OS.sleep];
+        jmp [!OS.loop];
+
+.data16 OS.header_string, { 
+    'S, 't, 'a, 'r, 't, 'i, 'n, 'g, !String.space, 'J, 'S, '-, 'D, 'O, 'S, '., '., '., !String.newline,
+    !String.newline,
+    'W, 'e, 'l, 'c, 'o, 'm, 'e, '!, !String.newline,
+    'C, !String.colon, '/, '>, $00
+};
+
+.data16 OS.credits_string, {
+    $250C, $2500, $2500, $2500, $2500, $2500, $2500, $2500, $2500, $2500, $2500, $2500, $2500, $2500, $2500, $2500, $2510, !String.newline,
+    $2502, 'T, 'J, 'S, 'V, 'M, 'T, 'D, 'H, 'A, 'A, !String.space, 'v, '1, '., '0, $2502, !String.newline,
+    $2502, 'J, 'S, '-, 'D, 'O, 'S, !String.space, 'v, '0, '., '1, !String.space, !String.space, !String.space, !String.space, $2502, !String.newline,
+    $2514, $2500, $2500, $2500, $2500, $2500, $2500, $2500, $2500, $2500, $2500, $2500, $2500, $2500, $2500, $2500, $251A, !String.newline,
+    $00
+};
 
 
 

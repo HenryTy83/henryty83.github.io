@@ -140,11 +140,18 @@ var betterTimeout;
 // sleep timer
 const SleepTimer = (id, sleepTime = 100) => {
     var timerStart = 0;
+    var offset = 0;
+
+    const result = () => (Math.floor((Date.now()-timerStart) / sleepTime) + offset) & 0xffff
 
     return {
-        getUint16: (address) => (Math.floor(Date.now() / sleepTime) - timerStart) & 0xffff,
+        getUint16: (_) => result(),
         getUint8: (_) => 0,
-        setUint16: (address, value) => timerStart = Math.floor(Date.now() / sleepTime) + value,
+        setUint16: (address, value) => {
+            timerStart = Date.now();   
+            offset = value;
+            return result()
+        },
         setUint8: (_) => 0,
     }
 }

@@ -38,7 +38,8 @@ const writeProgram = (cpu, actualStart, assembledStart, fileName, hardDriveSecto
 // const rawProgram = loadFile('./programs/JSword.jsm')
 
 const ram = new Region(0x0000, 0x9fff)
-const rom = new Region(0xbf00, 0xbfff)
+const rom = new Region(0xaf00, 0xafff)
+const boot = new Region (0xb000, 0xbfff)
 const hardDrive = new Region(0xc000, 0xffff, new segmentedDrive(0x4000, 0xffff + 1))
 
 // peripherals
@@ -52,15 +53,14 @@ const keyboard = new Region(0xa751, 0xa751, keyboardInput)
 const sleepTimer = new Region(0xa752, 0xa752, sleepTimerDevice)
 const soundCard = new Region(0xa753, 0xa756, soundDevice)
 
-const memoryMappage = new Mapping([ram, screen, keyboard, sleepTimer, soundCard, rom, hardDrive])
-const cpu = new CPU(0xbffe, 0x8fe0, memoryMappage)
+const memoryMappage = new Mapping([ram, screen, keyboard, sleepTimer, soundCard, rom, boot, hardDrive])
+const cpu = new CPU(0xaffe, 0x9fe0, memoryMappage)
 
 writeProgram(cpu, 0x0000, 0x0000, 'bootloader.jsm', 0)
-rom.memory.setUInt16 = () => 0
-rom.memory.setUint8 = () => 0
+rom.setUint16 = () => 0;
+rom.setUint8 = () => 0;
 
-writeProgram(cpu, 0xc001, 0x6000, 'JS-DOS.jsm', 0)
-// writeProgram(cpu, 0xc001, 0x0000, 'JS-WORD.jsm', 1)
+writeProgram(cpu, 0xc001, 0xb000, 'JS-DOS.jsm', 0)
 
 cpu.startup();
 button.style.backgroundColor = 'rgb(255, 0, 0)'

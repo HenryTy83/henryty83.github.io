@@ -1,7 +1,7 @@
-.global_def _hardware.default_stack_pointer, $8fde;
+.global_def _hardware.default_stack_pointer, $9fde;
 .global_def _memory_map.hard_drive, $c000;
 
-.org $bf00;
+.org $af00;
 .global_label _memory_map.rom:
 .global_label bootloader.main:
     mov $ffff, CLK;
@@ -11,7 +11,7 @@
     mov !_hardware.default_stack_pointer, SP;
     //                                               load a program from sector 0
     mov (!_memory_map.hard_drive + $01), x;
-    mov $6000, y;
+    mov $b000, y;
     mov r0, mar;
     cal mar, [!_program.bootloader.bootloader.load_program_and_run];
     hlt;
@@ -81,5 +81,5 @@
     pop IM;
     rts;
 
-.org $bffe;
+.org $affe;
 .global_data16 _hardware.default_reset_vector, {!bootloader.main};
