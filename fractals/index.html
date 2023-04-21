@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <script src="../lib/p5.js"></script>
+    
+    <link rel="stylesheet" href="../lib/darkMode.css">
+
+    <style>
+      #main {
+        width: 600px;
+        margin: auto;
+      }
+    </style>
+
+    <title>The Hall of Fractals</title>
+  </head>
+  <body">
+    <div id="main">
+      <a href="../" id="header"><img src="../images/logoWhite.png" alt="Henry 天 Ty"></a>
+
+    <h1>Welcome to the Gallery!</h1>
+
+    <p id="instructions">
+        Some of these shapes are animated. If they are, simply mouseover the window to start the animation. Enjoy!
+    </p>
+
+    <br>
+
+    <h1><a href="https://en.wikipedia.org/wiki/Menger_spongehttps://en.wikipedia.org/wiki/Bubble_sort">Menger Sponge</a></h1>
+    <div class="canvas" id="mengerSponge"></div>
+    <script src="menger.js"></script>
+
+    <br><br><br>
+
+    <h1><a href="https://en.wikipedia.org/wiki/Fractal_canopy">Fractal Tree</a></h1>
+    <div class="canvas" id="tree"></div>
+    <script src="tree.js"></script>
+
+    <br><br><br>
+
+    <h1><a href="https://en.wikipedia.org/wiki/Sierpi%C5%84ski_triangle">Sierpinski triangle</a></h1>
+    <p>Click to add more layers</p>
+    <div class="canvas" id="sierpinski"></div>
+    <script src="sierpinski.js"></script>
+
+
+    <p>More coming soon</p>
+
+    <br>
+
+    <p id="credits">By <a href="https://henryty88.github.io">Henry Ty</a></p>
+      <br>
+    </div>
+  </body>
+</html>
