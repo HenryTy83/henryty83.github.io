@@ -41,7 +41,7 @@ const rotateXZ = (a) => new Matrix(4, 4, null, [
 const rotateAndProject = (vertices, rx, ry, rz, cameraDistance, scale=100) => { 
     var transformedPoints = [];
     for (var vertex of vertices) {
-        vertex = rotateZ(rz).matrixMult(rotateY(ry).matrixMult(rotateX(rx).matrixMult(vertex)))
+        vertex = rotateZ(rz).multiply(rotateY(ry).multiply(rotateX(rx).multiply(vertex)))
         var newPoint = projectPoint([vertex.data[0][0], vertex.data[1][0], vertex.data[2][0]], cameraDistance)
         newPoint = newPoint.map((x) => (scale * x));
         transformedPoints.push(newPoint)
@@ -54,7 +54,7 @@ const rotateAndProject4 = (vertices, rxz, cameraDistance) => {
     var cubeCoords = [];
 
     for (var vertex of vertices) {
-        vertex = rotateXZ(rxz).matrixMult(vertex);
+        vertex = rotateXZ(rxz).multiply(vertex);
         cubeCoords.push(new Matrix(1, 3, null, projectPoint4([vertex.data[0][0], vertex.data[1][0], vertex.data[2][0], vertex.data[3][0]], cameraDistance)))
     }
 
