@@ -55,7 +55,7 @@ const rotateAndProject4 = (vertices, rxz, cameraDistance) => {
 
     for (var vertex of vertices) {
         vertex = rotateXZ(rxz).multiply(vertex);
-        cubeCoords.push(new Matrix(1, 3, null, projectPoint4([vertex.data[0][0], vertex.data[1][0], vertex.data[2][0], vertex.data[3][0]], cameraDistance)))
+        cubeCoords.push(new Matrix(3, 1, null, projectPoint4([vertex.data[0][0], vertex.data[1][0], vertex.data[2][0], vertex.data[3][0]], cameraDistance)))
     }
 
     return cubeCoords;
@@ -85,7 +85,7 @@ var cubeSketch = function (p) {
         for (var x = -1; x <= 1; x += 2) {
             for (var y = -1; y <= 1; y += 2) {
                 for (var z = -1; z <= 1; z += 2) {
-                    p.cubeCoords.push(new Matrix(1, 3, null, [
+                    p.cubeCoords.push(new Matrix(3, 1, null, [
                         [x],
                         [y],
                         [z],
@@ -167,7 +167,7 @@ var hypercubeSketch = function (p) {
             for (var x = -1; x <= 1; x += 2) {
                 for (var y = -1; y <= 1; y += 2) {
                     for (var z = -1; z <= 1; z += 2) {
-                        p.hypercubeCoords.push(new Matrix(1, 4, null, [
+                        p.hypercubeCoords.push(new Matrix(4, 1, null, [
                             [w],
                             [x],
                             [y],
@@ -255,7 +255,7 @@ var sphereSketch = function (p) {
         var r = 1
         for (var theta = 0; theta < Math.PI * 2; theta += 0.1) { 
             for (var phi = 0; phi < Math.PI; phi += 0.05) { 
-                p.points.push(new Matrix(1, 3, null, [
+                p.points.push(new Matrix(3, 1, null, [
                     [r * Math.cos(theta) * Math.sin(phi)],
                     [r * Math.sin(theta) * Math.sin(phi)],
                     [r * Math.cos(phi)],
@@ -311,7 +311,7 @@ var hypersphereSketch = function (p) {
         for (alpha = 0; alpha < Math.PI; alpha += 0.15) {
             for (var theta = 0; theta < Math.PI * 2; theta += 0.3) {
                 for (var phi = 0; phi < Math.PI; phi += 0.15) {
-                    p.hyperpoints.push(new Matrix(1, 4, null, [
+                    p.hyperpoints.push(new Matrix(4, 1, null, [
                         [r * Math.cos(alpha)],
                         [r * Math.cos(theta) * Math.sin(phi) * Math.sin(alpha)],
                         [r * Math.sin(theta) * Math.sin(phi) * Math.sin(alpha)],
@@ -372,7 +372,7 @@ var torusSketch = function (p) {
         // https://math.stackexchange.com/questions/358825/parametrisation-of-the-surface-a-torus
         for (var theta = 0; theta < Math.PI * 2; theta += 0.075) {
             for (var phi = 0; phi < Math.PI * 2; phi += 0.075) {
-                p.points.push(new Matrix(1, 3, null, [
+                p.points.push(new Matrix(3, 1, null, [
                     [(a * Math.cos(theta) + b) * Math.cos(phi)],
                     [(a * Math.cos(theta) + b) * Math.sin(phi)],
                     [a * Math.sin(theta)],
