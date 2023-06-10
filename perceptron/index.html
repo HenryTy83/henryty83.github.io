@@ -8,16 +8,30 @@
     <script src="../lib/neuralNetwork.js"></script>
     
     <link rel="stylesheet" href="../lib/darkMode.css">
-    <title>Simple Neural Network</title>
+    <title>Single Layer Perceptron</title>
+
+    <style>#main{width:400px}</style>
   </head>
   <body">
     <div id="main">
       <a href="../" id="header"><img src="../images/logoWhite.png" alt="Henry 天 Ty"></a>
 
+
+      <h1><a href="https://en.wikipedia.org/wiki/Perceptron">Single-Layer Perceptron</a></h1>
+
+      <br>
+
+      <div id="dots-data"></div>
+
       <div class="canvas" id="canvas">
         <script src="sketch.js"></script> 
       </div>
 
+      <br>
+
+      <p id="instructions">
+        Points above the white line are supposed to be blue, below are orange. The neural network is fed with the coordinates of each point and has to classify them accordingly. Each point has two colors: the inner, which is what it's supposed to be, and the outer, which is what the network says it is.
+      </p>
       
 
       <p id="credits">
