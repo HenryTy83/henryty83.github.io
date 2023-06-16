@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+    <head>
+        <link rel="stylesheet" href="../lib/darkMode.css">
+
+        <script src="../lib/p5.js"></script>
+        <script src="../lib/matrix.js"></script>
+        <script src="../lib/neuralNetwork.js"></script>
+
+        <title>Cartpole (now with AI!)</title>
+    </head>
+
+    <body>
+        <script src="rod.js"></script>
+        <script src="game.js"></script>
+
+        <div id="main">
+            <a href="../"><img src="../images/logoWhite.png" alt="Henry 天 Ty"></a>
+            <h1>Let's play a game...</h1>
+            <div id="cartpole-game"></div>
+            <br>
+
+            The rules are simple: Just use the left and right arrows to keep the pole in the air.
+
+            <br>
+            <br>
+            <br>
+
+            <h2>Pretty easy, right? You've done stuff like this for your whole life.</h2>
+
+            <br>
+
+            <h1>So now let's let a <a href="https://en.wikipedia.org/wiki/Neural_network">neural network</a> try it out...</h1>
+            <div id="cartpole-ai"></div>
+            <br>
+
+            The Neural Network is learning using a process called <a href="https://en.wikipedia.org/wiki/Q-learning">Q-learning</a>. We have a standard feed forward neural network being fed the cart's position, velocity, angle from vertical, and rotational velocity.
+            The Network then decides 3 options: move left, do nothing, and move right.
+
+            <br>
+            <br>
+            
+            Like all learning, this can be broken into 2 stages: f...ool around and find out.
+
+            <br>
+
+            <h3>Fool around</h3>
+
+            The network "sees" the state of the game with the 4 aforementioned inputs and makes its move. Then, the game is updated: either the pole stays up, or the AI loses the round. Either way, we get valuable information:
+            
+            After every frame, the network is given some reward (positive for keeping the pole up and negative for letting it fall or moving the cart off of the screen).
+
+            <h3>Find out</h3>
+            Now we know the result of a certain action, it's time to adjust the network. At a very high level, a positive reward will make the network more likely to perform the relevent action, and a negative reward will discourage bad actions.
+            The result is the network will gradually learn actions that will result in the maximal reward, which (by design) are also actions that balance the pole sucessfully.
+
+            <br>
+            <br>
+            <br>
+                
+
+            <h1>So, after a bit of learning, it's not that bad. Still has sme work to do, though</h1>
+            <div id="cartpole-good-enough"></div>
+            <br>
+            
+            More specifically, the network outputs the expected reward it will get for each action, given the inputs.
+            Essentially, the network has its own reward function that it follows. Using formulas I stole online, every frame, the AI uses the reward it got to adjust its internal reward function to more closely match the "true" reward function.
+            After the network is sufficiently trained, simply doing the action that the network thinks will provide the maximum reward will actually provide the maximum reward, which will balance the pole.
+
+            <br> <br>
+
+            In the actual code, the network's reward is equal to cos of the pole's angle. That way, it gets maximum reward for keeping the pole straight. If the game resets for any reason (dropped pole or out of bounds), the network gets a "reward" of -5 to heavily discourage behavior that leads to failure.
+
+            <br>
+            <br>
+            <br>
+
+            <h1>After even more learning, now the pole is 100% vertical with frame-perfect inputs.</h1>
+            <div id="cartpole-perfect"></div>
+            <br>
+
+            I think it's safe to call this optimal. We're done here.
+
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+
+            <a id="credits" href="henryty88.github.io">By Henry Ty, 2023</a>
+        </div>
+
+    </body>
+</html>
