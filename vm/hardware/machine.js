@@ -24,11 +24,56 @@ const loadProgram = (memory, startAddress = 0, offset = 0) => (code) => {
 const writeProgram = (cpu, actualStart, assembledStart, fileName, hardDriveSector = 0) => {
     hardDrive.memory.setUint16(0, hardDriveSector)
     length = loadProgram(cpu.memory, actualStart, assembledStart)(assemble(Tokenizer.read(loadFile('./programs/' + fileName)), assembledStart))
-    console.log(`Wrote program '${fileName}' to disk at ${hardDriveSector} from $${actualStart.toString(16).padStart(4, '0')} to $${(actualStart + length - 1).toString(16).padStart(4, '0')}`)
+    console.log(`Wrote program '${fileName}' to disk in partition ${hardDriveSector} from $${actualStart.toString(16).padStart(4, '0')} to $${(actualStart + length - 1).toString(16).padStart(4, '0')}`)
     return actualStart + length
 }
 
 
+// better timer because setTimeout sucks
+class Timer {
+    constructor() {
+        this.timers = [];
+        this.sleepStart = Date.now();
+        this.running = true
+    }
+
+    checkTimers() {
+        var now = Date.now()
+        for (var i = this.timers.length - 1; i >= 0; i--) {
+            var timer = this.timers[i]
+            if (timer[0] < now) {
+                timer[1]();
+                if (timer[2] < 0) {
+                    this.timers.splice(i, 1)
+                }
+                else {
+                    timer[0] += timer[2]
+                }
+            }
+        }
+    }
+
+    delay(ms, f) {
+        this.timers.push(
+            [
+                Date.now() + ms,
+                f,
+                -1
+            ]
+        )
+    }
+
+    interval(ms, f) {
+        this.timers.push(
+            [
+                Date.now() + ms,
+                f,
+                ms
+            ]
+        )
+    }
+}
+var betterTimeout;
 
 
 // const rawProgram = loadFile('./programs/helloWorld.jsm')
@@ -60,6 +105,7 @@ writeProgram(cpu, 0x0000, 0x0000, 'bootloader.jsm', 0)
 rom.setUint16 = () => 0;
 rom.setUint8 = () => 0;
 
+writeProgram(cpu, 0x0000, 0x0000, 'JS-DOS-DATA.jsm', 1)
 writeProgram(cpu, 0xc001, 0xb000, 'JS-DOS.jsm', 0)
 
 cpu.startup();
@@ -87,7 +133,7 @@ const startUp = () => {
     const runEverything = () => {
         betterTimeout.checkTimers();
 
-        runCPU(betterTimeout.timers.length == 0 ? 10000 : 100);
+        runCPU(100);
 
         displayScreen();
 

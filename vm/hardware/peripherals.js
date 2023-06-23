@@ -91,58 +91,12 @@ class Keyboard {
     setUint8 = (_) => 0
 }
 
-// better timer because setTimeout sucks
-class Timer {
-    constructor() {
-        this.timers = [];
-        this.sleepStart = Date.now();
-        this.running = true
-    }
-
-    checkTimers() {
-        var now = Date.now()
-        for (var i = this.timers.length - 1; i >= 0; i--) {
-            var timer = this.timers[i]
-            if (timer[0] < now) {
-                timer[1]();
-                if (timer[2] < 0) {
-                    this.timers.splice(i, 1)
-                }
-                else {
-                    timer[0] += timer[2]
-                }
-            }
-        }
-    }
-
-    delay(ms, f) {
-        this.timers.push(
-            [
-                Date.now() + ms,
-                f,
-                -1
-            ]
-        )
-    }
-
-    interval(ms, f) {
-        this.timers.push(
-            [
-                Date.now() + ms,
-                f,
-                ms
-            ]
-        )
-    }
-}
-var betterTimeout;
-
 // sleep timer
 const SleepTimer = (id, sleepTime = 100) => {
     var timerStart = 0;
     var offset = 0;
 
-    const result = () => (Math.floor((Date.now()-timerStart) / sleepTime) + offset) & 0xffff
+    const result = () => (Math.floor((Date.now() - timerStart) / sleepTime) + offset) & 0xffff
 
     return {
         getUint16: (_) => result(),
@@ -156,7 +110,7 @@ const SleepTimer = (id, sleepTime = 100) => {
     }
 }
 
-
+/* TODO: Redesign this when needed */
 // sound card
 const createNoise = (volume = 0) => {
     const audioCtx = new AudioContext()

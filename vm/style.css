@@ -18,6 +18,14 @@
      width: inherit;
  }
 
+:link {
+    color: rgb(255, 255, 0)
+}
+
+:visited {
+    color: rgb(255, 255, 0)
+}
+
  .button {
      background-color: #777777;
      padding: 10px 10px;

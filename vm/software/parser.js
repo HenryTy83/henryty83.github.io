@@ -2,12 +2,12 @@ class Tokenizer {
     static sanitize(text) {
         var lineLookup = {};
         var noComments = '';
-        
+
         var brokenText = text.split('\n')
         for (var i in brokenText) {
             var line = brokenText[i]
-            if (!line.trim().startsWith('//')) { 
-                noComments += line 
+            if (!line.trim().startsWith('//')) {
+                noComments += line
                 lineLookup[line.trim()] = i
             }
         }
@@ -118,35 +118,41 @@ class Tokenizer {
     }
 
     static createExpression(args) {
-        const operators = '+-*/&|^'
-
-        if (args.length == 1) return new Token('EXPRESSION', args[0])
-
-        for (var i = 0; i < args.length; i++) {
-            if (args[i] == '(') {
-                var end = Tokenizer.findClosing(')', args.slice(i))
-                var parsedParenthesis = Tokenizer.createExpression(args.splice(i, end + 1).slice(1, -1))
-                args.splice(i, 0, parsedParenthesis)
-            }
-        }
-
         try {
-            for (var i = 1; i < args.length; i++) {
-                var currentOperation = args[i]
-                if (!operators.includes(currentOperation)) throw new Error(`bad operator: ${currentOperation}`)
+            const operators = '+-*/&|^'
 
-                var a = args[i - 1]
-                var b = args[i + 1]
+            if (args.length == 1) return new Token('EXPRESSION', args[0])
 
-                args.splice(i - 1, 2)
-                i--;
-
-                args[i] = new Token('OPERATION', currentOperation, [a, b])
+            for (var i = 0; i < args.length; i++) {
+                if (args[i] == '(') {
+                    var end = Tokenizer.findClosing(')', args.slice(i))
+                    var parsedParenthesis = Tokenizer.createExpression(args.splice(i, end + 1).slice(1, -1))
+                    args.splice(i, 0, parsedParenthesis)
+                }
             }
-        } catch (err) {
-            throw new Error(`ERROR PARSING EXPRESSION ${args.map(x => JSON.stringify(x, null, '    ')).join('\n')}\n\n${err}`)
+
+            try {
+                for (var i = 1; i < args.length; i++) {
+                    var currentOperation = args[i]
+                    if (!operators.includes(currentOperation)) throw new Error(`bad operator: ${currentOperation}`)
+
+                    var a = args[i - 1]
+                    var b = args[i + 1]
+
+                    args.splice(i - 1, 2)
+                    i--;
+
+                    args[i] = new Token('OPERATION', currentOperation, [a, b])
+                }
+            } catch (err) {
+                throw new Error(`ERROR PARSING EXPRESSION ${args.map(x => JSON.stringify(x, null, '    ')).join('\n')}\n\n${err}`)
+            }
+            return Tokenizer.createExpression(args)
         }
-        return Tokenizer.createExpression(args)
+
+        catch (err) {
+            throw new Error(`Error thrown while parsing [${args.join(', ')}]`)
+        }
     }
 
     static parseArgs(args) {
@@ -227,11 +233,11 @@ class Tokenizer {
     }
 
     static findLineNumber = (text, command) => {
-        var firstTry = text[command+';'];
+        var firstTry = text[command + ';'];
         if (firstTry != undefined) return firstTry;
 
         for (var i in text) {
-            var nextTry = text[command.slice(0, i+1)];
+            var nextTry = text[command.slice(0, i + 1)];
 
             if (nextTry != undefined) return nextTry;
         }

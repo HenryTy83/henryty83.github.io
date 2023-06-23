@@ -566,6 +566,9 @@ class CPU {
             case instructionSet.cal_lit.opcode:
                 this.subroutine(this.fetchWord())
                 return
+            case instructionSet.cal_mem.opcode:
+                this.subroutine(this.memory.getUint16(this.fetchWord()))
+                return
             case instructionSet.rts.opcode:
                 this.returnSubroutine()
                 return

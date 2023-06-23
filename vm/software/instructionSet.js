@@ -466,37 +466,44 @@ const instructionSet = {
         mnemonic: 'cal',
         args: ['LITERAL', 'ADDRESS']
     },
+
+    cal_mem: {
+        opcode: 0x57,
+        length: 5,
+        mnemonic: 'cal',
+        args: ['ADDRESS', 'ADDRESS']
+    },
                 
     rts: {
-        opcode: 0x57,
+        opcode: 0x58,
         length: 1,
         mnemonic: 'rts',
         args: []
     },
 
     brk: {
-        opcode: 0x58,
+        opcode: 0x59,
         length: 3,
         mnemonic: 'brk',
         args: ['ADDRESS']
     },
 
     rti: {
-        opcode: 0x59,
+        opcode: 0x5a,
         length: 1,
         mnemonic: 'rti',
         args: []
     },
 
     bki: {
-        opcode: 0x5a,
+        opcode: 0x5b,
         length: 3,
         mnemonic: 'bki',
         args: ['ADDRESS']
     },
 
     int: {
-        opcode: 0x5b,
+        opcode: 0x5c,
         length: 3,
         mnemonic: 'int',
         args: ['ADDRESS']
