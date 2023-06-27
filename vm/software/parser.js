@@ -189,7 +189,7 @@ class Tokenizer {
                     parsed.push(new Token('ADDRESS_EXPRESSION', Tokenizer.createExpression(Tokenizer.parseExpression(arg.slice(1, closing)))))
                     break;
                 case ('VARIABLE'):
-                    parsed.push(new Token('EXPRESSION', new Token('VARIABLE', arg)))
+                    parsed.push(new Token('EXPRESSION', new Token('VARIABLE', arg.slice(-1) == '}' ? arg.slice(0, arg.length-1) : arg)))
                     break
                 case ('EXPRESSION'):
                     var closing = Tokenizer.findClosing(')', arg.split(''))
@@ -198,7 +198,6 @@ class Tokenizer {
                 case ('DATA_BRACKET'):
                     var data = args.join(',').slice(1, -1).split(',')
                     parsed.push(new Token('DATA', data.length, Tokenizer.parseArgs(data)))
-                    break;
                 default:
                     parsed.push(new Token(type, arg))
                     break;

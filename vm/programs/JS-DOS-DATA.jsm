@@ -72,10 +72,10 @@
     $00
 };
 
-.global_data16 buffer, { 0 };
-.global_data16 command_length, { 0 };
+.global_data16 OS.console.buffer, { 0 };
+.global_data16 OS.console.command_length, { 0 };
 
-.global_data16 command_lookup, {
+.global_data16 OS.console.command_lookup, {
     'h, 'e, 'l, 'p, 0,
     'c, 'r, 'e, 'd, 0,
     'l, 'i, 's, 't, 0,

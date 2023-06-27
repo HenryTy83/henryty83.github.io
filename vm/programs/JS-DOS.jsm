@@ -247,10 +247,19 @@
 
     .label OS.malloc.search:
         mov x, &FP;
-        add x, d;
+
         mov &mar, w;
+        mov x, acc;
+
+        jlt w, [!OS.malloc.search.out_of_range]
+        jmp [!OS.malloc.search.not_found];
+
+        .label OS.malloc.search.out_of_range:
+        add x, d;
         jlt w, [!OS.malloc.found];
 
+        .label OS.malloc.search.not_found:
+    
         mov w, acc;
         jne $ffff, [!OS.malloc.memory_available];
             cal r0, [!OS.throw_fatal_error];
@@ -289,7 +298,10 @@
     jne d, [!String.equal.false];
 
     inc x;
+    inc x;
     inc y;
+    inc y;
+
     jnz [!String.equal];
 
     mov r1, &FP;
@@ -328,9 +340,9 @@
 
     mov b1111111111111111, IM;
     
-    cal 8, [!OS.malloc];
+    cal 10, [!OS.malloc];
     mov &SP, mar;
-    mov mar, [!buffer];
+    mov mar, [!OS.console.buffer];
     mov r0, &mar;
     cal !console.enter_command, [!OS.IO.on_key_press];
     
@@ -345,7 +357,7 @@
     cal [!OS.IO.console.move_cursor];
 
     cal !OS.data.header_string, [!OS.IO.console.print];
-    cal [!buffer], [!OS.IO.console.print];
+    cal [!OS.console.buffer], [!OS.IO.console.print];
 
     cal [!OS.IO.display_cursor];
 
@@ -357,13 +369,13 @@
     mov &FP, acc;
 
     jne !String.newline, [!console.enter_command.check_backspace];
-        cal [!buffer], [!console.run_command];
+        cal [!OS.console.buffer], [!console.run_command];
         rts;
 
     .label console.enter_command.check_backspace:
     jne !Input.backspace, [!console.enter_command.check_valid];
-        mov r0, [!command_length];
-        mov [!buffer], acc;
+        mov r0, [!OS.console.command_length];
+        mov [!OS.console.buffer], acc;
         mov r0, &acc;
         rts;
     .label console.enter_command.check_valid:
@@ -373,15 +385,15 @@
 
     mov acc, d;
     
-    mov [!command_length], acc;
+    mov [!OS.console.command_length], acc;
     jeq 4, [!console.enter_command.end];
 
     mov acc, mar;
     inc mar;
-    mov mar, [!command_length];
+    mov mar, [!OS.console.command_length];
 
     mul acc, 2;
-    mov [!buffer], mar;
+    mov [!OS.console.buffer], mar;
     add acc, mar;
 
     mov d, &acc;
@@ -393,13 +405,55 @@
     rts;
 
 .label console.run_command:
-    mov &SP, mar;
-    rts;
+    mov r1, [!_memory_map.hard_drive];
+
+    mov !OS.console.command_lookup, mar;
+    mov r0, d;
+
+    .label console.run_command.parse:
+        mov &FP, x;
+
+        mul d, 5;
+        add acc, mar;
+        mov acc, y;
+
+        psh d;
+        cal [!String.equal];
+        pop d;
+
+        mov &SP, acc;
+        jnz [!console.command_found];
+
+        inc d;
+        mov d, acc;
+        jlt 6, [!console.run_command.parse];
+
+    .label console.command_found:
+        mov [!OS.console.buffer], mar;
+        mov r0, &mar;
+
+        mov r0, [!OS.console.command_length];
+
+        mul d, 2;
+        hlt; 
+
+        add acc, !command_lookup;
+
+        mov &acc, PC;
+
+.data16 command_lookup, {
+    !console.display_help, !console.display_credits, !console.list_files, !console.open_file, !console.copy_file, !console.delete_file, !console.unknown_command
+};
 
 .label console.display_help:
 .label console.display_credits:
 .label console.list_files:
 .label console.open_file:
+.label console.copy_file:
+.label console.delete_file:
+rts;
+.label console.unknown_command:
+hlt;
 
 
 .data16 reset_vector, { !OS.main };
