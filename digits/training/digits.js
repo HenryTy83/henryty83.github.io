@@ -124,7 +124,7 @@ function digitSketch(p) {
     p.draw = function () {
         p.background(0, 0, 50);
 
-        var batchSize = 1000;
+        var batchSize = 100;
         var batch = [];
         var digit;
         for (var i=0; i<batchSize; i++) {
