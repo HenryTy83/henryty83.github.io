@@ -9,13 +9,18 @@
     mov r0, IM;
     //                                               set the stack pointer
     mov !_hardware.default_stack_pointer, SP;
+    mov SP, FP;
+    mov r0, &SP;
+
     //                                               load a program from sector 0
+    mov r0, [!_memory_map.hard_drive];
+
     mov (!_memory_map.hard_drive + $01), x;
     mov $b000, y;
-    mov r0, mar;
-    cal mar, [!_program.bootloader.bootloader.load_program_and_run];
+    cal r0, [!_program.bootloader.bootloader.load_program_and_run];
     hlt;
 
+//                                                         (x y cal) = (target_addr source_addr sector_number)
 .global_label _program.bootloader.bootloader.load_program_and_run:
     mov &FP, mar;
     cal mar, [!bootloader.load_file];

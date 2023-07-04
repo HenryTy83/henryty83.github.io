@@ -79,12 +79,18 @@ const createScreenOutput = () => (
         getUint8: () => 0,
         setUint16: (address, data) => {
             if (address == 0) {
-                controlHextet = data
-
                 if (data == 0b1000000000000000) {
                     background();
                     VRAMinstructions = {};
                     controlHextet = null;
+                }
+
+                else if (data == 0b1000000000000001) {
+                    displayScreen();
+                } 
+
+                else {
+                    controlHextet = data
                 }
             } else {
                 VRAMinstructions[address - 1] = [controlHextet, data]

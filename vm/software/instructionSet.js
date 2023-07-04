@@ -1,13 +1,6 @@
 const instructionSet = {
-    halt: {
-        opcode: 0x00,
-        length: 1,
-        mnemonic: 'hlt',
-        args: []
-    },
-
     noop: {
-        opcode: 0x01,
+        opcode: 0x00,
         length: 1,
         mnemonic: 'nop',
         args: []
@@ -508,62 +501,14 @@ const instructionSet = {
         mnemonic: 'int',
         args: ['ADDRESS']
     },
+
+    halt: {
+        opcode: 0xff,
+        length: 1,
+        mnemonic: 'hlt',
+        args: []
+    },
 }
-
-// for developer use only, delete or comment when done /*
-const documentationToInstructionSet = (docs) => {
-    data = docs.split('\n')
-    output = ``
-
-    const formatArgsString = (args) => {
-        var argDict = {
-            '[REG]': `'REGISTER'`,
-            '[R2G]': `'REGISTER'`,
-            '[LIT]': `'LITERAL'`,
-            '[ADD]': `'ADDRESS'`,
-        }
-        const newArgs = []
-        for (var arg of args) {
-            var newArg = argDict[arg]
-
-            if (newArg != undefined) {
-                newArgs.push(newArg)
-            }
-        }
-
-        return newArgs
-    }
-
-    const findArgsLength = (args) => args.length + 1
-
-    for (var line of data) {
-        if (line[0] != ' ' && line != '' && line[0] != '/') {
-            var info = line.split(' ')
-
-            var args = formatArgsString(info.slice(2))
-
-            output += `
-${info[0].slice(0, -1)}: {
-    opcode: 0x${info[1].slice(1)},
-    length: ${findArgsLength(info.slice(2))},
-    mnemonic: '${info[0].split('_')[0]}',
-    args: [${args}]
-},
-            `
-        }
-    }
-
-    console.log(output)
-}
-
-const generateInstructionSwitchCase = () => {
-    total = ``;
-    Object.keys(instructionSet).forEach(element => {
-        total += `case instructionSet.${element}.opcode:\n    return\n`
-    });
-    console.log(total)
-}
-// end developer use */
 
 const generateInstructions = () => {
     const matches = []

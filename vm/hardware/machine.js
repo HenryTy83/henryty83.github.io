@@ -135,8 +135,6 @@ const startUp = () => {
 
         runCPU(100);
 
-        displayScreen();
-
         if (cpu.poweredOn) requestAnimationFrame(runEverything);
     }
 

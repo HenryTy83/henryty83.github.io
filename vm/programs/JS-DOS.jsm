@@ -4,21 +4,37 @@
 
 //                          Reboot on key press
 .label OS.throw_fatal_error:
+    psh mar;
+
     mov r1, [!_memory_map.hard_drive];
+    mov !OS.reset_key_press, [!_hardware.interrupt_vector.keyboard];
 
-    cal !OS.reset, [!OS.IO.on_key_press];
-
+    mov !Font.clear_screen, [!_memory_map.screen_address];
     mov !Font.red, [!_memory_map.screen_address];
+
     mov r0, x;
     mov r0, y;
+    cal [!OS.IO.console.move_cursor];
 
     cal !OS.data.error, [!OS.IO.console.print];
 
+    pop acc;
+    jeq $ffff, [!hang];
+    
+    cal acc, [!OS.IO.console.print];
+
+    mov b1, IM;
+
     .label hang:
+        mov r1, CLK;
     jmp [!hang];
 
-.global_label OS.reset:
+.global_label OS.reset_key_press:
+    mov [!_memory_map.keyboard], NUL;
     bki [!bootloader.main];
+
+.global_label OS.reset:
+    brk [!bootloader.main];
 
 //                          sleep for &FP * 100 ms
 .global_label OS.sleep:
@@ -131,7 +147,6 @@
 //                          Write a null-terminated string to the cursor pos
 .global_label OS.IO.console.print:
     mov r1, [!_memory_map.hard_drive];
-
     mov &FP, x;
     mov [!OS.IO.console.cursor.pos], y;
     mov y, &FP;
@@ -140,6 +155,7 @@
     jez [!OS.IO.console.print.end];
 
     .label OS.IO.console.print.loop:
+        mov &x, acc;
         mov acc, &y;
         
         inc x;
@@ -148,7 +164,6 @@
 
         .label OS.IO.console.print.fetch_next_char:
             mov &x, acc;
-
             jne !String.newline, [!OS.IO.console.print.check_end];
 
             psh x;
@@ -156,16 +171,21 @@
             cal [!OS.IO.console.newline];
             mov &SP, y;
             pop x;
+
+            mov x, acc;
+
             inc x;
             inc x;
-            jmp [!OS.IO.console.print.fetch_next_char];
+            
+            jne !_memory_map.screen_address.end, [!OS.IO.console.print.fetch_next_char];
+            jmp [!OS.IO.console.print.end];
 
             .label OS.IO.console.print.check_end:
                 jnz [!OS.IO.console.print.loop];
     
-    mov y, [!OS.IO.console.cursor.pos];
     .label OS.IO.console.print.end:
-    rts;
+        mov y, [!OS.IO.console.cursor.pos];
+        rts;
 
 //                                  move the cursor to the next line
 .global_label OS.IO.console.newline:
@@ -189,13 +209,12 @@
     rts;
 
 .label OS.IO.handle_key_press:
-    mov r1, [!_memory_map.hard_drive];
-
     mov [!_memory_map.keyboard], w;
     cal w, [!OS.IO.key_press_callback.run];
     rti;
 
     .label OS.IO.key_press_callback.run:
+    mov r1, [!_memory_map.hard_drive];
     mov [!OS.IO.key_press_callback], PC;
 
 //                          Call with address, frees up memory to be used again
@@ -242,54 +261,72 @@
     mov r1, [!_memory_map.hard_drive];
 
     mov &FP, d;
-    mov r0, x;
+    dec d;
+
+    mov $ffff, y;
+    sub y, d;
+    mov acc, y;
+
+    mov r0, &FP;
+
     mov !OS.mallocs, mar;
 
-    .label OS.malloc.search:
-        mov x, &FP;
-
+    .label malloc.search:
+        mov &FP, acc;
         mov &mar, w;
-        mov x, acc;
 
-        jlt w, [!OS.malloc.search.out_of_range]
-        jmp [!OS.malloc.search.not_found];
+        jlt w, [!malloc.search.start_found];
+        jmp [!malloc.search.find_next_block]:
 
-        .label OS.malloc.search.out_of_range:
-        add x, d;
-        jlt w, [!OS.malloc.found];
+        .label malloc.search.start_found:
+            add acc, d;
+            jlt w, [!malloc.search.found];
 
-        .label OS.malloc.search.not_found:
-    
-        mov w, acc;
-        jne $ffff, [!OS.malloc.memory_available];
-            cal r0, [!OS.throw_fatal_error];
-        .label OS.malloc.memory_available:
-    
-        inc mar;
-        inc mar;
-        add x, w;
-        mov acc, x;
-        inc x;
-        inc mar;
-        inc mar;
-        jmp [!OS.malloc.search];
-
-
-        .label OS.malloc.found:
-            mov &mar, w;
-            mov x, &mar;
+        .label malloc.search.find_next_block:
             inc mar;
             inc mar;
+
             mov &mar, acc;
-            mov d, &mar;
 
-            mov w, x;
-            mov acc, d;
+            jne $ffff, [!malloc.search.new_block_found]:
+                .label malloc.fail:
+                mov !OS.data.out_of_ram_error, mar;
+                bki [!OS.throw_fatal_error];
+            .label malloc.search.new_block_found:
+
+            inc acc;
+
+            jgt y, [!malloc.fail];
+
+            mov acc, &FP;
 
             inc mar;
             inc mar;
 
-            jnz [!OS.malloc.found];
+            jmp [!malloc.search];
+
+        .label malloc.search.found:
+            mov &FP, y;
+            add y, d;
+
+            .label malloc.insert:
+                mov &mar, d;
+                mov y, &mar;
+                mov d, y;
+
+                inc mar;
+                inc mar;
+
+                mov &mar, d;
+                mov acc, &mar;
+                jeq $ffff, [!malloc.done];
+                mov d, acc;
+
+                inc mar;
+                inc mar;
+                jmp [!malloc.insert];
+
+    .label malloc.done:
     rts;
 
 .global_label String.equal:
@@ -316,11 +353,11 @@
     mov r1, [!_memory_map.hard_drive];
 
     //                              initialize malloc
-    mov r0,    [!OS.mallocs + (4*0)];
+    mov r0,    [!OS.mallocs + (4*0 + 0)];
     mov $0fff, [!OS.mallocs + (4*0 + 2)];
-    mov $a000, [!OS.mallocs + (4*1)];
+    mov $a000, [!OS.mallocs + (4*1 + 0)];
     mov $4001, [!OS.mallocs + (4*1) + 2];
-    mov $ffff, [!OS.mallocs + (4*2)];
+    mov $ffff, [!OS.mallocs + (4*2 + 0)];
     mov $ffff, [!OS.mallocs + (4*2) + 2];
 
     //                              initialize sleep timer and interrupts
@@ -334,8 +371,11 @@
     cal [!OS.IO.console.move_cursor];
 
     cal !OS.data.loading_string, [!OS.IO.console.print];
+    mov !Font.advance_frame, [!_memory_map.screen_address];
     cal 10, [!OS.sleep];
+
     cal !OS.data.welcome_string, [!OS.IO.console.print];
+    mov !Font.advance_frame, [!_memory_map.screen_address];
     cal 10, [!OS.sleep];
 
     mov b1111111111111111, IM;
@@ -356,11 +396,17 @@
     mov r0, y;
     cal [!OS.IO.console.move_cursor];
 
+    mov [!OS.console.command_result], acc;
+    jeq $ffff, [!loop.no_command];
+        cal acc, [!OS.IO.console.print];
+    .label loop.no_command:
+
     cal !OS.data.header_string, [!OS.IO.console.print];
     cal [!OS.console.buffer], [!OS.IO.console.print];
 
     cal [!OS.IO.display_cursor];
 
+    mov !Font.advance_frame, [!_memory_map.screen_address];
     cal r1, [!OS.sleep];
     jmp [!OS.loop];
 
@@ -413,20 +459,22 @@
     .label console.run_command.parse:
         mov &FP, x;
 
-        mul d, 5;
+        mul d, 10;
         add acc, mar;
         mov acc, y;
 
         psh d;
+
         cal [!String.equal];
+        mov &SP, acc;
+
         pop d;
 
-        mov &SP, acc;
         jnz [!console.command_found];
 
         inc d;
         mov d, acc;
-        jlt 6, [!console.run_command.parse];
+        jlt 8, [!console.run_command.parse];
 
     .label console.command_found:
         mov [!OS.console.buffer], mar;
@@ -435,25 +483,38 @@
         mov r0, [!OS.console.command_length];
 
         mul d, 2;
-        hlt; 
 
         add acc, !command_lookup;
 
         mov &acc, PC;
 
 .data16 command_lookup, {
-    !console.display_help, !console.display_credits, !console.list_files, !console.open_file, !console.copy_file, !console.delete_file, !console.unknown_command
+    !console.display_help, !console.display_credits, !console.list_files, !console.open_file, !console.copy_file, !console.delete_file, !console.exit_file, !console.quit, !console.unknown_command
 };
 
-.label console.display_help:
-.label console.display_credits:
+
 .label console.list_files:
 .label console.open_file:
 .label console.copy_file:
 .label console.delete_file:
-rts;
+.label console.exit_file:
+    rts;
+.label console.quit:
+    hlt;
+.label console.display_credits:
+    cal !OS.data.credits_string, [!console.command_output];
+    rts;
+.label console.display_help:
+    cal !OS.data.documentation, [!console.command_output];
+    rts;
 .label console.unknown_command:
-hlt;
+    cal !OS.data.unknown_command, [!console.command_output];
+    rts;
+
+.label console.command_output:
+    mov &FP, mar;
+    mov mar, [!OS.console.command_result];
+    rts;
 
 
 .data16 reset_vector, { !OS.main };

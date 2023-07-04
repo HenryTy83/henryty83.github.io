@@ -174,6 +174,7 @@ class CPU {
     }
 
     returnInterrupt() {
+        if (!this.interrupting) return;
         // this.hexDump()
 
         this.writeReg('SP', this.readReg('FP'))
@@ -208,7 +209,7 @@ class CPU {
 
         if (this.debug) {
             if (this.cycleLimit != -1 && this.cycles > this.cycleLimit) {
-                cpu.halted = true
+                this.halted = true
                 console.log('FORCED HALT DUE TO EXCEEDED RUNTIME')
             }
         }
@@ -581,7 +582,7 @@ class CPU {
                 this.returnInterrupt()
                 return
             case instructionSet.bki.opcode:
-                var newAddress = this.fetchWord()    
+                var newAddress = this.fetchWord()  
                 this.returnInterrupt()
                 this.writeReg('PC', newAddress)  
                 return
@@ -596,7 +597,7 @@ class CPU {
     memoryDump(address, bytesToDump = 16, groupBy8not16 = true) {
         var contents = ''
         for (let i = 0; i < bytesToDump; i++) {
-            contents += `${(groupBy8not16 ? this.memory.getUint8(address + i) : this.memory.getUint16(address + (i * 2))).toString(16).padStart(groupBy8not16?2:4, '0')} `
+            contents += `${(groupBy8not16 ? this.memory.getUint8((address + i) & 0xffff) : this.memory.getUint16((address + (i * 2))) & 0xffff).toString(16).padStart(groupBy8not16?2:4, '0')} `
         }
 
         return contents.slice(0, -1)
@@ -672,7 +673,7 @@ class CPU {
                         var regID = (register & 0b00001111)
                     }
 
-                    var registerName = Object.keys(cpu.registerLookup).find(register => cpu.registerLookup[register] == regID)
+                    var registerName = Object.keys(this.registerLookup).find(register => this.registerLookup[register] == regID)
 
                     decompiled += `${arg == 'REGISTER' ? '' : '&'}${registerName} `
                     break
