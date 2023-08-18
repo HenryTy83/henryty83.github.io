@@ -474,7 +474,7 @@
 
         inc d;
         mov d, acc;
-        jlt 8, [!console.run_command.parse];
+        jlt 7, [!console.run_command.parse];
 
     .label console.command_found:
         mov [!OS.console.buffer], mar;
@@ -489,7 +489,7 @@
         mov &acc, PC;
 
 .data16 command_lookup, {
-    !console.display_help, !console.display_credits, !console.list_files, !console.open_file, !console.copy_file, !console.delete_file, !console.exit_file, !console.quit, !console.unknown_command
+    !console.display_help, !console.display_credits, !console.list_files, !console.open_file, !console.copy_file, !console.quit, !console.unknown_command
 };
 
 
@@ -497,7 +497,6 @@
 .label console.open_file:
 .label console.copy_file:
 .label console.delete_file:
-.label console.exit_file:
     rts;
 .label console.quit:
     hlt;
