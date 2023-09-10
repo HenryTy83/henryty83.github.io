@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>JS-NES</title>
+
+  <!--font from https://www.fontspace.com/eight-bit-dragon-font-f30428 -->
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div id="main">
+    <a class="header" href="/"><img src="/images/logoWhite.png" alt="Henry 天 Ty"></a>
+
+    <h1 style="font-size: 1.4em;">JS-NES: The "Javascript New Entertainment System"</h1>
+
+    <div>
+      <canvas class="canvas" id="screen" width="800" height="600" style="float: left;"></canvas>
+      <button class="button" onclick="powerToggle();" id="power"></button>
+
+      <div id="controller">
+        <div id="d-pad" style="color:white; float:both; position: relative; top:-0.6em">
+          <div id="d-pad-up" style="float: both; width:1.5em; height: 2.5em; background-color: rgb(50, 50, 50); border-radius:0.2em; position: relative; top: 1em; left: 4em"><p style="position: relative; left:0.35em; top:0.6em">W</p></div>
+          <div id="d-pad-right" style="float: both; width:2.5em; height: 1.5em; background-color: rgb(50, 50, 50); border-radius:0.2em; position: relative; top: 0.5em; left: 6em"><p style="position: relative; left:1em; top:0.2em">D</p></div>
+          <div id="d-pad-down" style="float: both; width:1.5em; height: 2.5em; background-color: rgb(50, 50, 50); border-radius:0.2em; position: relative; top: 0em; left: 4em"><p style="position: relative; left:0.4em; top:0.7em">S</p></div>
+          <div id="d-pad-left" style="float: both; width:2.5em; height: 1.5em; background-color: rgb(50, 50, 50); border-radius:0.2em; position: relative; top: -5.5em; left: 1em"><p style="position: relative; left:0.88em; top:0.3em">A</p></div>
+          <!--I hate CSS. I hate front-end-->
+        
+          <div id="d-pad-b" style="float: both; width:2em; height: 2em; border-radius:2em; position: relative; top: -10em; left: 12em; background-color: rgb(255, 0, 0);"><p style="position: relative; left:0.6em; top:0.4em">J</p></div>
+          <div id="d-pad-a" style="float: both; width:2em; height: 2em; border-radius:2em; position: relative; top: -10em; left: 15em; background-color: rgb(0, 200, 0);"><p style="position: relative; left:0.6em; top:0.4em">K</p></div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      addEventListener("keyup", (event) => { 
+        switch(event.key) {
+          case ('w'):
+            document.getElementById('d-pad-up').style.backgroundColor = 'rgb(50, 50, 50)'
+            break;
+          case ('d'):
+            document.getElementById('d-pad-right').style.backgroundColor = 'rgb(50, 50, 50)'
+            break;
+          case ('s'):
+            document.getElementById('d-pad-down').style.backgroundColor = 'rgb(50, 50, 50)'
+            break;
+          case ('a'):
+            document.getElementById('d-pad-left').style.backgroundColor = 'rgb(50, 50, 50)'
+            break;
+          case ('j'):
+            document.getElementById('d-pad-b').style.backgroundColor = 'rgb(255, 0, 0)'
+            break;
+          case ('k'):
+            document.getElementById('d-pad-a').style.backgroundColor = 'rgb(0, 200, 0)'
+            break;
+        }
+      })
+
+      addEventListener("keydown", (event) => {
+        switch(event.key) {
+          case ('w'):
+            document.getElementById('d-pad-up').style.backgroundColor = 'rgb(25, 25, 25)'
+            break;
+          case ('d'):
+            document.getElementById('d-pad-right').style.backgroundColor = 'rgb(25, 25, 25)'
+            break;
+          case ('s'):
+            document.getElementById('d-pad-down').style.backgroundColor = 'rgb(25, 25, 25)'
+            break;
+          case ('a'):
+            document.getElementById('d-pad-left').style.backgroundColor = 'rgb(25, 25, 25)'
+            break;
+          case ('j'):
+            document.getElementById('d-pad-b').style.backgroundColor = 'rgb(100, 0, 0)'
+            break;
+          case ('k'):
+            document.getElementById('d-pad-a').style.backgroundColor = 'rgb(0, 100, 0)'
+            break;
+        }
+      });
+    </script>
+
+
+    <script src="./hardware/graphicsPipeline.js"></script>
+    <script src="/lib/vm/hardware/memoryMapping.js"></script>
+
+    <script src="./decorations/aesthetics.js"></script>
+    <script src="/lib/vm/hardware/cpu.js"></script>
+
+    <script src="/lib/vm/software/parser.js"></script>
+    <script src="/lib/vm/software/instructionSet.js"></script>
+    <script src="/lib/vm/software/assembler.js"></script>
+
+    <script src="./hardware/machine.js"></script>
+
+    <div style="position: relative; clear: both;""></div>
+
+    <br>
+    <br>
+
+    By <a href="/">Henry Ty</a>
+  </div>
+
+
+</body>
+
+</html>

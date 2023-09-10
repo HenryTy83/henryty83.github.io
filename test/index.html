@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<head>
+    <script src="/lib/p5.js"></script>
+</head>
+
+<body>
+    <script>
+        function sketch(p) {
+            p.setup = function() {
+                p.createCanvas(800, 600);
+                p.noStroke();
+
+                const size = 2
+                for (let x=0; x<p.width; x += size) {
+                    for (let y=0; y<p.height; y += size) {
+                        p.fill(p.random(255), p.random(255), p.random(255))
+                        p.rect(x, y, size)
+                    }
+                }
+                p.noLoop();
+            }
+        }
+
+        const canvas = new p5(sketch)
+    </script>
+</body>
