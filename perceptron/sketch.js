@@ -103,7 +103,7 @@ function perceptronSketch(p) {
 
             if (brainGuess[0] > 0 == dot.isAbove) correct++;
 
-            averageLoss += p.brain.calcLoss(dot.expectedOutput, brainGuess)
+            averageLoss += p.brain.calcLoss({data: [dot.expectedOutput]}, {data: [brainGuess]})
         }
 
         document.getElementById('dots-data').innerHTML = `Epoch ${p.epoch}<br>
