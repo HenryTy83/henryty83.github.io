@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<head>
+    <script src="/lib/p5.js"></script>
+
+    <meta charset="utf-8" />
+    <title>The Marble Box</title>
+
+    <link rel="stylesheet" href="/lib/darkMode.css">
+
+</head>
+
+ <body>
+    <div id="main">
+        <a href="/" id="header"><img src="/images/logoWhite.png" alt="Henry 天 Ty"></a>
+
+      <p id="instructions"> <h1>A box of marbles found in different universes.</h1>All of these simulations use the exact same, incredibly simple (48 lines of code!) physics engine. The only difference is the actual forces on them. Relax. Enjoy.
+        (Mouse over each universe to watch. Click to reset.)
+      </p>
+
+      <br> 
+
+      <div>
+        <h2>planets.</h2>
+        <div class="canvas" id="planet-canvas"></div>
+        <br>
+      </div>
+
+      <div>
+        <h2>wave.</h2>
+        <div class="canvas" id="wave-canvas"></div>
+        <br>
+      </div>
+
+      <div>
+        <h2>static.</h2>
+        <div class="canvas" id="static-canvas"></div>
+        <br>
+      </div>
+
+
+      <script src="particle.js"></script>
+
+      <script src="planets.js"></script>
+      <script src="wave.js"></script>
+      <script src="static.js"></script>
+
+      <p id="credits">
+        By <a href="/">Henry Ty, 2024</a> <br>
+      </p>
+    </div>
+  </body>

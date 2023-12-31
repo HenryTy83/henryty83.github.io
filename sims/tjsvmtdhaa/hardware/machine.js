@@ -28,6 +28,20 @@ const writeProgram = (cpu, actualStart, assembledStart, fileName, hardDriveSecto
     return actualStart + length
 }
 
+const parseText = (text) => text.split('').map(c => c.charCodeAt(0))
+
+var freeIndex = 0xfffe;
+var indexSlot = 0
+
+const saveFile = (text, name) => { 
+    const parsedData = parseText(text)
+    const parsedName = parseText(name) 
+
+    var data = (free).push(parsedData)
+}
+
+const documentation = loadFile('./docs.txt')
+
 
 // better timer because setTimeout sucks
 class Timer {

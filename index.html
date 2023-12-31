@@ -6,29 +6,30 @@
         var blursed = 'Cursed'
         setInterval(() => {
             document.getElementsByTagName('title')[0].outerHTML = `<title>The ${blursed} Creations of Henry Ty</title>`;
-            document.getElementById('welcome-text').outerHTML = `<h1 id="welcome-text">Welcome to Henry Ty's ${blursed.toLowerCase()} collection of projects!</h1>`;
+            document.getElementById('welcome-text').outerHTML = `<h1 id="welcome-text">Welcome to my ${blursed.toLowerCase()} collection!</h1>`;
             blursed = blursed == 'Cursed' ? 'Blessed' : 'Cursed';
         }, 1000);
 
     </script>
 
-    <script src="/lib/p5.js"></script>
+    <script src="./lib/p5.js"></script>
 
-    <link rel="stylesheet" href="lib/lightMode.css">
+    <link rel="stylesheet" href="lib/darkMode.css">
     <link rel="stylesheet" href="homepage.css">
 </head>
 
 <body>
     <div id="background-sketch">
-        <script src="./background.js"></script>
+        <script src="background.js"></script>
     </div>
+
 
     <div id="center-scroller">
         <div id="header">
-            <a href="../"><img src="/images/logo.png" alt="Henry 天 Ty"></a>
+            <a href="../"><img src="/images/logoWhite.png" alt="Henry 天 Ty"></a>
         </div>
 
-        <div id="body-text">
+    <div id="body-text">
             <div class="panel">
                 <h1 id="welcome-text">Welcome to Henry Ty's blessed collection of projects!</h1>
                 <p>I've had experience with Javascript since 2017 (using <a href="https://p5js.org/">p5.js</a>) and
@@ -42,182 +43,27 @@
 
             <div class="panel">
                 <h1 id="games-panel">Games: Things to play with</h1>
-                <div class="panel-content">
-                    <div class="panel-button-left">
-                        <a href="word-wizard/" style="text-decoration:none">
-                            <img src="./images/word-wizard-thumbnail.png"
-                                alt="A series of letters in a line with a timer going down. The sentence 'make the longest word' is displayed at the top of the screen."
-                                style="width:100%">
-                            <p class="panel-button-body">
-                                <strong class="panel-button-body-title">Word wizard:</strong> a remake of an old Flash
-                                game called Anagram Magic. After Flash died, my sisters asked me to re-create it.
-                            </p>
-                        </a>
-                    </div>
-
-                    <div class="panel-button-right">
-                        <a href="purgatory/" style="text-decoration:none">
-                            <img src="./images/despair-thumbnail.png"
-                                alt="A camera moving through a series of rooms with white walls the floor is pitch black. Fog fades out images in the distance."
-                                style="width:100%">
-                            <p class="panel-button-body">
-                                <strong class="panel-button-body-title">Purgatory: </strong> I was following along with
-                                a tutorial on Raycasting and this came out. I genuinely don't remember making this.
-                            </p>
-                        </a>
-                    </div>
-
-                    <div class="spacer"></div>
-
-                    <div class="panel-button-left">
-                        <a href="snake/" style="text-decoration:none">
-                            <img src="./images/snake-thumbnail.png"
-                                alt="A grid of squares of various colors. One is red in the upper-left area. A line of connected white squares are drawn coming towards the red square."
-                                style="width:100%">
-                            <p class="panel-button-body">
-                                <strong class="panel-button-body-title">Snake Re-remastered:</strong> A classic arcade
-                                game made in 2020 and again in 2023.
-                            </p>
-                        </a>
-                    </div>
-
-                    <div class="panel-button-right">
-                        <a href="maze/" style="text-decoration:none">
-                            <img src="./images/maze-game-thumbnail.png"
-                                alt="A grid maze with black walls. A green square is in the bottom right corner and a red square is in the maze."
-                                style="width:100%">
-                            <p class="panel-button-body">
-                                <strong class="panel-button-body-title">The Maze: </strong> Literally the first thing
-                                added to this website back in 2020. For posterity's sake (and not laziness), I have kept
-                                it untouched.
-                            </p>
-                        </a>
-                    </div>
-
-                    <div class="spacer"></div>
-                </div>
             </div>
 
             <br><br><br>
 
             <div class="panel">
                 <h1 id="sims-panel">Sims: Things to look at</h1>
-                <div class="panel-content">
-                    <div class="panel-button-left">
-                        <a href="surfaces/" style="text-decoration:none">
-                            <img src="./images/surface-gallery-thumbnail.png"
-                                alt="A grid of 4 3 dimensional shapes. On the top-left: A cube. Top-right: 4-dimensional cube. Bottom-left: a sphere. Bottom-right: a Torus."
-                                style="width:100%">
-                            <p class="panel-button-body">
-                                <strong class="panel-button-body-title">The Gallery of Multidimensional
-                                    Surfaces:</strong> A
-                                collection of 3-D and 4-D objects. Stare at them and be mesmerized.
-                            </p>
-                        </a>
-                    </div>
-
-                    <div class="panel-button-right">
-                        <a href="sorting/" style="text-decoration:none">
-                            <img src="./images/sorting-thumbnail.png"
-                                alt="A row of white vertical rectangles with varying heights, scrambled. Rectangles in the 'correct' place are instead colored green."
-                                style="width:100%">
-                            <p class="panel-button-body">
-                                <strong class="panel-button-body-title">The Sorting Collection:</strong> A bunch of ways
-                                to arrange a list of rectangles in order. Look at them. Watch the sorting. Experience
-                                the hypnotic beauty of sorting.
-                            </p>
-                        </a>
-                    </div>
-
-                    <div class="spacer"></div>
-
-                    <div class="panel-button-left">
-                        <a href="/fractals" style="text-decoration:none">
-                            <img src=images/fractals-thumbnail.png alt='The Sierpinski Triangle' style='width:100%''>
-                            <p class="panel-button-body">
-                                <strong class="panel-button-body-title">The Hall of Fractals</strong>: Just a collection of fractals. 
-                                Bear witness the simplistic beauty of infinite fractals. 
-                            </p>
-                        </a>
-                    </div>
-
-                    <div class="panel-button-right">
-                        <a style="text-decoration:none">
-                            <img alt=' COMING SOON' style='width:100%; color:red'>
-                            <p class="panel-button-body">
-                                <strong class="panel-button-body-title">TJSVMTDHAA</strong>: A virtual machine running
-                                entirely in the webpage. The biggest thing I've made
-                            </p>
-                        </a>
-                    </div>
-
-                    <div class="spacer"></div>
-                </div>
             </div>
 
             <br><br><br>
 
             <div class="panel">
                 <h1 id="ai-panel">AI: Making things do things.</h1>
-                <div class="panel-content">
-                    <div class="panel-button-left">
-                        <a href="tic-tac-toe/" style="text-decoration: none;">
-                            <img src="./images/tic-tac-toe-thumbnail.png"
-                                alt="A 3x3 tic-tac-toe grid completely filled with X's and O's. The word 'DRAW' is written in all caps."
-                                style="width:100%;">
-                            <p class="panel-button-body">
-                                <strong class="panel-button-body-title">Tic-Tac-Toe:</strong> Optimal play with a
-                                brute-force search.
-                            </p>
-                        </a>
-                    </div>
-
-                    <div class="panel-button-right">
-                        <a href="genetic-ants/" style="text-decoration: none;">
-                            <img src="./images/genetic-ant-thumbnail.png"
-                                alt="A cluster of colored rectangles strewn about the left side of the screen. To the right of a white wall with a single hole cut out is a green circle."
-                                style="width:100%;">
-                            <p class="panel-button-body">
-                                <strong class="panel-button-body-title">Genetic ants:</strong> Janky genetic algorithm
-                                that I made instead of doing homework.
-                            </p>
-                        </a>
-                    </div>
-
-                    <div class="spacer"></div>
-
-                    <div class="panel-button-left">
-                        <a href="perceptron/" style="text-decoration: none;">
-                            <img src="./images/perceptron-thumbnail.png"
-                                alt="A square with a diagonal line splitting it into two regions colored blue on top and orange below, with a gradient between the colors"
-                                style="width:100%;">
-                            <p class="panel-button-body">
-                                <strong class="panel-button-body-title">Perceptron:</strong> The simplest problem for my neural network library (made from scratch!)
-                            </p>
-                        </a>
-                    </div>
-
-                    <div class="panel-button-right">
-                        <a href="cartpole/" style="text-decoration: none;">
-                            <img src="./images/cartpole-thumbnail.png"
-                                alt="A cart on a rail with a pole balanced perfectly vertically on top of the cart."
-                                style="width:100%;">
-                            <p class="panel-button-body">
-                                <strong class="panel-button-body-title">Cartpole:</strong> Teaching a neural network to balance a stick on its end using Q-learning
-                            </p>
-                        </a>
-                    </div>
-                </div>
-
-                <div class="spacer"></div>
             </div>
-        </div>
+     </div>
 
         <script src="panelFill.js"></script>
 
         <div id="footer">
+            <p>Fireflies inspired by <a href="https://ncase.me/fireflies/">Nicky Case</a></p>
             <p>This is the updated site, so the <a href="old">old site</a> has a lot of dead links.</p>
-            <p>© Henry Ty 2020-23</p>
+            <p>© Henry Ty 2020-24</p>
         </div>
-    </div>
+    </div> 
 </body>

@@ -489,7 +489,7 @@
         mov &acc, PC;
 
 .data16 command_lookup, {
-    !console.display_help, !console.display_credits, !console.list_files, !console.open_file, !console.copy_file, !console.quit, !console.unknown_command
+    !console.display_help, !console.display_credits, !console.list_files, !console.open_file, !console.copy_file, !console.delete_file, !console.quit, !console.unknown_command
 };
 
 

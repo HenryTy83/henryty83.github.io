@@ -10,17 +10,19 @@ head, body {
 }
 
 :link {
-    color: #808080;
+    color: #505050;
 }
 
 :visited {
-    color: #808080;
+    color: #505050;
 }
 
 .canvas {
     width: inherit;
     height: inherit;
     margin: 0px;
+
+    outline: white 3px solid;
 }
 
 .spacer {

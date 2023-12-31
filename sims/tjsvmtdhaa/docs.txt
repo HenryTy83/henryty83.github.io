@@ -1,0 +1,18 @@
+TJSVMTDHAA Documentation
+
+Hello, World!
+
+
+Memory Allocation:
+
+$c000 -> $ffff: Hard Drive
+    $c000: Read and write to read or change the current drive. (total of $ffff drives)
+    $c001 -> $ffff: Contents of the current drive.
+
+    Drive $0000: OS code.
+    Drive $0001: OS data.
+    Drive $ffff: File index.
+        Each header is a byte string following this format:
+            length (1), Location Pointer (1), Name (X)
+        Files themselves are likewise headed by the following:
+            length (1), Index Pointer (1), Content(X)
