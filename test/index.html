@@ -6,18 +6,28 @@
 <body>
     <script>
         function sketch(p) {
+            const startColor = p.color(p.random(255), p.random(255), p.random(255))
+            const endColor = p.color(p.random(255), p.random(255), p.random(255))
+            
+            const size = 2
+            var i = 0;
+
             p.setup = function() {
                 p.createCanvas(800, 600);
                 p.noStroke();
+            }
 
-                const size = 2
-                for (let x=0; x<p.width; x += size) {
-                    for (let y=0; y<p.height; y += size) {
-                        p.fill(p.random(255), p.random(255), p.random(255))
-                        p.rect(x, y, size)
-                    }
+            p.draw = function() {
+                p.background(0)
+
+                for (let x = 0; x < p.width; x += size) {
+                    const alpha = x < p.width/2 ? 2 * x / p.width : 1 - 2 * (x - p.width/2) / p.width
+
+                    p.fill(p.lerpColor(startColor, endColor, alpha))
+                    p.rect((x + i) % p.width, 0, size, p.height)
                 }
-                p.noLoop();
+
+                i += 10;
             }
         }
 

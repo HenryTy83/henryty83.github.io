@@ -10,9 +10,12 @@ function waveSketch(p) {
     p.setup = function () {
         var canvas = p.createCanvas(1200, 600);
         canvas.mouseOver(() => {
-            p.setup();
+            p.setup(p.total);
             p.loop();
         });
+        canvas.mouseOut(() => {
+            p.noLoop();
+        })
         p.noLoop();
 
         p.noStroke();

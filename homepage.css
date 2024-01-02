@@ -20,13 +20,15 @@ body {
     position: relative;
 }
 
+
 #body-text {
-    background-color: rgba(50, 50, 50, 0.80);
+    background-color: rgba(40, 48, 43, 0.60);
     padding: 10px;
     border: 5px;
     border-radius: 10px;
     border-style: solid;
     border-color: rgba(150, 150, 150, 0.80);
+
 }
 
 #games-panel,
@@ -35,20 +37,17 @@ body {
     text-align: center;
 }
 
-#header {
-    width: 100%;
-    clear: both;
-}
-
 
 .panel {
-    background-color: rgb(155, 155, 155);
+    background-color: rgb(50, 50, 55);
 
     padding: 10px;
     border: 5px;
     border-radius: 10px;
     border-style: ridge;
     border-color: rgb(150, 150, 150);
+
+    box-shadow: 5px 5px #000000;
 }
 
 .panel-content {
@@ -82,10 +81,12 @@ body {
     margin: auto;
 
     padding: 10px;
-    border: 5px;
+    border: 7px;
     border-radius: 10px;
     border-style: ridge;
     border-color: rgb(150, 150, 150);
+
+    box-shadow: 10px 10px #151515;
 }
 
 .panel-button-center {
@@ -97,6 +98,8 @@ body {
 .panel-button-left:hover,
 .panel-button-right:hover,
 .panel-button-center:hover {
+    box-shadow: 15px 20px #151515;
+
     position: relative;
     bottom: 10px;
     opacity: 0.6;

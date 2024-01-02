@@ -15,8 +15,10 @@ class Particle {
     }
     update(collision, elasticity, onBounce) {
         this.vel.add(this.acc)
-        this.pos.add(p5.Vector.mult(this.vel, this.p.deltaTime / 2));
+        this.pos.add(p5.Vector.mult(this.vel, this.p.deltaTime)); // inaccurate but close enough
+        
         this.acc = this.p.createVector(0, 0); 
+
         if (collision.down && this.pos.y > this.p.height - this.radius) {  // collision stuff
             this.pos.y = 2 * this.p.height - 2 * this.radius - this.pos.y
             this.vel.y *= -elasticity;

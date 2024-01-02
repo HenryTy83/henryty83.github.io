@@ -7,6 +7,9 @@ function planetSketch(p) {
             p.setup(p.total);
             p.loop();
         });
+        canvas.mouseOut(() => { 
+            p.noLoop();
+        })
         p.noLoop();
 
         p.noStroke();
@@ -15,7 +18,7 @@ function planetSketch(p) {
         p.total = total
 
         for (var i = 0; i < total; i++) {
-            const mass = 30
+            const mass = 60
 
             const theta = 6.28 * i/total;
             const r = g * mass * total / 4
@@ -82,7 +85,7 @@ function planetSketch(p) {
     }
 
     p.mouseClicked = function () { 
-        p.setup((p.total % 12) + 1)
+        p.setup((p.total % 7) + 1)
     }
 }
 

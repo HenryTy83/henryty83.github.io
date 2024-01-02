@@ -9,12 +9,17 @@ head, body {
     margin: auto;
 }
 
+#header {
+    width: 100%;
+    clear: both;
+}
+
 :link {
-    color: #505050;
+    color: rgb(120, 105, 105);
 }
 
 :visited {
-    color: #505050;
+    color: rgb(120, 105, 105);
 }
 
 .canvas {
