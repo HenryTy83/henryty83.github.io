@@ -13,9 +13,8 @@ const games = [
         img_alt_text: `A camera moving through a series of rooms with white walls the floor is pitch black. Fog fades out images in the distance.`
     },
 
-
     {
-        path: './games/snake',
+        path: './games/snake/',
         name: 'Snake',
         description: `A remake of classic arcade game made in 2020 and then re-remade in 2023.`,
         img_alt_text: `A grid of squares of various colors. One is red in the upper-left area. A line of connected white squares are drawn coming towards the red square.`
@@ -56,6 +55,13 @@ const sims = [
         name: 'The Gallery of Multidimensional Surfaces',
         description: 'Just a collection of fractals. Bear witness the simplistic beauty of infinite fractals.',
         img_alt_text: 'The Sierpinski Triangle'
+    },
+
+    {
+        path: '/sims/tjsvmtdhaa',
+        name: 'The Javascript Virtual Machine that Doesn\'t Have An Acronym',
+        description: 'A Virtual CPU in the webpage running custom made assembly code compiled to custom machine code. The biggest thing I have ever made (Still WIP).',
+        img_alt_text: 'A black terminal with green illegible text reminiscient of old monochrome displays.'
     },
 
 
