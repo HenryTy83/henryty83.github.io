@@ -24,24 +24,55 @@ const loadProgram = (memory, startAddress = 0, offset = 0) => (code) => {
 const writeProgram = (cpu, actualStart, assembledStart, fileName, hardDriveSector = 0) => {
     hardDrive.memory.setUint16(0, hardDriveSector)
     length = loadProgram(cpu.memory, actualStart, assembledStart)(assemble(Tokenizer.read(loadFile('./programs/' + fileName)), assembledStart))
-    console.log(`Wrote program '${fileName}' to disk in partition ${hardDriveSector} from $${actualStart.toString(16).padStart(4, '0')} to $${(actualStart + length - 1).toString(16).padStart(4, '0')}`)
+    console.log(`Wrote program '${fileName}' to disk in partition ${hardDriveSector} from $${actualStart.toString(16).padStart(4, '0')} to $${(actualStart + length - 1).toString(16).padStart(4, '0')} (Writing ${length} bytes)`)
     return actualStart + length
 }
 
 const parseText = (text) => text.split('').map(c => c.charCodeAt(0))
 
+const generateAllocation = (bytes) => {
+    var allocated = {}
+    for (var i = 0; i < bytes.length; i++) {
+        allocated[2*i] = (bytes[i] & 0xff00) >> 8; 
+        allocated[2*i + 1] = bytes[i] & 0xff;
+    }
+    return allocated
+}
+
 var freeIndex = 0xfffe;
-var indexSlot = 0
+var headerIndex = 0xc001;
+
+const saveName = (name, pointer) => {
+    const parsedName = parseText(name) 
+
+    // write the header
+    var data = [2*parsedName.length + 8, pointer, 0xc001]
+    data = data.concat(parsedName)
+    console.log(data)
+    cpu.memory.setUint16(0xc000, 0xffff)
+    const allocatedTitle = generateAllocation(data)
+    loadProgram(cpu.memory, headerIndex)(allocatedTitle)
+
+    headerIndex += 2*parsedName.length + 8
+}
 
 const saveFile = (text, name) => { 
     const parsedData = parseText(text)
-    const parsedName = parseText(name) 
 
-    var data = (free).push(parsedData)
+    var data = [2*parsedData.length + 6, freeIndex]
+    data = data.concat(parsedData)
+    data.push(0)
+
+    cpu.memory.setUint16(0xc000, freeIndex)
+    const allocatedData = generateAllocation(parsedData)
+    loadProgram(cpu.memory, 0xc001)(allocatedData)
+
+    saveName(name, freeIndex)
+
+    console.log(`Wrote the file '${name}' to disk in partition $${freeIndex.toString(16).padStart(2, '0')} from $c001-$${(0xc001 + parseInt(Object.keys(allocatedData)[Object.keys(allocatedData).length-1])).toString(16).padStart(4, '0')} (Writing ${data[0]} bytes)`)
+
+    freeIndex --
 }
-
-const documentation = loadFile('./docs.txt')
-
 
 // better timer because setTimeout sucks
 class Timer {
@@ -124,6 +155,8 @@ writeProgram(cpu, 0xc001, 0xb000, 'JS-DOS.jsm', 0)
 
 cpu.startup();
 button.style.backgroundColor = 'rgb(255, 0, 0)'
+
+saveFile(loadFile('docs.txt'), 'documentation')
 
 const runCPU = (timeLimit) => {
     var deadline = Date.now() + timeLimit;
