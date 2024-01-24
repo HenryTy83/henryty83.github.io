@@ -96,6 +96,14 @@ const ai = [
         description: `Teaching a neural network to balance a stick on its end using Q-learning`,
         img_alt_text: `A cart on a rail with a pole balanced perfectly vertically on top of the cart.`
     },
+
+    {
+        path: '/ai/xor',
+        name: 'XOR Problem',
+        description: `The simplest possible neural network problem that needs more than one layer`,
+        img_alt_text: `A large square with an orange and blue gradient is on the left. The neural network visualization is on the right.`
+
+    }
 ]
 
 // what the fuck is this? I don't even know if this is faster/cleaner than doing it manually (2023-12-30)
