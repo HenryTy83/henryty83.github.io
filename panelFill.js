@@ -1,3 +1,18 @@
+const newStuff = [
+    {
+        path: '/ai/digits',
+        name: 'Digit Classifier',
+        description: 'Using ConvNetJS to train a Convolutional Neural Network to classify handwritten digits',
+        img_alt_text: 'A pixelated grayscale image of the number 8 on the left. To the right, a series of horizontal orange bars of descending lengths arranged vertically"'
+    },
+    {
+        path: '/sims/tjsvmtdhaa',
+        name: 'The Javascript Virtual Machine that Doesn\'t Have An Acronym',
+        description: 'A Virtual CPU in the webpage running custom made assembly code compiled to custom machine code. The biggest thing I have ever made (Still WIP).',
+        img_alt_text: 'A black terminal with green illegible text reminiscient of old monochrome displays.'
+    },
+]
+
 const games = [
     {
         path: './games/word-wizard',
@@ -69,24 +84,10 @@ const sims = [
 
 const ai = [
     {
-        path: '/ai/tic-tac-toe',
-        name: 'Tic-Tac-Toe',
-        description: `Optimal play with a brute-force search.`,
-        img_alt_text: `A 3x3 tic-tac-toe grid completely filled with X's and O's. The word 'DRAW' is written in all caps`
-    },
-    
-    {
         path: '/ai/perceptron',
         name: 'Perceptron',
         description: `The simplest problem for my neural network library (made from scratch!)`,
         img_alt_text: `A square with a diagonal line splitting it into two regions colored blue on top and orange below, with a gradient between the colors`
-    },
-
-    {
-        path: '/ai/genetic-ants',
-        name: 'Genetic ants',
-        description: `Janky genetic algorithm that I made instead of doing homework.`,
-        img_alt_text: `A cluster of colored rectangles strewn about the left side of the screen. To the right of a white wall with a single hole cut out is a green circle.`
     },
 
    
@@ -103,7 +104,28 @@ const ai = [
         description: `The simplest possible neural network problem that needs more than one layer`,
         img_alt_text: `A large square with an orange and blue gradient is on the left. The neural network visualization is on the right.`
 
-    }
+    },
+
+    {
+        path: '/ai/digits',
+        name: 'Digit Classifier',
+        description: 'Using ConvNetJS to train a Convolutional Neural Network to classify handwritten digits',
+        img_alt_text: 'A pixelated grayscale image of the number 8 on the left. To the right, a series of horizontal orange bars of descending lengths arranged vertically"'
+    },
+
+    {
+        path: '/ai/tic-tac-toe',
+        name: 'Tic-Tac-Toe',
+        description: `Optimal play with a brute-force search.`,
+        img_alt_text: `A 3x3 tic-tac-toe grid completely filled with X's and O's. The word 'DRAW' is written in all caps`
+    },
+
+    {
+        path: '/ai/genetic-ants',
+        name: 'Genetic ants',
+        description: `Janky genetic algorithm that I made instead of doing homework.`,
+        img_alt_text: `A cluster of colored rectangles strewn about the left side of the screen. To the right of a white wall with a single hole cut out is a green circle.`
+    },
 ]
 
 // what the fuck is this? I don't even know if this is faster/cleaner than doing it manually (2023-12-30)
@@ -156,6 +178,7 @@ const createPanels = (id, buttons) => {
     document.getElementById(id).parentElement.innerHTML += targetHtml + `</div>`;
 }
 
+createPanels('new-panel', newStuff)
 createPanels('games-panel', games);
 createPanels('sims-panel', sims);
 createPanels('ai-panel', ai);

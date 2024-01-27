@@ -1,26 +1,32 @@
 <!DOCTYPE html>
-    <head>
-        <link rel="stylesheet" href="/lib/darkMode.css">
 
-        <script src="/lib/p5.js"></script>
-        <script src="/lib/matrix.js"></script>
-        <script src="/lib/neuralNetwork.js"></script>
+<head>
+    <script src="/lib/p5.js"></script>
+    <script src="/lib/karpathy/convnet.js"></script>
 
-        <title>Handwriting recognition</title>
+    <meta charset="utf-8" />
+    <title>Digit Recognition</title>
 
-        <style> #main { width: 800px; } </style>
-    </head>
+    <link rel="stylesheet" href="/lib/darkMode.css">
 
-    <body>
-        <script src="digits.js"></script>
+    <style>
+    </style>
+</head>
 
-        <div id="main">
-            <a href="../"><img src="/images/logoWhite.png" alt="Henry 天 Ty"></a>
+<body>
+    <div id="main">
+    <a href="/" id="header"><img src="/images/logoWhite.png" alt="Henry 天 Ty"></a>
 
-            <div class="canvas" id="digitCanvas"></div>
+      <div class="canvas" id="mainSketch">
+        <script src="sketch.js"></script>
+      </div>
 
-            By <a id="credits" href="henryty88.github.io">Henry Ty, 2023</a>
-        </div>
+      <p id="credits">
+       Training using the <a href="http://yann.lecun.com/exdb/mnist/">MNIST digit dataset</a> <br>
+        ConvNetJS by <a href="https://cs.stanford.edu/people/karpathy/convnetjs/index.html">Andrej Karpathy</a> <br>
+        Created by <a href="/">Henry Ty</a>, 2024 <br>
+      </p>
+    </div>
+</body>
 
-    </body>
 </html>

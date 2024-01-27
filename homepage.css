@@ -31,9 +31,7 @@ body {
 
 }
 
-#games-panel,
-#sims-panel,
-#ai-panel {
+.panel {
     text-align: center;
 }
 

@@ -1,16 +1,9 @@
 <!DOCTYPE html>
+<!-- Hello there! Don't make fun of my html. I'm a back end guy. -->
+
 
 <head>
     <title>The Blessed Creations of Henry Ty</title>
-    <script>
-        var blursed = 'Cursed'
-        setInterval(() => {
-            document.getElementsByTagName('title')[0].outerHTML = `<title>The ${blursed} Creations of Henry Ty</title>`;
-            document.getElementById('welcome-text').outerHTML = `<h1 id="welcome-text">Welcome to my ${blursed.toLowerCase()} collection!</h1>`;
-            blursed = blursed == 'Cursed' ? 'Blessed' : 'Cursed';
-        }, 1000);
-
-    </script>
 
     <script src="./lib/p5.js"></script>
 
@@ -22,7 +15,6 @@
     <div id="background-sketch">
         <script src="background.js"></script>
     </div>
-
 
     <div id="center-scroller">
         <div id="header">
@@ -40,6 +32,12 @@
             </div>
 
             <br><br><br>
+
+            <div class="panel">
+                <h1 id="new-panel">NEW ADDITIONS</h1>
+            </div>
+
+            <br><br><br><br><br>
 
 
             <div class="panel">

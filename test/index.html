@@ -1,36 +1,27 @@
 <!DOCTYPE html>
+
 <head>
     <script src="/lib/p5.js"></script>
+    <meta charset="utf-8" />
+    <title>Replace me</title>
+
+    <link rel="stylesheet" href="/lib/darkMode.css">
+
+    <style>
+    </style>
 </head>
 
 <body>
-    <script>
-        function sketch(p) {
-            const startColor = p.color(p.random(255), p.random(255), p.random(255))
-            const endColor = p.color(p.random(255), p.random(255), p.random(255))
-            
-            const size = 2
-            var i = 0;
+    <div id="main">
+    <a href="/" id="header"><img src="/images/logoWhite.png" alt="Henry 天 Ty"></a>
 
-            p.setup = function() {
-                p.createCanvas(800, 600);
-                p.noStroke();
-            }
+      <div class="canvas" id="mainSketch">
+      </div>
 
-            p.draw = function() {
-                p.background(0)
-
-                for (let x = 0; x < p.width; x += size) {
-                    const alpha = x < p.width/2 ? 2 * x / p.width : 1 - 2 * (x - p.width/2) / p.width
-
-                    p.fill(p.lerpColor(startColor, endColor, alpha))
-                    p.rect((x + i) % p.width, 0, size, p.height)
-                }
-
-                i += 10;
-            }
-        }
-
-        const canvas = new p5(sketch)
-    </script>
+      <p id="credits">
+        Created by <a href="/">Henry Ty</a> <br>
+      </p>
+    </div>
 </body>
+
+</html>
