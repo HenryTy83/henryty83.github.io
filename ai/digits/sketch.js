@@ -11,7 +11,7 @@ function loadFile(filePath) {
 
 
 var net = new convnetjs.Net();
-net.fromJSON(JSON.parse(loadFile('network.txt')))
+net.fromJSON(JSON.parse(loadFile('network.json')))
 
 function digitSketch(p) {
     p.pixelSize = 20;

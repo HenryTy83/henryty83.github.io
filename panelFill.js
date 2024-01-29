@@ -5,6 +5,14 @@ const newStuff = [
         description: 'Using ConvNetJS to train a Convolutional Neural Network to classify handwritten digits',
         img_alt_text: 'A pixelated grayscale image of the number 8 on the left. To the right, a series of horizontal orange bars of descending lengths arranged vertically"'
     },
+
+    {
+        path: '/sims/marbles',
+        name: 'The Marble Box',
+        description: 'Physics Simulations of the same thing: small balls moving around. Such simple things, but they come together with so much variation.',
+        img_alt_text: 'Multicolored static on a black background'
+    },
+
     {
         path: '/sims/tjsvmtdhaa',
         name: 'The Javascript Virtual Machine that Doesn\'t Have An Acronym',
@@ -111,6 +119,13 @@ const ai = [
         name: 'Digit Classifier',
         description: 'Using ConvNetJS to train a Convolutional Neural Network to classify handwritten digits',
         img_alt_text: 'A pixelated grayscale image of the number 8 on the left. To the right, a series of horizontal orange bars of descending lengths arranged vertically"'
+    },
+
+    {
+        path: '/ai/driving',
+        name: 'Self-Driving Car (An attempt)',
+        description: 'Tried my best to use ConvNetJS\'s Q-learning library. The documentation is atrocious and the car barely drives 2 seconds before slamming into a wall.',
+        img_alt_text: 'An orange car driving through a white track. Arrow indicators are in the bottom-right.'
     },
 
     {

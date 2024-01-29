@@ -37,6 +37,8 @@ function planetSketch(p) {
     }
 
     p.draw = function () { 
+        if (p.deltaTime > 100) p.setup()
+        
         p.background(0, 0, 0, 10)
 
         for (var j = 0; j < p.balls.length; j++) { 

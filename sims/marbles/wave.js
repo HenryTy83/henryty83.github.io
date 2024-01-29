@@ -40,6 +40,8 @@ function waveSketch(p) {
     }
 
     p.draw = function () {
+        if (p.deltaTime > 100) p.setup()
+        
         p.background(0, 0, 0, 75);
 
         for (const ball of p.wave) {

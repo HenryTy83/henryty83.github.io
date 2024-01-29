@@ -41,6 +41,8 @@ function flowerSketch(p) {
     }
 
     p.draw = function () {
+        if (p.deltaTime > 100) p.setup()
+
         //p.background(0, 0, 0, 255);
 
         p.push();

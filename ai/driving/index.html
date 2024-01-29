@@ -3,9 +3,14 @@
 <head>
     <script src="/lib/p5.js"></script>
     <meta charset="utf-8" />
-    <title>AI Learns to drive</title>
+    <title>AI learns to drive</title>
 
     <link rel="stylesheet" href="/lib/darkMode.css">
+
+    <script src="engine.js"></script>
+    <script src="/lib/karpathy/util.js"></script>
+    <script src="/lib/karpathy/convnet.js"></script>
+    <script src="/lib/karpathy/deepqlearn.js"></script>
 
     <style>
     </style>
@@ -15,12 +20,41 @@
     <div id="main">
     <a href="/" id="header"><img src="/images/logoWhite.png" alt="Henry 天 Ty"></a>
 
-      <div class="canvas" id="mainSketch">
+      <h1>Let's play a game...</h1>
+      <div class="canvas" id="game">
         <script src="game.js"></script>
       </div>
+      <p>Just a cute little driving game. Simple, right?</p>
+
+      <br><br><br>
+
+      <h1>Let's make things harder:</h1>
+      <div class="canvas" id="eyes">
+        <script src="eyes.js"></script>
+      </div>
+      <p>Still playable, but now the AI can see what's going on.</p>
+      <p id="input_substitution"></p>
+
+      <br><br><br>
+
+      <h1>So let's throw some AI at this:</h1>
+      <div class="canvas" id="training">
+        <script src="training.js"></script>
+      </div>
+      <p>Running some deep <a href="https://en.wikipedia.org/wiki/Q-learning">Q-learning</a>. We reward the network for crossing the checkpoints (+1), punish it for hitting the walls (-1000) and -0.01 for doing nothing and wasting time.<br> 
+      I already discussed how Q-learning works a <a href="/ai/cartpole/">while ago</a>, but to reiterate, you try things out and change your behavior to avoid "bad" outcomes and select for "good" outcomes. <br>
+      This actually looks like me learning to drive...
+      </p>
+
+      <br><br><br>
+
+      <h1>After like an hour and a half of training...</h1>
+      <div class="canvas" id="not_stupid"></div>
+      <p>Still nothing. Either I'm not doing it right, or Q-learning is <em>really</em> slow. Oh well. At least we got the game out of this. Good enough. I'll try again some other time...</p>
 
       <p id="credits">
-        Q-learning library by <a href="https://cs.stanford.edu/people/karpathy/convnetjs/index.html">Andrej Karpathy</a> <br>
+        Inspired by <a href="https://www.youtube.com/watch?v=r428O_CMcpI">Code Bullet</a> <br>
+        Neural Network library by <a href="https://cs.stanford.edu/people/karpathy/convnetjs/index.html">Andrej Karpathy</a> <br>
         Created by <a href="/">Henry Ty</a> <br>
       </p>
     </div>

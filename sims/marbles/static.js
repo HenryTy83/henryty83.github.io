@@ -34,6 +34,7 @@ function staticSketch(p) {
     }
 
     p.draw = function () {
+        if (p.deltaTime > 100) p.setup()
         p.background(0, 0, 0, 50);
 
         for (const ball of p.wave) {
