@@ -1,7 +1,4 @@
 {
     "files.autoSave": "afterDelay",
     "liveServer.settings.port": 5500,
-  "vscode_custom_css.imports": [
-    "file:///C:/Users/Henry/.vscode/extensions/thecodemonkey.synthwave-x-fluoromachine-epic-animations-1.4.13/synthwave-x-fluoromachine.css",
-    ]
 }

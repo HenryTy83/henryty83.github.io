@@ -1,0 +1,3005 @@
+[
+  {
+    "id": "NYT-3",
+    "content": [
+      {
+        "difficulty": 0,
+        "category": "FACIAL FEATURES",
+        "words": [
+          {
+            "answer": "CHEEK"
+          },
+          {
+            "answer": "EYE"
+          },
+          {
+            "answer": "MOUTH"
+          },
+          {
+            "answer": "NOSE"
+          }
+        ]
+      },
+      {
+        "difficulty": 1,
+        "category": "SYNONYMS FOR EAT",
+        "words": [
+          {
+            "answer": "CHOW"
+          },
+          {
+            "answer": "GOBBLE"
+          },
+          {
+            "answer": "SCARF"
+          },
+          {
+            "answer": "WOLF"
+          }
+        ]
+      },
+      {
+        "difficulty": 2,
+        "category": "DOG BREEDS, INFORMALLY",
+        "words": [
+          {
+            "answer": "LAB"
+          },
+          {
+            "answer": "PEKE"
+          },
+          {
+            "answer": "PIT"
+          },
+          {
+            "answer": "POM"
+          }
+        ]
+      },
+      {
+        "difficulty": 3,
+        "category": "MEMBERS OF A TRIO",
+        "words": [
+          {
+            "answer": "AMIGO"
+          },
+          {
+            "answer": "KING"
+          },
+          {
+            "answer": "STOOGE"
+          },
+          {
+            "answer": "TENOR"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "NYT-7",
+    "content": [
+      {
+        "difficulty": 0,
+        "category": "LEG PARTS",
+        "words": [
+          {
+            "answer": "ANKLE"
+          },
+          {
+            "answer": "KNEE"
+          },
+          {
+            "answer": "SHIN"
+          },
+          {
+            "answer": "THIGH"
+          }
+        ]
+      },
+      {
+        "difficulty": 1,
+        "category": "BABY ANIMALS",
+        "words": [
+          {
+            "answer": "CALF"
+          },
+          {
+            "answer": "CUB"
+          },
+          {
+            "answer": "JOEY"
+          },
+          {
+            "answer": "KID"
+          }
+        ]
+      },
+      {
+        "difficulty": 2,
+        "category": "SLANG FOR TOILET",
+        "words": [
+          {
+            "answer": "CAN"
+          },
+          {
+            "answer": "HEAD"
+          },
+          {
+            "answer": "JOHN"
+          },
+          {
+            "answer": "THRONE"
+          }
+        ]
+      },
+      {
+        "difficulty": 3,
+        "category": "___ FISH THAT AREN’T FISH",
+        "words": [
+          {
+            "answer": "CRAY"
+          },
+          {
+            "answer": "JELLY"
+          },
+          {
+            "answer": "SILVER"
+          },
+          {
+            "answer": "STAR"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "NYT-9",
+    "content": [
+      {
+        "difficulty": 0,
+        "category": "SPORTS",
+        "words": [
+          {
+            "answer": "CRICKET"
+          },
+          {
+            "answer": "FENCING"
+          },
+          {
+            "answer": "POLO"
+          },
+          {
+            "answer": "SQUASH"
+          }
+        ]
+      },
+      {
+        "difficulty": 1,
+        "category": "TOPS",
+        "words": [
+          {
+            "answer": "CAMI"
+          },
+          {
+            "answer": "HALTER"
+          },
+          {
+            "answer": "TANK"
+          },
+          {
+            "answer": "TEE"
+          }
+        ]
+      },
+      {
+        "difficulty": 2,
+        "category": "VEGETABLES",
+        "words": [
+          {
+            "answer": "BEET"
+          },
+          {
+            "answer": "CARROT"
+          },
+          {
+            "answer": "CORN"
+          },
+          {
+            "answer": "ONION"
+          }
+        ]
+      },
+      {
+        "difficulty": 3,
+        "category": "INSECTS",
+        "words": [
+          {
+            "answer": "ANT"
+          },
+          {
+            "answer": "BEETLE"
+          },
+          {
+            "answer": "MANTIS"
+          },
+          {
+            "answer": "TERMITE"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "NYT-20",
+    "content": [
+      {
+        "difficulty": 0,
+        "category": "GRAINS",
+        "words": [
+          {
+            "answer": "BARLEY"
+          },
+          {
+            "answer": "OAT"
+          },
+          {
+            "answer": "RYE"
+          },
+          {
+            "answer": "SPELT"
+          }
+        ]
+      },
+      {
+        "difficulty": 1,
+        "category": "ROYAL TITLES",
+        "words": [
+          {
+            "answer": "BARON"
+          },
+          {
+            "answer": "EARL"
+          },
+          {
+            "answer": "KING"
+          },
+          {
+            "answer": "PRINCE"
+          }
+        ]
+      },
+      {
+        "difficulty": 2,
+        "category": "UNIVERSITIES",
+        "words": [
+          {
+            "answer": "BROWN"
+          },
+          {
+            "answer": "DUKE"
+          },
+          {
+            "answer": "HOWARD"
+          },
+          {
+            "answer": "RICE"
+          }
+        ]
+      },
+      {
+        "difficulty": 3,
+        "category": "BEST DIRECTOR OSCAR WINNERS",
+        "words": [
+          {
+            "answer": "BONG"
+          },
+          {
+            "answer": "FORD"
+          },
+          {
+            "answer": "LEE"
+          },
+          {
+            "answer": "STONE"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "NYT-21",
+    "content": [
+      {
+        "difficulty": 0,
+        "category": "MUSIC GENRES",
+        "words": [
+          {
+            "answer": "JAZZ"
+          },
+          {
+            "answer": "POP"
+          },
+          {
+            "answer": "PUNK"
+          },
+          {
+            "answer": "RAP"
+          }
+        ]
+      },
+      {
+        "difficulty": 1,
+        "category": "WEB BROWSERS",
+        "words": [
+          {
+            "answer": "CHROME"
+          },
+          {
+            "answer": "EDGE"
+          },
+          {
+            "answer": "OPERA"
+          },
+          {
+            "answer": "SAFARI"
+          }
+        ]
+      },
+      {
+        "difficulty": 2,
+        "category": "“LITTLE WOMEN” SISTERS",
+        "words": [
+          {
+            "answer": "AMY"
+          },
+          {
+            "answer": "BETH"
+          },
+          {
+            "answer": "JO"
+          },
+          {
+            "answer": "MEG"
+          }
+        ]
+      },
+      {
+        "difficulty": 3,
+        "category": "LIL ___ RAPPERS",
+        "words": [
+          {
+            "answer": "BABY"
+          },
+          {
+            "answer": "JON"
+          },
+          {
+            "answer": "KIM"
+          },
+          {
+            "answer": "WAYNE"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "NYT-27",
+    "content": [
+      {
+        "difficulty": 0,
+        "category": "HATS",
+        "words": [
+          {
+            "answer": "BERET"
+          },
+          {
+            "answer": "BOWLER"
+          },
+          {
+            "answer": "FEDORA"
+          },
+          {
+            "answer": "FEZ"
+          }
+        ]
+      },
+      {
+        "difficulty": 1,
+        "category": "ORGANS",
+        "words": [
+          {
+            "answer": "HEART"
+          },
+          {
+            "answer": "KIDNEY"
+          },
+          {
+            "answer": "LIVER"
+          },
+          {
+            "answer": "LUNG"
+          }
+        ]
+      },
+      {
+        "difficulty": 2,
+        "category": "PARTS OF A BOOK",
+        "words": [
+          {
+            "answer": "COVER"
+          },
+          {
+            "answer": "JACKET"
+          },
+          {
+            "answer": "PAGE"
+          },
+          {
+            "answer": "SPINE"
+          }
+        ]
+      },
+      {
+        "difficulty": 3,
+        "category": "JACK ___",
+        "words": [
+          {
+            "answer": "ASS"
+          },
+          {
+            "answer": "KNIFE"
+          },
+          {
+            "answer": "POT"
+          },
+          {
+            "answer": "RABBIT"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "NYT-33",
+    "content": [
+      {
+        "difficulty": 0,
+        "category": "BOATS",
+        "words": [
+          {
+            "answer": "FERRY"
+          },
+          {
+            "answer": "JUNK"
+          },
+          {
+            "answer": "TUG"
+          },
+          {
+            "answer": "YACHT"
+          }
+        ]
+      },
+      {
+        "difficulty": 1,
+        "category": "SANDWICHES",
+        "words": [
+          {
+            "answer": "CLUB"
+          },
+          {
+            "answer": "CUBAN"
+          },
+          {
+            "answer": "MELT"
+          },
+          {
+            "answer": "SUB"
+          }
+        ]
+      },
+      {
+        "difficulty": 2,
+        "category": "CUTS OF BEEF",
+        "words": [
+          {
+            "answer": "FLANK"
+          },
+          {
+            "answer": "LOIN"
+          },
+          {
+            "answer": "ROUND"
+          },
+          {
+            "answer": "SHANK"
+          }
+        ]
+      },
+      {
+        "difficulty": 3,
+        "category": "NICKNAMES THAT ARE VERBS",
+        "words": [
+          {
+            "answer": "CHUCK"
+          },
+          {
+            "answer": "JOSH"
+          },
+          {
+            "answer": "ROB"
+          },
+          {
+            "answer": "SUE"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "NYT-41",
+    "content": [
+      {
+        "difficulty": 0,
+        "category": "BOTTLED WATER BRANDS",
+        "words": [
+          {
+            "answer": "DASANI"
+          },
+          {
+            "answer": "EVIAN"
+          },
+          {
+            "answer": "FIJI"
+          },
+          {
+            "answer": "VOSS"
+          }
+        ]
+      },
+      {
+        "difficulty": 1,
+        "category": "SLANG FOR COFFEE",
+        "words": [
+          {
+            "answer": "BREW"
+          },
+          {
+            "answer": "JAVA"
+          },
+          {
+            "answer": "JOE"
+          },
+          {
+            "answer": "MUD"
+          }
+        ]
+      },
+      {
+        "difficulty": 2,
+        "category": "ISLAND COUNTRIES",
+        "words": [
+          {
+            "answer": "CUBA"
+          },
+          {
+            "answer": "JAPAN"
+          },
+          {
+            "answer": "MALTA"
+          },
+          {
+            "answer": "PALAU"
+          }
+        ]
+      },
+      {
+        "difficulty": 3,
+        "category": "CEREAL MASCOTS",
+        "words": [
+          {
+            "answer": "LUCKY"
+          },
+          {
+            "answer": "POP"
+          },
+          {
+            "answer": "SAM"
+          },
+          {
+            "answer": "TONY"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "NYT-53",
+    "content": [
+      {
+        "difficulty": 0,
+        "category": "ANIMAL GROUP NAMES",
+        "words": [
+          {
+            "answer": "COLONY"
+          },
+          {
+            "answer": "HERD"
+          },
+          {
+            "answer": "PRIDE"
+          },
+          {
+            "answer": "SWARM"
+          }
+        ]
+      },
+      {
+        "difficulty": 1,
+        "category": "STONED",
+        "words": [
+          {
+            "answer": "BAKED"
+          },
+          {
+            "answer": "BLAZED"
+          },
+          {
+            "answer": "HIGH"
+          },
+          {
+            "answer": "LIT"
+          }
+        ]
+      },
+      {
+        "difficulty": 2,
+        "category": "AP CLASSES",
+        "words": [
+          {
+            "answer": "BIO"
+          },
+          {
+            "answer": "CHEM"
+          },
+          {
+            "answer": "GOV"
+          },
+          {
+            "answer": "STATS"
+          }
+        ]
+      },
+      {
+        "difficulty": 3,
+        "category": "TAXONOMY RANKS",
+        "words": [
+          {
+            "answer": "CLASS"
+          },
+          {
+            "answer": "DOMAIN"
+          },
+          {
+            "answer": "FAMILY"
+          },
+          {
+            "answer": "ORDER"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "NYT-79",
+    "content": [
+      {
+        "difficulty": 0,
+        "category": "DEPART QUICKLY",
+        "words": [
+          {
+            "answer": "BOOK"
+          },
+          {
+            "answer": "BOUNCE"
+          },
+          {
+            "answer": "RUN"
+          },
+          {
+            "answer": "SPLIT"
+          }
+        ]
+      },
+      {
+        "difficulty": 1,
+        "category": "ANIMALS THAT END WITH “X”",
+        "words": [
+          {
+            "answer": "FOX"
+          },
+          {
+            "answer": "IBEX"
+          },
+          {
+            "answer": "LYNX"
+          },
+          {
+            "answer": "ORYX"
+          }
+        ]
+      },
+      {
+        "difficulty": 2,
+        "category": "SHADES OF BLACK",
+        "words": [
+          {
+            "answer": "EBONY"
+          },
+          {
+            "answer": "JET"
+          },
+          {
+            "answer": "ONYX"
+          },
+          {
+            "answer": "RAVEN"
+          }
+        ]
+      },
+      {
+        "difficulty": 3,
+        "category": "WORDS BEFORE DAYS OF THE WEEK",
+        "words": [
+          {
+            "answer": "ASH"
+          },
+          {
+            "answer": "BLACK"
+          },
+          {
+            "answer": "CYBER"
+          },
+          {
+            "answer": "FAT"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "NYT-81",
+    "content": [
+      {
+        "difficulty": 0,
+        "category": "APPETIZER UNIT",
+        "words": [
+          {
+            "answer": "FRY"
+          },
+          {
+            "answer": "NACHO"
+          },
+          {
+            "answer": "POPPER"
+          },
+          {
+            "answer": "WING"
+          }
+        ]
+      },
+      {
+        "difficulty": 1,
+        "category": "RESPONSE TO A CORRECT ANSWER",
+        "words": [
+          {
+            "answer": "BINGO"
+          },
+          {
+            "answer": "CORRECT"
+          },
+          {
+            "answer": "RIGHT"
+          },
+          {
+            "answer": "YES"
+          }
+        ]
+      },
+      {
+        "difficulty": 2,
+        "category": "MAR",
+        "words": [
+          {
+            "answer": "CHIP"
+          },
+          {
+            "answer": "DING"
+          },
+          {
+            "answer": "NICK"
+          },
+          {
+            "answer": "SCRATCH"
+          }
+        ]
+      },
+      {
+        "difficulty": 3,
+        "category": "___JACK",
+        "words": [
+          {
+            "answer": "APPLE"
+          },
+          {
+            "answer": "CRACKER"
+          },
+          {
+            "answer": "FLAP"
+          },
+          {
+            "answer": "LUMBER"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "NYT-85",
+    "content": [
+      {
+        "difficulty": 0,
+        "category": "PAINTING ACCESSORIES",
+        "words": [
+          {
+            "answer": "BRUSH"
+          },
+          {
+            "answer": "CANVAS"
+          },
+          {
+            "answer": "EASEL"
+          },
+          {
+            "answer": "PALETTE"
+          }
+        ]
+      },
+      {
+        "difficulty": 1,
+        "category": "AUTOMATIC TRANSMISSION SETTINGS",
+        "words": [
+          {
+            "answer": "DRIVE"
+          },
+          {
+            "answer": "NEUTRAL"
+          },
+          {
+            "answer": "PARK"
+          },
+          {
+            "answer": "REVERSE"
+          }
+        ]
+      },
+      {
+        "difficulty": 2,
+        "category": "THINGS WITH TEETH",
+        "words": [
+          {
+            "answer": "COMB"
+          },
+          {
+            "answer": "GEAR"
+          },
+          {
+            "answer": "SAW"
+          },
+          {
+            "answer": "ZIPPER"
+          }
+        ]
+      },
+      {
+        "difficulty": 3,
+        "category": "___ CHAIR",
+        "words": [
+          {
+            "answer": "FIRST"
+          },
+          {
+            "answer": "FOLDING"
+          },
+          {
+            "answer": "HIGH"
+          },
+          {
+            "answer": "LAWN"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "NYT-87",
+    "content": [
+      {
+        "difficulty": 0,
+        "category": "CREATURES IN FOLKLORE",
+        "words": [
+          {
+            "answer": "GNOME"
+          },
+          {
+            "answer": "GOBLIN"
+          },
+          {
+            "answer": "OGRE"
+          },
+          {
+            "answer": "TROLL"
+          }
+        ]
+      },
+      {
+        "difficulty": 1,
+        "category": "FLOWER PARTS",
+        "words": [
+          {
+            "answer": "BUD"
+          },
+          {
+            "answer": "LEAF"
+          },
+          {
+            "answer": "PETAL"
+          },
+          {
+            "answer": "STALK"
+          }
+        ]
+      },
+      {
+        "difficulty": 2,
+        "category": "ONE INVOLVED IN ESPIONAGE",
+        "words": [
+          {
+            "answer": "AGENT"
+          },
+          {
+            "answer": "MOLE"
+          },
+          {
+            "answer": "PLANT"
+          },
+          {
+            "answer": "SPY"
+          }
+        ]
+      },
+      {
+        "difficulty": 3,
+        "category": "CHINESE ZODIAC ANIMALS",
+        "words": [
+          {
+            "answer": "DRAGON"
+          },
+          {
+            "answer": "HORSE"
+          },
+          {
+            "answer": "RABBIT"
+          },
+          {
+            "answer": "TIGER"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "NYT-93",
+    "content": [
+      {
+        "difficulty": 0,
+        "category": "HOT DRINKS",
+        "words": [
+          {
+            "answer": "CHAI"
+          },
+          {
+            "answer": "COCOA"
+          },
+          {
+            "answer": "COFFEE"
+          },
+          {
+            "answer": "TEA"
+          }
+        ]
+      },
+      {
+        "difficulty": 1,
+        "category": "ANIMAL SOUNDS",
+        "words": [
+          {
+            "answer": "BUZZ"
+          },
+          {
+            "answer": "CLUCK"
+          },
+          {
+            "answer": "MEOW"
+          },
+          {
+            "answer": "OINK"
+          }
+        ]
+      },
+      {
+        "difficulty": 2,
+        "category": "TREE FEATURES",
+        "words": [
+          {
+            "answer": "BARK"
+          },
+          {
+            "answer": "BRANCH"
+          },
+          {
+            "answer": "ROOT"
+          },
+          {
+            "answer": "TRUNK"
+          }
+        ]
+      },
+      {
+        "difficulty": 3,
+        "category": "INSIDE INFO",
+        "words": [
+          {
+            "answer": "DIRT"
+          },
+          {
+            "answer": "DISH"
+          },
+          {
+            "answer": "SCOOP"
+          },
+          {
+            "answer": "SKINNY"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "NYT-96",
+    "content": [
+      {
+        "difficulty": 0,
+        "category": "BOVIDS",
+        "words": [
+          {
+            "answer": "BUFFALO"
+          },
+          {
+            "answer": "COW"
+          },
+          {
+            "answer": "GOAT"
+          },
+          {
+            "answer": "SHEEP"
+          }
+        ]
+      },
+      {
+        "difficulty": 1,
+        "category": "EMIT LIGHT",
+        "words": [
+          {
+            "answer": "BEAM"
+          },
+          {
+            "answer": "GLOW"
+          },
+          {
+            "answer": "RADIATE"
+          },
+          {
+            "answer": "SHINE"
+          }
+        ]
+      },
+      {
+        "difficulty": 2,
+        "category": "GYMNASTICS APPARATUS",
+        "words": [
+          {
+            "answer": "FLOOR"
+          },
+          {
+            "answer": "HORSE"
+          },
+          {
+            "answer": "RINGS"
+          },
+          {
+            "answer": "VAULT"
+          }
+        ]
+      },
+      {
+        "difficulty": 3,
+        "category": "WORDS THAT SOUND LIKE TWO LETTERS",
+        "words": [
+          {
+            "answer": "CUTIE"
+          },
+          {
+            "answer": "ENVY"
+          },
+          {
+            "answer": "EXCEL"
+          },
+          {
+            "answer": "SEEDY"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "NYT-101",
+    "content": [
+      {
+        "difficulty": 0,
+        "category": "REPLACEMENT",
+        "words": [
+          {
+            "answer": "BACKUP"
+          },
+          {
+            "answer": "COPY"
+          },
+          {
+            "answer": "EXTRA"
+          },
+          {
+            "answer": "SPARE"
+          }
+        ]
+      },
+      {
+        "difficulty": 1,
+        "category": "BOWLING",
+        "words": [
+          {
+            "answer": "ALLEY"
+          },
+          {
+            "answer": "BALL"
+          },
+          {
+            "answer": "LANE"
+          },
+          {
+            "answer": "PIN"
+          }
+        ]
+      },
+      {
+        "difficulty": 2,
+        "category": "COMMON MERCH ITEMS",
+        "words": [
+          {
+            "answer": "MUG"
+          },
+          {
+            "answer": "PEN"
+          },
+          {
+            "answer": "TEE"
+          },
+          {
+            "answer": "TOTE"
+          }
+        ]
+      },
+      {
+        "difficulty": 3,
+        "category": "NUMBER HOMOPHONES",
+        "words": [
+          {
+            "answer": "ATE"
+          },
+          {
+            "answer": "FOR"
+          },
+          {
+            "answer": "TOO"
+          },
+          {
+            "answer": "WON"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "NYT-103",
+    "content": [
+      {
+        "difficulty": 0,
+        "category": "SODA FOUNTAIN ORDERS",
+        "words": [
+          {
+            "answer": "FLOAT"
+          },
+          {
+            "answer": "MALT"
+          },
+          {
+            "answer": "SHAKE"
+          },
+          {
+            "answer": "SUNDAE"
+          }
+        ]
+      },
+      {
+        "difficulty": 1,
+        "category": "SET, AS PLANS",
+        "words": [
+          {
+            "answer": "CONCRETE"
+          },
+          {
+            "answer": "FIRM"
+          },
+          {
+            "answer": "SOLID"
+          },
+          {
+            "answer": "TANGIBLE"
+          }
+        ]
+      },
+      {
+        "difficulty": 2,
+        "category": "M. NIGHT SHYAMALAN MOVIES",
+        "words": [
+          {
+            "answer": "GLASS"
+          },
+          {
+            "answer": "OLD"
+          },
+          {
+            "answer": "SIGNS"
+          },
+          {
+            "answer": "SPLIT"
+          }
+        ]
+      },
+      {
+        "difficulty": 3,
+        "category": "___BOARD",
+        "words": [
+          {
+            "answer": "DASH"
+          },
+          {
+            "answer": "HOVER"
+          },
+          {
+            "answer": "KEY"
+          },
+          {
+            "answer": "STAR"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "NYT-113",
+    "content": [
+      {
+        "difficulty": 0,
+        "category": "WAYS TO SHOW RESPECT",
+        "words": [
+          {
+            "answer": "BOW"
+          },
+          {
+            "answer": "KNEEL"
+          },
+          {
+            "answer": "SALUTE"
+          },
+          {
+            "answer": "STAND"
+          }
+        ]
+      },
+      {
+        "difficulty": 1,
+        "category": "IPHONE APPS",
+        "words": [
+          {
+            "answer": "CLOCK"
+          },
+          {
+            "answer": "MAIL"
+          },
+          {
+            "answer": "MAPS"
+          },
+          {
+            "answer": "NOTES"
+          }
+        ]
+      },
+      {
+        "difficulty": 2,
+        "category": "ANIMAL COVERINGS",
+        "words": [
+          {
+            "answer": "DOWN"
+          },
+          {
+            "answer": "FUR"
+          },
+          {
+            "answer": "SCALES"
+          },
+          {
+            "answer": "SHELL"
+          }
+        ]
+      },
+      {
+        "difficulty": 3,
+        "category": "“POINTERS”",
+        "words": [
+          {
+            "answer": "ARROW"
+          },
+          {
+            "answer": "DOG"
+          },
+          {
+            "answer": "FINGER"
+          },
+          {
+            "answer": "HINT"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "NYT-132",
+    "content": [
+      {
+        "difficulty": 0,
+        "category": "TABLEWARE",
+        "words": [
+          {
+            "answer": "BOWL"
+          },
+          {
+            "answer": "DISH"
+          },
+          {
+            "answer": "PLATE"
+          },
+          {
+            "answer": "SAUCER"
+          }
+        ]
+      },
+      {
+        "difficulty": 1,
+        "category": "NONSENSE",
+        "words": [
+          {
+            "answer": "BALONEY"
+          },
+          {
+            "answer": "BUNK"
+          },
+          {
+            "answer": "CROCK"
+          },
+          {
+            "answer": "TRIPE"
+          }
+        ]
+      },
+      {
+        "difficulty": 2,
+        "category": "BRA PARTS",
+        "words": [
+          {
+            "answer": "CUP"
+          },
+          {
+            "answer": "HOOK"
+          },
+          {
+            "answer": "STRAP"
+          },
+          {
+            "answer": "WIRE"
+          }
+        ]
+      },
+      {
+        "difficulty": 3,
+        "category": "ACRONYMS",
+        "words": [
+          {
+            "answer": "LASER"
+          },
+          {
+            "answer": "RADAR"
+          },
+          {
+            "answer": "SCUBA"
+          },
+          {
+            "answer": "SPAM"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "NYT-133",
+    "content": [
+      {
+        "difficulty": 0,
+        "category": "RELAX",
+        "words": [
+          {
+            "answer": "CHILL"
+          },
+          {
+            "answer": "HANG"
+          },
+          {
+            "answer": "LOAF"
+          },
+          {
+            "answer": "LOUNGE"
+          }
+        ]
+      },
+      {
+        "difficulty": 1,
+        "category": "CATCHY SONG",
+        "words": [
+          {
+            "answer": "BANGER"
+          },
+          {
+            "answer": "BOP"
+          },
+          {
+            "answer": "GROOVE"
+          },
+          {
+            "answer": "JAM"
+          }
+        ]
+      },
+      {
+        "difficulty": 2,
+        "category": "BRITISH CUISINE",
+        "words": [
+          {
+            "answer": "MASH"
+          },
+          {
+            "answer": "ROAST"
+          },
+          {
+            "answer": "SCONE"
+          },
+          {
+            "answer": "TRIFLE"
+          }
+        ]
+      },
+      {
+        "difficulty": 3,
+        "category": "STICKY SITUATION",
+        "words": [
+          {
+            "answer": "BIND"
+          },
+          {
+            "answer": "PICKLE"
+          },
+          {
+            "answer": "SCRAPE"
+          },
+          {
+            "answer": "SPOT"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "NYT-137",
+    "content": [
+      {
+        "difficulty": 0,
+        "category": "INCREASE",
+        "words": [
+          {
+            "answer": "BUILD"
+          },
+          {
+            "answer": "GROW"
+          },
+          {
+            "answer": "MOUNT"
+          },
+          {
+            "answer": "SWELL"
+          }
+        ]
+      },
+      {
+        "difficulty": 1,
+        "category": "EXCELLENT, IN OLD SLANG",
+        "words": [
+          {
+            "answer": "ACES"
+          },
+          {
+            "answer": "KEEN"
+          },
+          {
+            "answer": "NEATO"
+          },
+          {
+            "answer": "NIFTY"
+          }
+        ]
+      },
+      {
+        "difficulty": 2,
+        "category": "FINE BUBBLES",
+        "words": [
+          {
+            "answer": "FOAM"
+          },
+          {
+            "answer": "FROTH"
+          },
+          {
+            "answer": "HEAD"
+          },
+          {
+            "answer": "LATHER"
+          }
+        ]
+      },
+      {
+        "difficulty": 3,
+        "category": "SPHERICAL THINGS",
+        "words": [
+          {
+            "answer": "BUBBLE"
+          },
+          {
+            "answer": "GLOBE"
+          },
+          {
+            "answer": "MARBLE"
+          },
+          {
+            "answer": "PEARL"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "NYT-152",
+    "content": [
+      {
+        "difficulty": 0,
+        "category": "SPICES",
+        "words": [
+          {
+            "answer": "ANISE"
+          },
+          {
+            "answer": "DILL"
+          },
+          {
+            "answer": "NUTMEG"
+          },
+          {
+            "answer": "SAGE"
+          }
+        ]
+      },
+      {
+        "difficulty": 1,
+        "category": "INTELLIGENT",
+        "words": [
+          {
+            "answer": "BRIGHT"
+          },
+          {
+            "answer": "QUICK"
+          },
+          {
+            "answer": "SHARP"
+          },
+          {
+            "answer": "SMART"
+          }
+        ]
+      },
+      {
+        "difficulty": 2,
+        "category": "DEODORANTS",
+        "words": [
+          {
+            "answer": "AXE"
+          },
+          {
+            "answer": "DEGREE"
+          },
+          {
+            "answer": "DOVE"
+          },
+          {
+            "answer": "SECRET"
+          }
+        ]
+      },
+      {
+        "difficulty": 3,
+        "category": "MEDIEVAL WEAPONS",
+        "words": [
+          {
+            "answer": "CLUB"
+          },
+          {
+            "answer": "MACE"
+          },
+          {
+            "answer": "SPEAR"
+          },
+          {
+            "answer": "SWORD"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "NYT-153",
+    "content": [
+      {
+        "difficulty": 0,
+        "category": "SPARSE/LACKING",
+        "words": [
+          {
+            "answer": "LIGHT"
+          },
+          {
+            "answer": "SHORT"
+          },
+          {
+            "answer": "SPARE"
+          },
+          {
+            "answer": "THIN"
+          }
+        ]
+      },
+      {
+        "difficulty": 1,
+        "category": "FUN TIME",
+        "words": [
+          {
+            "answer": "BALL"
+          },
+          {
+            "answer": "BLAST"
+          },
+          {
+            "answer": "KICK"
+          },
+          {
+            "answer": "RIOT"
+          }
+        ]
+      },
+      {
+        "difficulty": 2,
+        "category": "FILMMAKING EQUIPMENT",
+        "words": [
+          {
+            "answer": "BOOM"
+          },
+          {
+            "answer": "DOLLY"
+          },
+          {
+            "answer": "LENS"
+          },
+          {
+            "answer": "TRIPOD"
+          }
+        ]
+      },
+      {
+        "difficulty": 3,
+        "category": "“GET A ___!”",
+        "words": [
+          {
+            "answer": "CLUE"
+          },
+          {
+            "answer": "GRIP"
+          },
+          {
+            "answer": "LIFE"
+          },
+          {
+            "answer": "ROOM"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "NYT-159",
+    "content": [
+      {
+        "difficulty": 0,
+        "category": "BODYWEIGHT EXERCISES",
+        "words": [
+          {
+            "answer": "DIPS"
+          },
+          {
+            "answer": "LUNGES"
+          },
+          {
+            "answer": "PLANKS"
+          },
+          {
+            "answer": "SQUATS"
+          }
+        ]
+      },
+      {
+        "difficulty": 1,
+        "category": "EMAIL SIGN-OFFS",
+        "words": [
+          {
+            "answer": "BEST"
+          },
+          {
+            "answer": "CHEERS"
+          },
+          {
+            "answer": "REGARDS"
+          },
+          {
+            "answer": "THANKS"
+          }
+        ]
+      },
+      {
+        "difficulty": 2,
+        "category": "M.L.B. TEAMS, FOR SHORT",
+        "words": [
+          {
+            "answer": "CARDS"
+          },
+          {
+            "answer": "JAYS"
+          },
+          {
+            "answer": "NATS"
+          },
+          {
+            "answer": "YANKS"
+          }
+        ]
+      },
+      {
+        "difficulty": 3,
+        "category": "ELIZABETHS (AND ONE ELISABETH)",
+        "words": [
+          {
+            "answer": "BANKS"
+          },
+          {
+            "answer": "MOSS"
+          },
+          {
+            "answer": "TAYLOR"
+          },
+          {
+            "answer": "WARREN"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "NYT-160",
+    "content": [
+      {
+        "difficulty": 0,
+        "category": "QUICK PEEK",
+        "words": [
+          {
+            "answer": "GANDER"
+          },
+          {
+            "answer": "GLANCE"
+          },
+          {
+            "answer": "GLIMPSE"
+          },
+          {
+            "answer": "LOOK"
+          }
+        ]
+      },
+      {
+        "difficulty": 1,
+        "category": "DECEIT",
+        "words": [
+          {
+            "answer": "ACT"
+          },
+          {
+            "answer": "BLUFF"
+          },
+          {
+            "answer": "CHARADE"
+          },
+          {
+            "answer": "FRONT"
+          }
+        ]
+      },
+      {
+        "difficulty": 2,
+        "category": "PARTS OF A MOUNTAIN",
+        "words": [
+          {
+            "answer": "CLIFF"
+          },
+          {
+            "answer": "CRAG"
+          },
+          {
+            "answer": "LEDGE"
+          },
+          {
+            "answer": "RIDGE"
+          }
+        ]
+      },
+      {
+        "difficulty": 3,
+        "category": "HOMOPHONES",
+        "words": [
+          {
+            "answer": "PEAK"
+          },
+          {
+            "answer": "PEEK"
+          },
+          {
+            "answer": "PEKE"
+          },
+          {
+            "answer": "PIQUE"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "NYT-169",
+    "content": [
+      {
+        "difficulty": 0,
+        "category": "CARRY A TUNE",
+        "words": [
+          {
+            "answer": "HUM"
+          },
+          {
+            "answer": "SCAT"
+          },
+          {
+            "answer": "SING"
+          },
+          {
+            "answer": "WHISTLE"
+          }
+        ]
+      },
+      {
+        "difficulty": 1,
+        "category": "WHOLE AMOUNT",
+        "words": [
+          {
+            "answer": "COUNT"
+          },
+          {
+            "answer": "GROSS"
+          },
+          {
+            "answer": "SUM"
+          },
+          {
+            "answer": "TOTAL"
+          }
+        ]
+      },
+      {
+        "difficulty": 2,
+        "category": "MOJITO INGREDIENTS",
+        "words": [
+          {
+            "answer": "LIME"
+          },
+          {
+            "answer": "MINT"
+          },
+          {
+            "answer": "RUM"
+          },
+          {
+            "answer": "SODA"
+          }
+        ]
+      },
+      {
+        "difficulty": 3,
+        "category": "THINGS THAT ARE “STICKY”",
+        "words": [
+          {
+            "answer": "GLUE"
+          },
+          {
+            "answer": "GUM"
+          },
+          {
+            "answer": "STICK"
+          },
+          {
+            "answer": "TAPE"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "NYT-171",
+    "content": [
+      {
+        "difficulty": 0,
+        "category": "FOOT PARTS",
+        "words": [
+          {
+            "answer": "ARCH"
+          },
+          {
+            "answer": "BALL"
+          },
+          {
+            "answer": "SOLE"
+          },
+          {
+            "answer": "TOE"
+          }
+        ]
+      },
+      {
+        "difficulty": 1,
+        "category": "MUSICAL INSTRUMENTS",
+        "words": [
+          {
+            "answer": "BASS"
+          },
+          {
+            "answer": "HARP"
+          },
+          {
+            "answer": "HORN"
+          },
+          {
+            "answer": "ORGAN"
+          }
+        ]
+      },
+      {
+        "difficulty": 2,
+        "category": "DOG COMMANDS",
+        "words": [
+          {
+            "answer": "COME"
+          },
+          {
+            "answer": "DOWN"
+          },
+          {
+            "answer": "SIT"
+          },
+          {
+            "answer": "STAY"
+          }
+        ]
+      },
+      {
+        "difficulty": 3,
+        "category": "BADDIE",
+        "words": [
+          {
+            "answer": "DOG"
+          },
+          {
+            "answer": "HEEL"
+          },
+          {
+            "answer": "JERK"
+          },
+          {
+            "answer": "SNAKE"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "NYT-180",
+    "content": [
+      {
+        "difficulty": 0,
+        "category": "DECLINE",
+        "words": [
+          {
+            "answer": "EBB"
+          },
+          {
+            "answer": "FADE"
+          },
+          {
+            "answer": "FLAG"
+          },
+          {
+            "answer": "WANE"
+          }
+        ]
+      },
+      {
+        "difficulty": 1,
+        "category": "ABSOLUTE",
+        "words": [
+          {
+            "answer": "PURE"
+          },
+          {
+            "answer": "SHEER"
+          },
+          {
+            "answer": "TOTAL"
+          },
+          {
+            "answer": "UTTER"
+          }
+        ]
+      },
+      {
+        "difficulty": 2,
+        "category": "EXPRESS",
+        "words": [
+          {
+            "answer": "AIR"
+          },
+          {
+            "answer": "SPEAK"
+          },
+          {
+            "answer": "STATE"
+          },
+          {
+            "answer": "VOICE"
+          }
+        ]
+      },
+      {
+        "difficulty": 3,
+        "category": "SUPERHERO LAST NAMES",
+        "words": [
+          {
+            "answer": "BANNER"
+          },
+          {
+            "answer": "PRINCE"
+          },
+          {
+            "answer": "STARK"
+          },
+          {
+            "answer": "WAYNE"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "NYT-181",
+    "content": [
+      {
+        "difficulty": 0,
+        "category": "ICE CREAM TREATS",
+        "words": [
+          {
+            "answer": "FLOAT"
+          },
+          {
+            "answer": "SHAKE"
+          },
+          {
+            "answer": "SPLIT"
+          },
+          {
+            "answer": "SUNDAE"
+          }
+        ]
+      },
+      {
+        "difficulty": 1,
+        "category": "HARDWARE FASTENERS",
+        "words": [
+          {
+            "answer": "BOLT"
+          },
+          {
+            "answer": "NAIL"
+          },
+          {
+            "answer": "RIVET"
+          },
+          {
+            "answer": "SCREW"
+          }
+        ]
+      },
+      {
+        "difficulty": 2,
+        "category": "KINDS OF COOKING OIL",
+        "words": [
+          {
+            "answer": "CORN"
+          },
+          {
+            "answer": "OLIVE"
+          },
+          {
+            "answer": "PALM"
+          },
+          {
+            "answer": "PEANUT"
+          }
+        ]
+      },
+      {
+        "difficulty": 3,
+        "category": "STICKY ___",
+        "words": [
+          {
+            "answer": "FINGERS"
+          },
+          {
+            "answer": "NOTE"
+          },
+          {
+            "answer": "RICE"
+          },
+          {
+            "answer": "WICKET"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "NYT-182",
+    "content": [
+      {
+        "difficulty": 0,
+        "category": "PARTS OF A RIVER",
+        "words": [
+          {
+            "answer": "BANK"
+          },
+          {
+            "answer": "BED"
+          },
+          {
+            "answer": "DELTA"
+          },
+          {
+            "answer": "MOUTH"
+          }
+        ]
+      },
+      {
+        "difficulty": 1,
+        "category": "SOMETHING EASY TO DO",
+        "words": [
+          {
+            "answer": "BREEZE"
+          },
+          {
+            "answer": "CINCH"
+          },
+          {
+            "answer": "PICNIC"
+          },
+          {
+            "answer": "SNAP"
+          }
+        ]
+      },
+      {
+        "difficulty": 2,
+        "category": "WRAP AROUND IN A CIRCLE",
+        "words": [
+          {
+            "answer": "COIL"
+          },
+          {
+            "answer": "SPIRAL"
+          },
+          {
+            "answer": "TWIST"
+          },
+          {
+            "answer": "WIND"
+          }
+        ]
+      },
+      {
+        "difficulty": 3,
+        "category": "JUMP INTO THE AIR",
+        "words": [
+          {
+            "answer": "BOUND"
+          },
+          {
+            "answer": "LEAP"
+          },
+          {
+            "answer": "SPRING"
+          },
+          {
+            "answer": "VAULT"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "NYT-185",
+    "content": [
+      {
+        "difficulty": 0,
+        "category": "GOLF COURSE PARTS",
+        "words": [
+          {
+            "answer": "BUNKER"
+          },
+          {
+            "answer": "FAIRWAY"
+          },
+          {
+            "answer": "GREEN"
+          },
+          {
+            "answer": "ROUGH"
+          }
+        ]
+      },
+      {
+        "difficulty": 1,
+        "category": "“I GIVE!”",
+        "words": [
+          {
+            "answer": "ENOUGH"
+          },
+          {
+            "answer": "MERCY"
+          },
+          {
+            "answer": "STOP"
+          },
+          {
+            "answer": "UNCLE"
+          }
+        ]
+      },
+      {
+        "difficulty": 2,
+        "category": "INDECENT",
+        "words": [
+          {
+            "answer": "BAWDY"
+          },
+          {
+            "answer": "BLUE"
+          },
+          {
+            "answer": "COARSE"
+          },
+          {
+            "answer": "RISQUE"
+          }
+        ]
+      },
+      {
+        "difficulty": 3,
+        "category": "”-OUGH” WORDS THAT DON’T RHYME",
+        "words": [
+          {
+            "answer": "BOUGH"
+          },
+          {
+            "answer": "COUGH"
+          },
+          {
+            "answer": "DOUGH"
+          },
+          {
+            "answer": "TOUGH"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "NYT-186",
+    "content": [
+      {
+        "difficulty": 0,
+        "category": "PESTER",
+        "words": [
+          {
+            "answer": "BADGER"
+          },
+          {
+            "answer": "BUG"
+          },
+          {
+            "answer": "HOUND"
+          },
+          {
+            "answer": "NAG"
+          }
+        ]
+      },
+      {
+        "difficulty": 1,
+        "category": "SPORTS VENUES",
+        "words": [
+          {
+            "answer": "ARENA"
+          },
+          {
+            "answer": "BOWL"
+          },
+          {
+            "answer": "DOME"
+          },
+          {
+            "answer": "FIELD"
+          }
+        ]
+      },
+      {
+        "difficulty": 2,
+        "category": "SEPARATE",
+        "words": [
+          {
+            "answer": "DIVIDE"
+          },
+          {
+            "answer": "FORK"
+          },
+          {
+            "answer": "PART"
+          },
+          {
+            "answer": "SPLIT"
+          }
+        ]
+      },
+      {
+        "difficulty": 3,
+        "category": "SILVER ___",
+        "words": [
+          {
+            "answer": "FOX"
+          },
+          {
+            "answer": "LINING"
+          },
+          {
+            "answer": "SCREEN"
+          },
+          {
+            "answer": "SPOON"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "NYT-194",
+    "content": [
+      {
+        "difficulty": 0,
+        "category": "CLASSIC HALLOWEEN COSTUMES",
+        "words": [
+          {
+            "answer": "ANGEL"
+          },
+          {
+            "answer": "CLOWN"
+          },
+          {
+            "answer": "PIRATE"
+          },
+          {
+            "answer": "WITCH"
+          }
+        ]
+      },
+      {
+        "difficulty": 1,
+        "category": "BEE CREATIONS",
+        "words": [
+          {
+            "answer": "COMB"
+          },
+          {
+            "answer": "HIVE"
+          },
+          {
+            "answer": "HONEY"
+          },
+          {
+            "answer": "WAX"
+          }
+        ]
+      },
+      {
+        "difficulty": 2,
+        "category": "INTERVAL OF TIME",
+        "words": [
+          {
+            "answer": "PERIOD"
+          },
+          {
+            "answer": "SPELL"
+          },
+          {
+            "answer": "STRETCH"
+          },
+          {
+            "answer": "WHILE"
+          }
+        ]
+      },
+      {
+        "difficulty": 3,
+        "category": "ANIMAL HOMOPHONES",
+        "words": [
+          {
+            "answer": "DEAR"
+          },
+          {
+            "answer": "HAIR"
+          },
+          {
+            "answer": "HOARSE"
+          },
+          {
+            "answer": "WAIL"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "NYT-198",
+    "content": [
+      {
+        "difficulty": 0,
+        "category": "ROAD NAMES",
+        "words": [
+          {
+            "answer": "ALLEY"
+          },
+          {
+            "answer": "DRIVE"
+          },
+          {
+            "answer": "LANE"
+          },
+          {
+            "answer": "STREET"
+          }
+        ]
+      },
+      {
+        "difficulty": 1,
+        "category": "PAPER IN A BOOK",
+        "words": [
+          {
+            "answer": "FOLIO"
+          },
+          {
+            "answer": "LEAF"
+          },
+          {
+            "answer": "PAGE"
+          },
+          {
+            "answer": "SHEET"
+          }
+        ]
+      },
+      {
+        "difficulty": 2,
+        "category": "RESTRAIN",
+        "words": [
+          {
+            "answer": "CHECK"
+          },
+          {
+            "answer": "CURB"
+          },
+          {
+            "answer": "LIMIT"
+          },
+          {
+            "answer": "STEM"
+          }
+        ]
+      },
+      {
+        "difficulty": 3,
+        "category": "THINGS YOU CAN DO TO YOUR NOSE",
+        "words": [
+          {
+            "answer": "BLOW"
+          },
+          {
+            "answer": "HOLD"
+          },
+          {
+            "answer": "PICK"
+          },
+          {
+            "answer": "THUMB"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "NYT-208",
+    "content": [
+      {
+        "difficulty": 0,
+        "category": "PLAYFULLY BOTHER",
+        "words": [
+          {
+            "answer": "JOSH"
+          },
+          {
+            "answer": "KID"
+          },
+          {
+            "answer": "RIB"
+          },
+          {
+            "answer": "TEASE"
+          }
+        ]
+      },
+      {
+        "difficulty": 1,
+        "category": "APEX",
+        "words": [
+          {
+            "answer": "HEIGHT"
+          },
+          {
+            "answer": "MAX"
+          },
+          {
+            "answer": "PEAK"
+          },
+          {
+            "answer": "TOP"
+          }
+        ]
+      },
+      {
+        "difficulty": 2,
+        "category": "WORDS FOR SPECIFIC QUANTITIES",
+        "words": [
+          {
+            "answer": "DOZEN"
+          },
+          {
+            "answer": "GROSS"
+          },
+          {
+            "answer": "PAIR"
+          },
+          {
+            "answer": "SCORE"
+          }
+        ]
+      },
+      {
+        "difficulty": 3,
+        "category": "WHAT “X” MIGHT MEAN",
+        "words": [
+          {
+            "answer": "ADULT"
+          },
+          {
+            "answer": "KISS"
+          },
+          {
+            "answer": "TEN"
+          },
+          {
+            "answer": "TIMES"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "NYT-212",
+    "content": [
+      {
+        "difficulty": 0,
+        "category": "CLEANING SUPPLIES",
+        "words": [
+          {
+            "answer": "BROOM"
+          },
+          {
+            "answer": "MOP"
+          },
+          {
+            "answer": "RAG"
+          },
+          {
+            "answer": "SPONGE"
+          }
+        ]
+      },
+      {
+        "difficulty": 1,
+        "category": "ELEMENTS OF COOKING,  PER SAMIN NOSRAT",
+        "words": [
+          {
+            "answer": "ACID"
+          },
+          {
+            "answer": "FAT"
+          },
+          {
+            "answer": "HEAT"
+          },
+          {
+            "answer": "SALT"
+          }
+        ]
+      },
+      {
+        "difficulty": 2,
+        "category": "THINGS THAT MAKE YOU SNEEZE",
+        "words": [
+          {
+            "answer": "DUST"
+          },
+          {
+            "answer": "PEPPER"
+          },
+          {
+            "answer": "POLLEN"
+          },
+          {
+            "answer": "SMOKE"
+          }
+        ]
+      },
+      {
+        "difficulty": 3,
+        "category": "TITULAR FICTIONAL DETECTIVES",
+        "words": [
+          {
+            "answer": "MAGNUM"
+          },
+          {
+            "answer": "MONK"
+          },
+          {
+            "answer": "SHAFT"
+          },
+          {
+            "answer": "TRACY"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "NYT-234",
+    "content": [
+      {
+        "difficulty": 0,
+        "category": "MERRIMENT",
+        "words": [
+          {
+            "answer": "CHEER"
+          },
+          {
+            "answer": "GAEITY"
+          },
+          {
+            "answer": "GLEE"
+          },
+          {
+            "answer": "MIRTH"
+          }
+        ]
+      },
+      {
+        "difficulty": 1,
+        "category": "BOOKED FOR A WEDDING",
+        "words": [
+          {
+            "answer": "BAND"
+          },
+          {
+            "answer": "CATERER"
+          },
+          {
+            "answer": "FLORIST"
+          },
+          {
+            "answer": "PRIEST"
+          }
+        ]
+      },
+      {
+        "difficulty": 2,
+        "category": "RHYMES",
+        "words": [
+          {
+            "answer": "CHOIR"
+          },
+          {
+            "answer": "DIRE"
+          },
+          {
+            "answer": "FRYER"
+          },
+          {
+            "answer": "LIAR"
+          }
+        ]
+      },
+      {
+        "difficulty": 3,
+        "category": "___ PIT",
+        "words": [
+          {
+            "answer": "FIRE"
+          },
+          {
+            "answer": "CHERRY"
+          },
+          {
+            "answer": "SNAKE"
+          },
+          {
+            "answer": "TAR"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "NYT-235",
+    "content": [
+      {
+        "difficulty": 0,
+        "category": "MAKE SHORTER",
+        "words": [
+          {
+            "answer": "CLIP"
+          },
+          {
+            "answer": "CUT"
+          },
+          {
+            "answer": "PARE"
+          },
+          {
+            "answer": "TRIM"
+          }
+        ]
+      },
+      {
+        "difficulty": 1,
+        "category": "MUSCULAR",
+        "words": [
+          {
+            "answer": "BUILT"
+          },
+          {
+            "answer": "JACKED"
+          },
+          {
+            "answer": "RIPPED"
+          },
+          {
+            "answer": "SWOLE"
+          }
+        ]
+      },
+      {
+        "difficulty": 2,
+        "category": "ENTHUSIAST",
+        "words": [
+          {
+            "answer": "BUFF"
+          },
+          {
+            "answer": "FAN"
+          },
+          {
+            "answer": "LOVER"
+          },
+          {
+            "answer": "NUT"
+          }
+        ]
+      },
+      {
+        "difficulty": 3,
+        "category": "WRINKLY THINGS",
+        "words": [
+          {
+            "answer": "BRAIN"
+          },
+          {
+            "answer": "PRUNE"
+          },
+          {
+            "answer": "PUG"
+          },
+          {
+            "answer": "WALNUT"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "NYT-266",
+    "content": [
+      {
+        "difficulty": 0,
+        "category": "LARGE AMOUNT",
+        "words": [
+          {
+            "answer": "MASS"
+          },
+          {
+            "answer": "SEA"
+          },
+          {
+            "answer": "SLEW"
+          },
+          {
+            "answer": "TON"
+          }
+        ]
+      },
+      {
+        "difficulty": 1,
+        "category": "FALL IN UNDER PRESSURE",
+        "words": [
+          {
+            "answer": "BUCKLE"
+          },
+          {
+            "answer": "CAVE"
+          },
+          {
+            "answer": "COLLAPSE"
+          },
+          {
+            "answer": "GIVE"
+          }
+        ]
+      },
+      {
+        "difficulty": 2,
+        "category": "WAYS TO GET ATTENTION",
+        "words": [
+          {
+            "answer": "SHOUT"
+          },
+          {
+            "answer": "SNAP"
+          },
+          {
+            "answer": "WAVE"
+          },
+          {
+            "answer": "WHISTLE"
+          }
+        ]
+      },
+      {
+        "difficulty": 3,
+        "category": "BELLY ___",
+        "words": [
+          {
+            "answer": "BUTTON"
+          },
+          {
+            "answer": "DANCE"
+          },
+          {
+            "answer": "FLOP"
+          },
+          {
+            "answer": "LAUGH"
+          }
+        ]
+      }
+    ]
+  }
+]

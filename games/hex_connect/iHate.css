@@ -1,0 +1,209 @@
+:root {
+    --guess-letter-size: 0em;
+    --guess-length: 0em;
+}
+
+#main {
+    width: fit-content;
+    margin: auto;
+}
+
+.connect-square {
+    float: left;
+
+    margin: 0.5em;
+
+    width: 10em;
+    height: 5em;
+
+    text-align: center;
+    line-height: 5em;
+
+    border-radius: 0.5em;
+    border: solid;
+    border-width: 0.25em 0.25em 0.25em 0.25em;
+    border-color: #ffffff;
+}
+
+.connect-square:hover {
+    background-color: rgb(150, 150, 150);
+}
+
+.connect-answer {
+    position: relative;
+    top: 0.9em;
+    left: 0.75em;
+
+    width: 44em;
+    height: 5em;
+
+    text-align: center;
+
+    padding: 0.2em;
+    line-height: 0.1em;
+
+    border-radius: 0.5em;
+
+    color: black;
+}
+
+#connect-answer-0 {
+    background-color: #f9df6d;
+}
+
+#connect-answer-1 {
+    background-color: #a0c35a;
+}
+
+#connect-answer-2 {
+    background-color: #b0c4ef;
+}
+
+#connect-answer-3 {
+    background-color: #ba81c5;
+}
+
+.square {
+    background-color: rgb(200, 200, 200);
+    color: black;
+}
+
+.selected-square {
+    background-color: rgb(25, 25, 25);
+    color: white;
+}
+
+#grid {
+    background-color: rgb(75, 75, 85);
+    width: 46em;
+    height: 27em;
+
+    border-radius: 1em;
+    margin: auto;
+}
+
+
+.connect-button {
+    width: 6em;
+    height: 2em;
+
+    color: white;
+    border-radius: 1em;
+    background-color: rgb(30, 60, 30);
+}
+
+.connect-button:disabled {
+    background-color: rgb(100, 0, 0);
+}
+
+
+
+ /* The Modal (background) */
+ .modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+  }
+  
+  /* Modal Content/Box */
+  .modal-content {
+    background-color: #fefefe;
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 1em;
+    border: 1px solid #888;
+    width: 80%; /* Could be more or less, depending on screen size */
+    color: rgb(0, 0, 0);
+
+    border-radius: 1em;
+  }
+  
+  /* The Close Button */
+  .close-popup {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+  }
+  
+  .close-popup:hover,
+  .close-popup:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+  } 
+
+
+#current-word, #guess-history {
+    background-color: rgb(75, 80, 75);
+    margin: auto;
+    border-radius: calc(var(--guess-letter-size)/6);;
+
+    width: fit-content;
+    height: calc(4/3 * var(--guess-letter-size));
+}
+
+#guess-history {
+    width: fit-content;
+    min-height: calc(var(--guess-length) * ((4/3) * var(--guess-letter-size) + 0.15em));
+}
+
+.guess-blank, .guess-letter {
+    float: left;
+
+    margin: calc(var(--guess-letter-size)/8);
+
+    width: calc(var(--guess-letter-size)* 0.6);
+    height: calc(var(--guess-letter-size)* 0.6);
+
+    text-align: center;
+    line-height: calc(var(--guess-letter-size)* 0.6);
+
+    border-style: solid;
+    border-radius: calc(var(--guess-letter-size)/9);
+    border-color: #ffffff;
+    
+    font-size: x-large;
+}
+
+.guess-blank {
+    background-color: #a0a0a0;
+    /* color: #a0a0a0; */
+
+}
+
+.guess-letter {
+    background-color: rgb(100, 100, 100);
+    /* color: #a0a0a0; */
+}
+
+
+.key {
+    width: 4em;
+    height: 4em;
+    border-radius: 0.2em;
+    background-color: rgb(200, 200, 200);
+}
+
+#key-\>, #key-\< {
+    width: 6em;
+}
+
+.key-row {
+    justify-content: center;
+    text-align: center;
+}
+
+#keyboard {
+    border-radius: 1em;
+    background-color: rgb(75, 75, 85);
+    padding: 1em;
+    margin: auto;
+    width: fit-content;
+}

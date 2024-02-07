@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Hex-Connect!</title>
+
+    <link rel="stylesheet" href="/lib/darkMode.css">
+    <link rel="stylesheet" href="iHate.css">
+
+    <style>
+    </style>
+</head>
+
+<body>
+    <div id="main">
+        <a href="/" id="header"><img src="/images/logoWhite.png" alt="Henry 天 Ty"></a>
+
+        <div id="intro-popup" class="modal">
+
+            <!-- Modal content -->
+            <div class="modal-content">
+                <span id="intro-close" class="close-popup">&times;</span>
+                <h1>Welcome to Hex-Connect!</h1>
+                <p>
+                    Think "Wordle" (but there's 16 words so more like Hexaderdle) meets "Connections":
+                    <br><br>
+                    Use the keyboard (or your keyboard) to guess what the 16
+                    words are. 
+                    
+                    Click on a square to place your focus your guesses on that particular word. Like with Wordle, green means good, yellow means right letter, wrong place, and gray means wrong letter. 
+                    <br><br>
+
+                    Your guess can be of any length and doesn't even have to be a word.
+                    <br><br>
+                    
+                    Once you get all 16 words. It's just like the Connections; find the make 4 categories, each with 4 words them.
+                    <br><br>
+
+                    You're smart. I'm sure you can figure it out...
+                    <br><br>
+
+                    Enjoy!
+                </p>
+            </div>
+        </div>
+
+        <div id="ending-popup" class="modal">
+            <!-- Modal content -->
+            <div class="modal-content">
+                <span id="ending-close" class="close-popup">&times;</span>
+                <h1>You Win!</h1>
+                <h2 id="ending-popup-timer">
+                </h2>
+                <br>
+                <a href="#" onclick="randomNewGame()">Play another...</a>
+            </div>
+        </div>
+
+        <h1 id="instructions">Guess all 16 words!</h1>
+        <div id="grid">
+            <!-- <div id="connect-answer-0" class="connect-answer"></div> -->
+            <div class="grid-row" id="row-3">
+                <div class="connect-square square" id="square-3-0"></div>
+                <div class="connect-square square" id="square-3-1"></div>
+                <div class="connect-square square" id="square-3-2"></div>
+                <div class="connect-square square" id="square-3-3"></div>
+            </div>
+            <br>
+            <div class="grid-row" id="row-2">
+                <div class="connect-square square" id="square-2-0"></div>
+                <div class="connect-square square" id="square-2-1"></div>
+                <div class="connect-square square" id="square-2-2"></div>
+                <div class="connect-square square" id="square-2-3"></div>
+            </div>
+            <br>
+            <div class="grid-row" id="row-1">
+                <div class="connect-square square" id="square-1-0"></div>
+                <div class="connect-square square" id="square-1-1"></div>
+                <div class="connect-square square" id="square-1-2"></div>
+                <div class="connect-square square" id="square-1-3"></div>
+            </div>
+            <br>
+            <div class="grid-row" id="row-0">
+                <div class="connect-square square" id="square-0-0"></div>
+                <div class="connect-square square" id="square-0-1"></div>
+                <div class="connect-square square" id="square-0-2"></div>
+                <div class="connect-square square" id="square-0-3"></div>
+            </div>
+
+            <div class="spacer"></div>
+        </div>
+        <h2 id="connect-message-box"> </h2>
+        <br>
+
+        <button class="connect-button" onclick="shuffleSquares()" hidden="true">Shuffle</button>
+        <button class="connect-button" onclick="deselectAll()" hidden="true">Deselect All</button>
+        <button class="connect-button" onclick="validateGuess()" hidden="true" disabled id="submit-button">Submit</button>
+
+        <div id="guess-history"></div>
+        <div class="spacer"></div>
+        <br><br>
+
+        <div id="current-word"></div>
+        <div class="spacer"></div>
+        <br><br>
+
+
+        <div id="keyboard">
+            <div class="key-row">
+                <button class="key" id="key-q">Q</button>
+                <button class="key" id="key-w">W</button>
+                <button class="key" id="key-e">E</button>
+                <button class="key" id="key-r">R</button>
+                <button class="key" id="key-t">T</button>
+                <button class="key" id="key-y">Y</button>
+                <button class="key" id="key-u">U</button>
+                <button class="key" id="key-i">I</button>
+                <button class="key" id="key-o">O</button>
+                <button class="key" id="key-p">P</button>
+                <button class="key" id="key-<">⌫</button>
+            </div>
+            <br>
+            <div class="key-row">
+                <button class="key" id="key-a">A</button>
+                <button class="key" id="key-s">S</button>
+                <button class="key" id="key-d">D</button>
+                <button class="key" id="key-f">F</button>
+                <button class="key" id="key-g">G</button>
+                <button class="key" id="key-h">H</button>
+                <button class="key" id="key-j">J</button>
+                <button class="key" id="key-k">K</button>
+                <button class="key" id="key-l">L</button>
+                <button class="key" id="key->">↵</button>
+            </div>
+            <br>
+            <div class="key-row">
+                <button class="key" id="key-z">Z</button>
+                <button class="key" id="key-x">X</button>
+                <button class="key" id="key-c">C</button>
+                <button class="key" id="key-v">V</button>
+                <button class="key" id="key-b">B</button>
+                <button class="key" id="key-n">N</button>
+                <button class="key" id="key-m">M</button>
+            </div>
+        </div>
+
+        <script src="game.js"></script>
+
+        <p id="credits">
+            Inspired by <a href="https://www.nytimes.com/games/wordle">Wordle</a> and <a
+                href="https://www.nytimes.com/games/connections">Connections</a> <br>
+            Connections are based on real NYT Connections and occasionally edited by yours truly. <br>
+            Created by <a href="/">Henry Ty</a> <br>
+        </p>
+    </div>
+</body>
+
+</html>
