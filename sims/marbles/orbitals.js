@@ -77,9 +77,7 @@ function orbitalSketch(p) {
         }
     }
 
-    p.draw = function () {
-        if (p.deltaTime > 100) p.setup()
-        
+    p.draw = function () {       
         p.push();
         p.translate(p.width / 2, p.height / 2)
 
