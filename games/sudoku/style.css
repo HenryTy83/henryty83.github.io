@@ -1,0 +1,65 @@
+#main {
+    width: 500px
+}
+
+.board {
+    display: grid;
+    grid-template-columns: repeat(3, 9.2em);
+    margin: auto;
+
+    user-select: none;
+}
+
+.big-square {
+    display: grid;
+    grid-template-columns: repeat(3, 3.1em);
+    border: 0.2em solid #202020;
+}
+
+.square {
+    width: 3em;
+    height: 3em;
+
+    padding: auto;
+    border: 0.2em solid #a0a0a0;
+}
+
+.controls {
+    display: grid;
+    grid-template-columns: repeat(11, 2.6em);
+
+    user-select: none;
+}
+
+.control-button {
+    width: 2.0em;
+    height: 2.0em;
+
+    padding: auto;
+    border: 0.2em solid #808080;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.control-button p {
+    font-size: 1.5em;
+    color: #000;
+    vertical-align: middle;
+    text-align: center;
+}
+
+.guess {
+    font-size: 2.7em;
+    color: #000;
+    margin: auto;
+    text-align: center;
+}
+
+.notes {
+    font-size: 0.9em;
+    color: #000090;
+    margin: auto;
+    text-align: center;
+}
