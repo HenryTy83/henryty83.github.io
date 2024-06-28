@@ -1,11 +1,11 @@
 // the crux of sudoku, check validity of state
 const verifyBoard = (board = squares) => {
-    for (var y = 0; y < 9; y++) {
+    for (let y = 0; y < 9; y++) {
         let currentRow = []
         let currentColumn = []
         let currentBlock = []
 
-        for (var x = 0; x < 9; x++) {
+        for (let x = 0; x < 9; x++) {
             // row
             let square = board[9 * y + x].guess.value
             if (square != null) {
@@ -32,7 +32,7 @@ const verifyBoard = (board = squares) => {
     return true
 }
 const isImpossible = (board = squares) => {
-    for (var square of board) {
+    for (let square of board) {
         if (square.guess.value == null) {
             const notes = square.notes.get()
             if (generateNotes(square.id, board).length == 0) return true
@@ -41,7 +41,7 @@ const isImpossible = (board = squares) => {
     }
     return false
 }
-const isComplete = (board = squares) => { for (var square of board) { if (square.guess.value == null) return false } return true }
+const isComplete = (board = squares) => { for (let square of board) { if (square.guess.value == null) return false } return true }
 const findDuplicates = (id, board = squares) => {
     if (board[id] == null || board[id].guess.value == null) { return [] }
 
@@ -53,7 +53,18 @@ const findDuplicates = (id, board = squares) => {
     return duplicateIDs
 }
 
+// update the sudo bot text on the bottom
+const updateStatus = () => {
+    const status = document.getElementById('status')
 
+    const filled = isComplete(squares)
+    const hasErrors = !verifyBoard(squares)
+
+    if (isImpossible(squares)) return status.innerText = `Sudo-bot says: "This puzzle is impossible! You messed up pretty badly."`
+    if (hasErrors) return status.innerText = `Sudo-bot says: "I see a few errors. I highlighted them in red."`
+    if (filled) return status.innerText = `Sudo-bot says: "You did it! Yippee!!!"`
+    return status.innerText = `Sudo-bot says: "Keep going! You got this!"`
+}
 
 // keyboard interaction
 const digits = '123456789'.split('')
@@ -103,10 +114,12 @@ document.addEventListener('keydown', function (event) {
     }
 
     // next up a whole bunch of QOL shit involving the current selected square
-    if (selectedSquare == null) return
+    if (selectedSquare == null) return updateStatus()
 
     // move selected square with arrow keys
     if (moveDir != null) { 
+        updateStatus()
+        
         let selectedID = parseInt(selectedSquare.id)
 
         switch (moveDir) {
@@ -151,9 +164,10 @@ document.addEventListener('keydown', function (event) {
             currentMode = modes.GUESS
         }
     }
+    updateStatus()
 });
 
-
+document.addEventListener('onclick', updateStatus)
 
 // import/export board states into a custom string
 const exportGame = (board = squares) => { 
@@ -183,7 +197,7 @@ const importGame = (fen, board=squares) => { // not rlly a fen string but you kn
     try {
         const broken = fen.split('-')// decompress the white space rle
         let decompressed = ''
-        for (var i = 0; i < broken.length; i++) {
+        for (let i = 0; i < broken.length; i++) {
             if (i % 2 == 0) decompressed += broken[i]
             else decompressed += '0'.repeat(parseInt(broken[i]))
         }
@@ -195,16 +209,17 @@ const importGame = (fen, board=squares) => { // not rlly a fen string but you kn
             const char = decompressed[i]
             board[i].fixed = false;
 
-            if (char == '0') { 
+            if (char == '0') {
                 board[i].guess.set(null)
-                continue
             }
 
-            if (!digits.includes(char)) throw new Error(`Invalid character: ${char}`)
+            else if (!digits.includes(char)) throw new Error(`Invalid character: ${char}`)
 
-            board[i].guess.set(parseInt(char))
-            board[i].fixed = true;
-            board[i].guess.style.color = defaultFixedColor
+            else {
+                board[i].guess.set(parseInt(char))
+                board[i].fixed = true;
+                board[i].guess.style.color = defaultFixedColor
+            }
         }
 
         if (!verifyBoard(squares)) throw new Error('Invalid puzzle')

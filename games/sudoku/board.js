@@ -7,7 +7,7 @@ let noteGuide = false;
 
 const defaultSquareColor = '#f0f0f0';
 const defaultButtonColor = '#b0b0b0';
-const defaultFixedColor = '#008800'
+const defaultFixedColor = '#008800';
 
 const modes = { NOTE: 0, GUESS: 1, SELECT: 2 }
 
@@ -17,7 +17,7 @@ const squares = [];
 
 // helper functions
 const chooseRandom = (array) => array[Math.floor(Math.random() * array.length)]
-const clearNumberButtons = () => { for (var i = 0; i < 10; i++) controlPanel.children[i].style.backgroundColor = defaultButtonColor }
+const clearNumberButtons = () => { for (let i = 0; i < 10; i++) controlPanel.children[i].style.backgroundColor = defaultButtonColor }
 const unselectSquare = () => {
     if (selectedSquare != null) {
         selectedSquare.selected = false;
@@ -29,6 +29,13 @@ const unselectSquare = () => {
     }
 }
 
+//toggle stuff
+const autoGuideButton = document.getElementsByClassName('header-button')[3]
+autoGuideButton.onclick = () => {
+    autoNote();
+    noteGuide = !noteGuide;
+    autoGuideButton.style.borderColor = noteGuide ? '#00ff00': '#ff0000'
+}
 
 // setup blank board + interactions
 const boardSetup = () => {
@@ -77,7 +84,7 @@ const boardSetup = () => {
             }
             notes.get = () => {
                 const output = [];
-                for (var i = 0; i < notes.state.length; i++) {
+                for (let i = 0; i < notes.state.length; i++) {
                     if (notes.state[i]) output.push(i + 1)
                 }
                 return output
@@ -86,12 +93,13 @@ const boardSetup = () => {
             notes.reset()
 
             const guess = document.createElement('p')
-            guess.invalid = false
             guess.set = (x, noteGuide = false) => {
                 guess.value = x
                 guess.innerText = x == null ? null : `${x}`
 
                 square.show(modes.GUESS)
+
+                guess.style.color = square.fixed ? defaultFixedColor : '#000'
 
                 if (noteGuide) for (const link of square.links) link.notes.remove(x)
 
@@ -210,8 +218,25 @@ const boardSetup = () => {
 }
 boardSetup()
 
+// set up list of all shared things
+const blocks = []
+const rows = []
+const columns = []
 
-
+const generateGroups = () => { // this is running once so it can be as messy as I want
+    // rows + columns
+    for (var y = 0; y < 9; y++) {
+        rows.push([])
+        columns.push([])
+        blocks.push([])
+        for (var x = 0; x < 9; x++) { 
+            rows[y].push(squares[9 * y + x])
+            columns[y].push(squares[9 * x + y])
+            blocks[y].push(squares[3 * (y % 3) + 27 * Math.floor(y / 3) + (x % 3) + 9 * Math.floor(x / 3)])
+        }
+    }
+}
+generateGroups()
 
 // setup control panel
 const controlPanel = document.getElementsByClassName('controls')[0]
@@ -273,3 +298,25 @@ const controlPanelSetup = () => {
     controlPanel.children[9].onclick()
 }
 controlPanelSetup()
+
+
+// MODAL SHIT IDK HOW THEY WORK BUT GPT DOES
+// Get the modal element
+var modal = document.getElementById("myModal");
+
+// Function to open the modal
+function openModal() {
+    modal.style.display = "block";
+    document.getElementById("textInput").value = exportGame(squares)
+}
+
+// Function to close the modal
+function closeModal() {
+    modal.style.display = "none";
+}
+
+// Function to handle modal submission
+function submitModal() {
+    var textValue = document.getElementById("textInput").value;
+    window.location.search = `?board=${textValue}`
+}

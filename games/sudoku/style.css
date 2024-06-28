@@ -1,6 +1,112 @@
 #main {
-    width: 500px
+    width: 430px
 }
+
+/* IN GPT WE TRUST */
+/* Modal styles */
+.modal {
+    display: none;
+    /* Hidden by default */
+    position: fixed;
+    /* Stay in place */
+    z-index: 1;
+    /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    /* Enable scrolling if needed */
+    background-color: rgba(0, 0, 0, 0.4);
+    /* Black w/ opacity */
+}
+
+/* Modal content */
+.modal-content {
+    background-color: #a0a0a0;
+    border-radius: 2em;
+    margin: 15% auto;
+    /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    /* Could be more or less, depending on screen size */
+    color: #000
+}
+
+/* Close button */
+.close {
+    color: #010101;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+textarea {
+    width: 100%;
+    /* Take up full width of the modal content */
+    box-sizing: border-box;
+    /* Ensure padding and border are included in width */
+    resize: vertical;
+    /* Allow vertical resizing */
+    min-height: 0em;
+    /* Minimum height for the textarea */
+}
+
+.header-bar {
+    background-color: #a0a0a0;
+    border: 0.2em solid #808080;
+    border-radius: 1em;
+    /* White background */
+    padding: 0.5em;
+    /* Adjust padding as needed */
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    justify-items: center; 
+}
+
+.header-button {
+    background-color: #dddddd;
+    /* Gray background for buttons */
+    color: #000000;
+    /* Black text */
+    border: 0.15em solid #808080;
+    padding: 8px 4px;
+    /* Adjust padding for button size */
+    font-size: 14px;
+    /* Adjust font size as needed */
+    cursor: pointer;
+    border-radius: 10px;
+    /* Rounded corners */
+    text-align: center;
+    /* Center text */
+    margin-right: 10px;
+    /* Add some space between buttons */
+}
+
+.header-button:first-child {
+    margin-left: 0;
+    /* Remove left margin from the first button */
+}
+
+.header-button:last-child {
+    margin-right: 0;
+    /* Remove right margin from the last button */
+}
+
+.header-button:hover {
+    background-color: #cccccc;
+    /* Lighter gray on hover */
+}
+
 
 .board {
     display: grid;
@@ -22,6 +128,7 @@
 
     padding: auto;
     border: 0.2em solid #a0a0a0;
+    color: #000
 }
 
 .controls {
@@ -52,9 +159,9 @@
 
 .guess {
     font-size: 2.7em;
-    color: #000;
     margin: auto;
     text-align: center;
+    color: #000;
 }
 
 .notes {

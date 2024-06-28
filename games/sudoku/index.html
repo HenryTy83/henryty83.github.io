@@ -15,13 +15,50 @@
     <div id="main">
         <a href="/" id="header"><img src="/images/logoWhite.png" alt="Henry 天 Ty"></a>
 
+        <div id="myModal" class="modal">
+            <!-- Modal content -->
+            <div class="modal-content">
+                <span class="close" onclick="closeModal()">&times;</span>
+                <p>Copy/Paste from this field to share the puzzle:</p>
+                <textarea id="textInput"></textarea>
+                <br>
+                <br>
+                <button onclick="submitModal()">Import</button>
+            </div>
+        </div>
+
         <br>
+
+        <div class="header-bar">
+            <div class="header-button" onclick="clearBoard()">Clear Board</div>
+            <div class="header-button" onclick="openModal()">Import/Export</div>
+            <div class="header-button" onclick="solve()">Solve Puzzle</div>
+            <div class="header-button" style="border-color: #ff0000;">Autofill Notes</div>
+            <div class="header-button">New Game 
+                <label for="Difficulty"></label>
+            <select name="Difficulty" id="Difficulty">
+                <option value="Easy">Easy</option>
+                <option value="Medium">Medium</option>
+                <option value="Hard">Hard</option>
+                <option value="Extreme">Extreme</option>
+            </select></div> 
+         
+        </div>
+
+
+
 
         <div class="board"></div>
 
         <br> 
 
         <div class="controls"></div>
+
+
+
+        <p id="status" style="color:#ffffff">Sudo-bot says: "Click to fill in the puzzle. Press space or the lower right button to change mode."</p>
+
+        <br>
 
         <script src="board.js"></script>
         <script src="game.js"></script>
