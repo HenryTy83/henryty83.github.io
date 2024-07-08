@@ -3,7 +3,7 @@
 <head>
     <script src="/lib/p5.js"></script>
     <meta charset="utf-8" />
-    <title>Replace me</title>
+    <title>Make a slime-card!</title>
 
     <link rel="stylesheet" href="/lib/darkMode.css">
 
@@ -15,9 +15,15 @@
     <div id="main">
     <a href="/" id="header"><img src="/images/logoWhite.png" alt="Henry 天 Ty"></a>
 
-      <div class="canvas" id="mainSketch">
-        <script src="template.js"></script>
+        <h1>Use the buttons and click on the canvas to make your card!</h1>
+
+      <div class="canvas" id="slimeCanvas">
+        <script src="jet.js"></script>
+        <script src="encode.js"></script>
+        <script src="editor.js"></script>
       </div>
+
+      <button onclick="selectedJet = selectedJet = new Jet(); selectedJet.selected = true; jets.push(selectedJet); ">New Jet</button>
 
       <p id="credits">
         Created by <a href="/">Henry Ty</a> <br>
