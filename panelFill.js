@@ -90,6 +90,13 @@ const sims = [
     },
 
     {
+        path: '/sims/slime_card',
+        name:  'Slime Card',
+        description: 'A (semi-)usable tool to make a cute digital card',
+        img_alt_text: 'A smiley face drawn with straight lines'
+    },
+
+    {
         path: '/sims/tjsvmtdhaa',
         name: 'The Javascript Virtual Machine that Doesn\'t Have An Acronym',
         description: 'A Virtual CPU in the webpage running custom made assembly code compiled to custom machine code. The biggest thing I have ever made (Still WIP).',

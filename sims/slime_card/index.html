@@ -1,34 +1,52 @@
 <!DOCTYPE html>
 
 <head>
-    <script src="/lib/p5.js"></script>
-    <meta charset="utf-8" />
-    <title>Make a slime-card!</title>
+  <script src="/lib/p5.js"></script>
+  <meta charset="utf-8" />
+  <title>Make a slime-card!</title>
 
-    <link rel="stylesheet" href="/lib/darkMode.css">
+  <link rel="stylesheet" href="/lib/darkMode.css">
 
-    <style>
-    </style>
+  <style>
+  </style>
 </head>
 
 <body>
-    <div id="main">
+  <div id="main">
     <a href="/" id="header"><img src="/images/logoWhite.png" alt="Henry 天 Ty"></a>
 
-        <h1>Use the buttons and click on the canvas to make your card!</h1>
+    <h1>Use the buttons and click on the canvas to make your card!</h1>
 
-      <div class="canvas" id="slimeCanvas">
-        <script src="jet.js"></script>
-        <script src="encode.js"></script>
-        <script src="editor.js"></script>
-      </div>
-
-      <button onclick="selectedJet = selectedJet = new Jet(); selectedJet.selected = true; jets.push(selectedJet); ">New Jet</button>
-
-      <p id="credits">
-        Created by <a href="/">Henry Ty</a> <br>
-      </p>
+    <div class="canvas" id="slimeCanvas">
+      <script src="/lib/io.js"></script>
+      <script src="jet.js"></script>
+      <script src="decode.js"></script>
+      <script src="editor.js"></script>
     </div>
+
+    <br>
+
+    <div id="configBox" hidden="true">
+      position.x: <input type="text" id="posX"> <br>
+      position.y: <input type="text" id="posY"> <br>
+      radius: <input type="text" id="radius"> <br>
+      hex color code: <input type="text" id="color"> <br>
+      <br>
+      <button id="done" onclick="confirmConfig()">Done</button>
+    </div>
+    <button onclick="newJet()" id="createJet">New Loop</button>
+    <button onclick="saveCanvas()" >Export Card</button>
+
+    <br> <br>
+
+    Examples: <br>
+    <a href="?card=8T1f000a__Y09Q1f000a__Y0aW1g0g0a__Y0bZ1A0s0a__Y0cw1T0P0a__Y0d52C140a__Y0dp3u1p0a__Y0dq4C1y0a__Y0d86k1T0a__Y0c07A2B0a__Y0av7Z2M0a__Y0827D3o0a__Y06C6y400a__Y0694p4t0a__Y06G2Q4T0a__Y07v1V550a__Y0821y5k0a__Y09h81360a__Y06l5r410a__Y0bm7L2A0a__Y0cO6X2c0a__Y08D2W5C0a____8F4x4c0a____9q2V1n0a____9v4y2R0a____af2U040a____a_2Y1p0a____b04F2U0a____ai4B4b0a____7M5A0w0a____8f5T0k0a____916a070a____9J6f5B0a____aw6c580a____b45S550a____bt5r0g0a____bU5z1R0a____bJ5U1Y0a____bu6d2b0a____b06y2f0a____aE6Q2M0a____ad6R2Q0a____9m6R2W0a____8B6K3o0a____8f6u3v0a____7_6f3n0a____7J633n0a____7o5Q560a____">Smiley Face</a>
+    <br>I'm too lazy to do more
+
+    <p id="credits">
+      Created by <a href="/">Henry Ty</a> <br>
+    </p>
+  </div>
 </body>
 
 </html>
