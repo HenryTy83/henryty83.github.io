@@ -34,7 +34,7 @@ const autoGuideButton = document.getElementsByClassName('header-button')[3]
 autoGuideButton.onclick = () => {
     autoNote();
     noteGuide = !noteGuide;
-    autoGuideButton.style.borderColor = noteGuide ? '#00ff00': '#ff0000'
+    autoGuideButton.style.borderColor = noteGuide ? '#00ff00' : '#ff0000'
 }
 
 // setup blank board + interactions
@@ -77,7 +77,13 @@ const boardSetup = () => {
 
                 return notes.innerHTML
             }
-            notes.remove = (x) => { if (notes.state[x - 1]) notes.toggle(x - 1, false) }
+            notes.remove = (x) => {
+                if (notes.state[x - 1]) {
+                    notes.toggle(x - 1, false);
+                    return true
+                }
+                return false
+            }
             notes.set = (noteArray = []) => {
                 notes.reset()
                 for (const note of noteArray) notes.toggle(note - 1)
@@ -89,6 +95,7 @@ const boardSetup = () => {
                 }
                 return output
             }
+            notes.includes = (guess) => notes.get().includes(guess)
 
             notes.reset()
 
@@ -222,6 +229,7 @@ boardSetup()
 const blocks = []
 const rows = []
 const columns = []
+var lines = []
 
 const generateGroups = () => { // this is running once so it can be as messy as I want
     // rows + columns
@@ -229,12 +237,15 @@ const generateGroups = () => { // this is running once so it can be as messy as 
         rows.push([])
         columns.push([])
         blocks.push([])
-        for (var x = 0; x < 9; x++) { 
+        
+        for (var x = 0; x < 9; x++) {
             rows[y].push(squares[9 * y + x])
             columns[y].push(squares[9 * x + y])
             blocks[y].push(squares[3 * (y % 3) + 27 * Math.floor(y / 3) + (x % 3) + 9 * Math.floor(x / 3)])
         }
     }
+
+    lines = rows.concat(columns)
 }
 generateGroups()
 

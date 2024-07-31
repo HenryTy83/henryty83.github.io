@@ -1,13 +1,13 @@
 // the crux of sudoku, check validity of state
 const verifyBoard = (board = squares) => {
-    for (let y = 0; y < 9; y++) {
-        let currentRow = []
-        let currentColumn = []
-        let currentBlock = []
+    for (var y = 0; y < 9; y++) {
+        var currentRow = []
+        var currentColumn = []
+        var currentBlock = []
 
-        for (let x = 0; x < 9; x++) {
+        for (var x = 0; x < 9; x++) {
             // row
-            let square = board[9 * y + x].guess.value
+            var square = board[9 * y + x].guess.value
             if (square != null) {
                 if (currentRow.includes(square)) return false
                 currentRow.push(square)
@@ -32,7 +32,7 @@ const verifyBoard = (board = squares) => {
     return true
 }
 const isImpossible = (board = squares) => {
-    for (let square of board) {
+    for (var square of board) {
         if (square.guess.value == null) {
             const notes = square.notes.get()
             if (generateNotes(square.id, board).length == 0) return true
@@ -41,7 +41,7 @@ const isImpossible = (board = squares) => {
     }
     return false
 }
-const isComplete = (board = squares) => { for (let square of board) { if (square.guess.value == null) return false } return true }
+const isComplete = (board = squares) => { for (var square of board) { if (square.guess.value == null) return false } return true }
 const findDuplicates = (id, board = squares) => {
     if (board[id] == null || board[id].guess.value == null) { return [] }
 
@@ -53,8 +53,24 @@ const findDuplicates = (id, board = squares) => {
     return duplicateIDs
 }
 
+// click on every square to get rid of the ghost errors
+const refreshBoard = () => {
+    const temp = selectedSquare == null ? -1 : parseInt(selectedSquare.id)
+    const _ = currentMode
+
+    currentMode = modes.SELECT
+    for (const square of squares) square.onclick();
+
+    if (temp != -1) { if (temp != 80) squares[temp].onclick(); }
+    else unselectSquare()
+
+    currentMode = _
+}
+
 // update the sudo bot text on the bottom
 const updateStatus = () => {
+    refreshBoard()
+
     const status = document.getElementById('status')
 
     const filled = isComplete(squares)
@@ -71,10 +87,10 @@ const digits = '123456789'.split('')
 document.addEventListener('keydown', function (event) {
     // button control
 
-    let moveDir = null;
-    const directions = { UP: 0, RIGHT: 1, DOWN: 2, LEFT: 3}
+    var moveDir = null;
+    const directions = { UP: 0, RIGHT: 1, DOWN: 2, LEFT: 3 }
 
-    switch (event.key) { 
+    switch (event.key) {
         case 'Backspace':
             controlPanel.children[9].onclick()
             break
@@ -89,8 +105,8 @@ document.addEventListener('keydown', function (event) {
         case '9':
             controlPanel.children[parseInt(event.key) - 1].onclick()
             break;
-        
-        
+
+
         case 'ArrowUp':
         case 'w':
             moveDir = directions.UP
@@ -117,37 +133,34 @@ document.addEventListener('keydown', function (event) {
     if (selectedSquare == null) return updateStatus()
 
     // move selected square with arrow keys
-    if (moveDir != null) { 
-        updateStatus()
-        
-        let selectedID = parseInt(selectedSquare.id)
+    if (moveDir != null) {
+        var selectedID = parseInt(selectedSquare.id)
 
         switch (moveDir) {
             case directions.UP:
-                if (selectedID < 8) return
-                selectedID -= 9
+                if (selectedID < 8) selectedID += 72
+                else selectedID -= 9
                 break
             case directions.RIGHT:
-                if (selectedID > 79) return
-                selectedID ++
+                selectedID = (selectedID + 1) % 81
                 break
             case directions.DOWN:
-                if (selectedID > 71) return
-                selectedID += 9
+                if (selectedID > 71) selectedID -= 72
+                else selectedID += 9
                 break
             case directions.LEFT:
-                if (selectedID < 1) return
-                selectedID --
+                if (selectedID < 1) selectedID += 9
+                else selectedID--
                 break
         }
 
-        let temp = currentMode
+        var temp = currentMode
         currentMode = modes.SELECT
         squares[selectedID].onclick()
         currentMode = temp
-        return
+        return updateStatus()
     }
-   
+
 
     // type into selected square
     if (selectedNumber == null) {
@@ -167,19 +180,19 @@ document.addEventListener('keydown', function (event) {
     updateStatus()
 });
 
-document.addEventListener('onclick', updateStatus)
+document.addEventListener('click', updateStatus, false)
 
 // import/export board states into a custom string
-const exportGame = (board = squares) => { 
+const exportGame = (board = squares) => {
     if (!verifyBoard()) throw new Error(`Invalid puzzle`)
 
-    let output = ''
-    let total = 0
+    var output = ''
+    var total = 0
 
-    for (const square of squares) { 
+    for (const square of squares) {
         if (square.guess.value == null) total++
         else {
-            if (total > 0) { 
+            if (total > 0) {
                 if (total == 1) output += '0'
                 else output += `-${total}-`
 
@@ -191,13 +204,13 @@ const exportGame = (board = squares) => {
     if (total > 0) output += `-${total}-`
 
     return output
-} 
+}
 
-const importGame = (fen, board=squares) => { // not rlly a fen string but you know what i mean
+const importGame = (fen, board = squares) => { // not rlly a fen string but you know what i mean
     try {
         const broken = fen.split('-')// decompress the white space rle
-        let decompressed = ''
-        for (let i = 0; i < broken.length; i++) {
+        var decompressed = ''
+        for (var i = 0; i < broken.length; i++) {
             if (i % 2 == 0) decompressed += broken[i]
             else decompressed += '0'.repeat(parseInt(broken[i]))
         }
@@ -205,7 +218,7 @@ const importGame = (fen, board=squares) => { // not rlly a fen string but you kn
 
         if (decompressed.length != 81) throw new Error(`Bad length`)
 
-        for (let i = 0; i < 81; i++) { 
+        for (var i = 0; i < 81; i++) {
             const char = decompressed[i]
             board[i].fixed = false;
 
@@ -224,7 +237,7 @@ const importGame = (fen, board=squares) => { // not rlly a fen string but you kn
 
         if (!verifyBoard(squares)) throw new Error('Invalid puzzle')
     }
-    catch (error) { 
+    catch (error) {
         throw new Error(`Invalid string '${fen}',${'\n'}Received ${error}`)
     }
 }
