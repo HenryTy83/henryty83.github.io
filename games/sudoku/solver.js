@@ -249,15 +249,22 @@ const tallyNotes = (group) => {
 
                 if (arraysEqual(tally[i].squares, tally[j].squares)) { 
                     if (!matchFound) { 
-                        tally
+                        forcedNotes.push({
+                            notes: [i],
+                            squares: tally[i].squares
+                        })
                         matchFound = true
                     }
+
+                    forcedNotes[forcedNotes.length-1].notes.push(j)
                 }
             } 
         }
     }
 
-    return tally
+    for (var note of forcedNotes) { 
+        
+    }
 }
 
 
