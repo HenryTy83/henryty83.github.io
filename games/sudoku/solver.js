@@ -29,6 +29,8 @@ const autoNote = (board = squares) => {
     while (solveForcedBlocks()) { }
 
     allForcedReservedNotes()
+
+    tallyAllLines()
 }
 
 // when there's only one hint, make the guess
@@ -247,7 +249,7 @@ const tallyNotes = (group) => {
                     return true
                 }
 
-                if (arraysEqual(tally[i].squares, tally[j].squares)) { 
+                if (tally[i].squares.length > 0 && arraysEqual(tally[i].squares, tally[j].squares)) { 
                     if (!matchFound) { 
                         forcedNotes.push({
                             notes: [i],
@@ -262,10 +264,17 @@ const tallyNotes = (group) => {
         }
     }
 
-    for (var note of forcedNotes) { 
-        
+
+    for (var reserved of forcedNotes) { 
+        if (reserved.notes.length == reserved.squares.length) {
+            for (var square of reserved.squares) {
+                square.notes.set(reserved.notes)
+            }
+        }
     }
 }
+
+const tallyAllLines = () => { for (var line of lines) tallyNotes(line)}
 
 
 const findBlockIndex = (square) => {
@@ -295,7 +304,7 @@ const stepSolve = (board = squares) => {
 }
 
 const solve = (board = squares) => {
-    for (var tries = 0; tries < 3; tries++) {
+    for (var tries = 0; tries < 5; tries++) {
         if (stepSolve(board) || remainingSpots()) {
             tries = 0
         }
@@ -313,7 +322,8 @@ const testPuzzles = [
     '05-6-49-2-43-7-20938-2-9-2-704503-4-2-3-87-5-13501-2-8-3-709310568604725039',
     '4-7-70904-2-8065-3-264306-2-902-6-61070228-5-6104509-8-4-7-861594',
     '063-3-9-3-2-4-6-8-148-3-6-3-5-6-9-2-457-3-3-3-6-2-81-6-8-8-104-2-9-1-',
-    '7601-2-5085-3-74-4-3-10-658-14-3-3-2040702-8-5-4-6-5-3091'
+    '7601-2-5085-3-74-4-3-10-658-14-3-3-2040702-8-5-4-6-5-3091',
+    '-2-9-2-107-4-4-3-605-4-290403-3-5-5-62-2-108-7-4-7-7-2-6-3-1-6-18-2-209'
 ]
 
 // if tests passed, lets open the puzzle
@@ -322,6 +332,7 @@ const loadPuzzle = () => {
     let queryString = window.location.search;
     let params = new URLSearchParams(queryString);
     let boardString = params.get('board');
+    boardString = boardString == null ? '-3-60407-6-7-2-45-4-38-3-9-2-4-2-802-3-805908-7-26-6-27-3-3-6-23-2-501-1-' : boardString
     if (boardString != null) {
         try { importGame(boardString, squares) }
         catch (error) {

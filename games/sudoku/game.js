@@ -52,6 +52,13 @@ const findDuplicates = (id, board = squares) => {
 
     return duplicateIDs
 }
+const isSolvable = (board = squares) => {
+    var temp = exportGame(board)
+
+    var finished = solve(board)
+    importGame(temp, board)
+    return finished
+}
 
 // click on every square to get rid of the ghost errors
 const refreshBoard = () => {
@@ -189,7 +196,7 @@ const exportGame = (board = squares) => {
     var output = ''
     var total = 0
 
-    for (const square of squares) {
+    for (const square of board) {
         if (square.guess.value == null) total++
         else {
             if (total > 0) {
@@ -240,4 +247,112 @@ const importGame = (fen, board = squares) => { // not rlly a fen string but you 
     catch (error) {
         throw new Error(`Invalid string '${fen}',${'\n'}Received ${error}`)
     }
+}
+
+
+const digitCount = () => {
+    var total = 0
+    for (var square of squares) {
+        if (square.guess.value != null) total++
+    }
+    return total
+}
+
+const select = (a) => a[Math.floor(Math.random() * a.length)]
+
+const newSquare = () => {
+    autoNote()
+
+    var maxNotes = 10
+    var candidates = []
+
+    for (var square of squares) {
+        if (square.guess.value == null && square.notes.get().length < maxNotes) {
+            maxNotes = square.notes.get().length
+            candidates = [square]
+        }
+
+        else if (square.notes.get().length == maxNotes) candidates.push(square)
+    }
+
+    const nextSquare = select(candidates)
+    nextSquare.guess.set(select(nextSquare.notes.get()))
+}
+
+const fillGroup = (group) => { 
+    var choices = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+    for (var square of group) { 
+        const choice = select(choices)
+        square.guess.set(choice)
+        choices.splice(choices.indexOf(choice), 1)
+    }
+}
+
+
+const generatePuzzle = (depth = 0) => {
+    if (depth > 5) return alert('ERROR WITH GENERATION. PLEASE TRY AGAIN')
+
+    clearBoard()
+
+    const difficultyLookup = {
+        "Easy": 56,
+        "Medium": 45,
+        "Hard": 37,
+        "Expert": 30,
+        "Master": 25,
+    }
+
+    const difficulty = difficultyLookup[document.getElementById('Difficulty').value]
+
+    // algorithm stolen from https://www.geeksforgeeks.org/program-sudoku-generator/
+
+    fillGroup(blocks[0])
+    fillGroup(blocks[4])
+    fillGroup(blocks[8])
+
+    for (var i = 0; i < 81 - 27; i++) newSquare()
+
+    var ids = squares.filter(x => x.guess.value != null).map(x => parseInt(x.id))
+
+    // now we remove random squares
+    for (var i = 0; i < 81 - difficulty; i++) {
+        while (ids.length > 0) { 
+            var potentialSquare = squares[ids.splice(Math.floor(Math.random() * ids.length), 1)]
+            var temp = potentialSquare.guess.value
+            potentialSquare.guess.value = null
+            if (!isSolvable()) potentialSquare.guess.value = temp
+            else break
+        }
+
+        if (ids.length == 0) { generatePuzzle(depth + 1) }
+        
+    }
+
+    for (var square of squares) square.notes.reset()
+}
+
+async function boardDecor() { 
+    clearBoard()
+    const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+    const randomDigits = () => { 
+        var digits = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+        var output = ''
+
+        for (var i = 0; i < 9; i++) output += digits.splice(Math.floor(Math.random() * (9 - i)), 1)
+        
+        return output
+    }
+
+    const displayString = `LOADING           PUZZLE            PLEASE            WAIT              ${randomDigits()}`.split('')
+
+    for (var i in displayString) {
+        var square = squares[i]
+        square.fixed = true
+        square.guess.set(displayString[i])
+        await sleep(i > 72 ? 49 : 7)
+    };
+    
+    generatePuzzle()
 }

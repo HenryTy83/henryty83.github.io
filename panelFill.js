@@ -7,10 +7,10 @@ const newStuff = [
     },
 
     {
-        path: './games/hex_connect',
-        name: 'Hex Connect',
-        description: `The unholy fusion of Wordle and Connections. Think NYT's Connections is too easy? Play 16 Wordle's first!`,
-        img_alt_text: `16 squares in a 4x4 grid. Question marks are written in the middle of each square.`
+        path: './games/sudoku',
+        name: 'Sudoku',
+        description: `The game itself was fairly simple. The hard part was the automatic solver`,
+        img_alt_text: `A sudoku grid: 9 by 9 grid of squares with numbers interspersed.`
         
     },
 
@@ -23,6 +23,14 @@ const newStuff = [
 ]
 
 const games = [
+    {
+        path: './games/sudoku',
+        name: 'Sudoku',
+        description: `The game itself was fairly simple. The hard part was the automatic solver`,
+        img_alt_text: `A sudoku grid: 9 by 9 grid of squares with numbers interspersed.`
+
+    },
+
     {
         path: './games/hex_connect',
         name: 'Hex Connect',

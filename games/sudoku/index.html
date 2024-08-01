@@ -34,40 +34,41 @@
             <div class="header-button" onclick="openModal()">Import/Export</div>
             <div class="header-button" onclick="solve()">Solve Puzzle</div>
             <div class="header-button" style="border-color: #ff0000;">Autofill Notes</div>
-            <div class="header-button">New Game 
+            <div>
+                <div class="header-button" onclick="boardDecor()">New</div>
                 <label for="Difficulty"></label>
-            <select name="Difficulty" id="Difficulty">
-                <option value="Easy">Easy</option>
-                <option value="Medium">Medium</option>
-                <option value="Hard">Hard</option>
-                <option value="Extreme">Extreme</option>
-            </select></div> 
-         
+                <select name="Difficulty" id="Difficulty">
+                    <option value="Easy">Easy</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Hard">Hard</option>
+                    <option value="Expert">Expert</option>
+                    <option value="Master">Master</option>
+                </select>
+            </div>
         </div>
 
 
+    <div class="board"></div>
 
+    <br>
 
-        <div class="board"></div>
-
-        <br> 
-
-        <div class="controls"></div>
+    <div class="controls"></div>
 
 
 
-        <p id="status" style="color:#ffffff">Sudo-bot says: "Click to fill in the puzzle. Press space or the lower right button to change mode."</p>
+    <p id="status" style="color:#ffffff">Sudo-bot says: "Click to fill in the puzzle. Press space or the lower right
+        button to change mode."</p>
 
-        <br>
+    <br>
 
-        <script src="board.js"></script>
-        <script src="game.js"></script>
-        <script src="solver.js"></script>
+    <script src="board.js"></script>
+    <script src="game.js"></script>
+    <script src="solver.js"></script>
 
 
-        <p id="credits">
-            Created by <a href="/">Henry Ty</a> <br>
-        </p>
+    <p id="credits">
+        Created by <a href="/">Henry Ty</a> <br>
+    </p>
     </div>
 </body>
 
