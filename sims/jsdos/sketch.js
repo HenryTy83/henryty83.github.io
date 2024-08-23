@@ -3,8 +3,9 @@ const RAM = new Memory(0x0000, 0x7FFE)
 const ROM = new Memory(0x8000, 0xFFFF)
 
 var output = ''
-const consoleLog = new MappedIO(0x7FFF, 0x7FFF, () => 0, (_, x) => {
-    if (x == 0) {
+const consoleLog = new MappedIO(0x7FFE, 0x7FFF, () => 0, (i, x) => {
+    if (i == 0x7FFE) { 
+        console.clear()
         console.log(output)
         output = ''
     }
@@ -18,32 +19,15 @@ const nopProgram = () => {
     ROM.setUint8(0xFFFD, 0x80)
 }
 
-const helloWorld = (
-    'A9 48 8D FF 7F ' +
-    'A9 65 8D FF 7F ' +
-    'A9 6C 8D FF 7F ' +
-    'A9 6C 8D FF 7F ' +
-    'A9 6F 8D FF 7F ' +
-    'A9 20 8D FF 7F ' +
-    'A9 57 8D FF 7F ' +
-    'A9 6F 8D FF 7F ' +
-    'A9 72 8D FF 7F ' +
-    'A9 6C 8D FF 7F ' +
-    'A9 64 8D FF 7F ' +
-    'A9 21 8D FF 7F ' + // 48 65 6c 6c 6f 20 57 6f 72 6c 64 21
-    'A9 00 8D FF 7F ' + 
-    '4C 41 80').split(' ') 
+const helloWorld = assemble(tokenize(sanitize(loadFile('programs/helloWorld.asm'))))
 
-const parseMachineCode = (code) => { 
-    for (var i = 0; i < code.length; i++) ROM.setUint8(0x8000 + i, parseInt(code[i], 16))   
-    
-    ROM.setUint8(0xFFFC, 0x00)
-    ROM.setUint8(0xFFFD, 0x80)
+const loadMachineCode = (code) => { 
+    for (var i in code) ROM.setUint8(i, code[i])   
 }
 
 // load programs here
 // nopProgram()
-parseMachineCode(helloWorld)
+loadMachineCode(helloWorld)
 
 ROM.setUint8 = () => { }
 
@@ -68,7 +52,7 @@ const run = (timeStamp) => {
     previousTimeStamp = timeStamp
 
     const startingTime = performance.now()
-    while (performance.now() - startingTime < maxRuntime) { if (cpu.enable) cpu.run(); }
+    if (cpu.enable) { while (performance.now() - startingTime < maxRuntime) { cpu.run(); } }
 
     //if (performance.now() - start > 1000) { console.log(`CYCLES/SECOND: ${cpu.cycles / (performance.now() - start)}`); start = performance.now(); cpu.cycles = 0}
     
