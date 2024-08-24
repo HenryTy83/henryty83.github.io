@@ -2,15 +2,7 @@ const cpu = new Microprocessor()
 const RAM = new Memory(0x0000, 0x7FFE)
 const ROM = new Memory(0x8000, 0xFFFF)
 
-var output = ''
-const consoleLog = new MappedIO(0x7FFE, 0x7FFF, () => 0, (i, x) => {
-    if (i == 0x7FFE) { 
-        console.clear()
-        console.log(output)
-        output = ''
-    }
-    else { output += String.fromCharCode(x); }
-})
+lcdDevice.offsetStart(0x7FFF)
 
 const nopProgram = () => {
     for (var i = 0x8000; i <= 0xFFFB; i++) ROM.setUint8(i, 0xea)
@@ -31,31 +23,48 @@ loadMachineCode(helloWorld)
 
 ROM.setUint8 = () => { }
 
-const memory = new MemoryMap([consoleLog, ROM])
+const memory = new MemoryMap([lcdDevice, ROM])
 
 cpu.attachMemory(memory)
 
 cpu.reset();
 
-var operations = 0;
+var maxOpsPerFrame = 1
+
+// profiler
+// setInterval(() => {
+//     console.log(`OPERATIONS/SECOND: ${totalOperations / (performance.now() - start)}`);
+//     start = performance.now();
+//     totalOperations = 0
+// }, 1000)
+
+var totalOperations = 0;
 var start = performance.now()
 var previousTimeStamp = undefined;
 const run = (timeStamp) => {
+    var operations = 0;
+
     if (previousTimeStamp == undefined) {
         previousTimeStamp = timeStamp;
         return requestAnimationFrame(run)
     }
 
-    const maxRuntime = (timeStamp - previousTimeStamp) / 5
+    const maxRuntime = Math.min((timeStamp - previousTimeStamp) / 5, 1.25)
     if (maxRuntime < 0) return requestAnimationFrame(run)
         
     previousTimeStamp = timeStamp
 
     const startingTime = performance.now()
-    if (cpu.enable) { while (performance.now() - startingTime < maxRuntime) { cpu.run(); } }
-
-    //if (performance.now() - start > 1000) { console.log(`CYCLES/SECOND: ${cpu.cycles / (performance.now() - start)}`); start = performance.now(); cpu.cycles = 0}
+    if (cpu.enable) {
+        while (operations < maxOpsPerFrame && performance.now() - startingTime < maxRuntime) {
+            cpu.run();
+            operations++;
+        }
+    }
     
+    totalOperations += operations
+
     requestAnimationFrame(run)
 }
-requestAnimationFrame(run)
+// requestAnimationFrame(run)
+setInterval(() => { cpu.run();  totalOperations ++}, 20) // for when u want mega slow

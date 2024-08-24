@@ -8,19 +8,28 @@
 </head>
 
 <body>
-    <div id="main">
+    <div id="main" style="width: 600px;">
         <a href="/" id="header"><img src="/images/logoWhite.png" alt="Henry 天 Ty"></a>
 
         <h1></h1>
 
-        <div class="canvas" id="screen">
-            <script src="/lib/io.js"></script>
-            <script src="/lib/6502/microprocessor.js"></script>
-            <script src="/lib/6502/memory.js"></script>
+        <script src="/lib/io.js"></script>
+        <script src="/lib/6502/microprocessor.js"></script>
+        <script src="/lib/6502/memory.js"></script>
+        
+        <script src="/lib/6502/parser.js"></script>
+        <script src="/lib/6502/assembler.js"></script>
 
-            <script src="/lib/6502/parser.js"></script>
-            <script src="/lib/6502/assembler.js"></script>
+        <div class="canvas" id="LCD_display">
+            <div id="LCD_backlight">
+                <div id="LCD_text"></div>
+            </div>
 
+            <link rel="stylesheet" href="lcdDisplay/lcd.css">
+            <script src="lcdDisplay/displayOutput.js"></script>
+        </div>
+
+        <div id="computer">
             <script src="sketch.js"></script>
         </div>
 
