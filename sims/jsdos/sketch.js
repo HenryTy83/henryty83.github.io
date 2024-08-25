@@ -1,15 +1,15 @@
 const cpu = new Microprocessor()
-const RAM = new Memory(0x0000, 0x7FFE)
+const RAM = new Memory(0x0000, 0x01FF)
 const ROM = new Memory(0x8000, 0xFFFF)
 
 lcdDevice.offsetStart(0x7FFF)
 
-const nopProgram = () => {
-    for (var i = 0x8000; i <= 0xFFFB; i++) ROM.setUint8(i, 0xea)
+// const nopProgram = () => {
+//     for (var i = 0x8000; i <= 0xFFFB; i++) ROM.setUint8(i, 0xea)
 
-    ROM.setUint8(0xFFFC, 0x00)
-    ROM.setUint8(0xFFFD, 0x80)
-}
+//     ROM.setUint8(0xFFFC, 0x00)
+//     ROM.setUint8(0xFFFD, 0x80)
+// }
 
 const helloWorld = assemble(tokenize(sanitize(loadFile('programs/helloWorld.asm'))))
 
@@ -23,7 +23,7 @@ loadMachineCode(helloWorld)
 
 ROM.setUint8 = () => { }
 
-const memory = new MemoryMap([lcdDevice, ROM])
+const memory = new MemoryMap([RAM, lcdDevice, ROM])
 
 cpu.attachMemory(memory)
 
