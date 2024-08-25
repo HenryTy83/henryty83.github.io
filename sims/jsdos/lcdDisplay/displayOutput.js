@@ -5,10 +5,9 @@
     0XXX XXXX - write X to the screen at the cursor
 
     1000 DCBR - set (D)isplay, (C)ursor, (B)linking behavior, and (R)ight text direction on/off
-    1001 XXXX - set cursor to row 1, column X
-    1010 XXXX - set cursor to row 2, column X
+    1001 XXXX - set text grayscale color
 
-    1011 XXXX - set text grayscale color
+    101X XXXX - set cursor to position XXXXX
 
     1100 RRRR - set display red channel
     1101 GGGG - set display green channel
@@ -120,16 +119,16 @@ class lcdDisplayConstructor {
                 clearTimeout(this.blinkID)
                 if (this.b) this.blinkCursor()
                 return this.executionDelay(4)
-            case 0b001:   // 1001 XXXX - set cursor to row 1, column X
-            case 0b010:   // 1010 XXXX - set cursor to row 2, column X
-                this.unblinkCursor(true)
-
-                this.cursorPointer = ((instructionNibble & 10) << 3) + operandNibble
-                return this.executionDelay(2)
-            case 0b011:   // 1110 XXXX - set text grayscale color
+            case 0b001:   // 1101 XXXX - set text grayscale color
                 this.fontColor = operandNibble << 4
                 if (this.d) this.setFontColor(this.fontColor)
                 return this.executionDelay(2)
+            case 0b010:   // 100X XXXX - set cursor to position X
+            case 0b011: 
+                this.unblinkCursor(true)
+                this.cursorPointer = data & 0b11111
+                return this.executionDelay(2)
+           
             case 0b100:   // 1100 RRRR - set display green channel
             case 0b101:   // 1101 GGGG - set display blue channel
             case 0b110:   // 1011 BBBB - set display red channel

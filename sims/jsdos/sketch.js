@@ -67,4 +67,4 @@ const run = (timeStamp) => {
     requestAnimationFrame(run)
 }
 // requestAnimationFrame(run)
-setInterval(() => { cpu.run();  totalOperations ++}, 20) // for when u want mega slow
+setInterval(() => { cpu.run();  totalOperations ++}, 30) // for when u want mega slow
