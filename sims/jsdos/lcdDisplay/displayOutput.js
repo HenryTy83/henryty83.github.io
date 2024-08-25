@@ -83,9 +83,10 @@ class lcdDisplayConstructor {
     }
 
     update(data) {
-        if (this.busy) return
+        if (this.busy) return // console.log('STFU IM BUSY')
 
         const isInstruction = data & 0b10000000
+        const baseDelay = 5
 
         if (!isInstruction) { 
             this.unblinkCursor(true)
@@ -94,11 +95,12 @@ class lcdDisplayConstructor {
             this.cursorPointer = (this.cursorPointer + (this.r ? 1 : 0b1111)) & 0b11111
             this.cursorValue = this.digits[this.cursorPointer].innerText
 
-            return this.executionDelay(2) 
+            return this.executionDelay(baseDelay * 2) 
         }
 
         const instructionNibble = (data & 0b01110000) >> 4
         const operandNibble = data & 0b1111
+
         switch (instructionNibble) { 
             case 0b000:   // 1000 DCBR - set(D)isplay, (C)ursor, (B)linking behavior, and(R)ight text direction on / off
                 this.d = (operandNibble & 0b1000) >> 3
@@ -118,27 +120,30 @@ class lcdDisplayConstructor {
 
                 clearTimeout(this.blinkID)
                 if (this.b) this.blinkCursor()
-                return this.executionDelay(4)
+                return this.executionDelay(baseDelay * 4)
             case 0b001:   // 1101 XXXX - set text grayscale color
                 this.fontColor = operandNibble << 4
                 if (this.d) this.setFontColor(this.fontColor)
-                return this.executionDelay(2)
+                return this.executionDelay(baseDelay*2)
             case 0b010:   // 100X XXXX - set cursor to position X
             case 0b011: 
                 this.unblinkCursor(true)
+                this.digits[this.cursorPointer].innerText = this.cursorValue
                 this.cursorPointer = data & 0b11111
-                return this.executionDelay(2)
+
+                this.cursorValue = this.digits[this.cursorPointer].innerText
+                return this.executionDelay(baseDelay * 2)
            
             case 0b100:   // 1100 RRRR - set display green channel
             case 0b101:   // 1101 GGGG - set display blue channel
             case 0b110:   // 1011 BBBB - set display red channel
                 this.backlightColor[instructionNibble & 0b11] = operandNibble << 4
                 if (this.d) this.refreshDisplay()
-                return this.executionDelay(2)
+                return this.executionDelay(baseDelay * 2)
             case 0b111:   // 1111 **** - clear the display
                 this.cursorValue = nonbreakingSpace
                 for (var i = 0; i < 16; i++) this.digits[i].innerText = nonbreakingSpace
-                return this.executionDelay(32)
+                return this.executionDelay(baseDelay * 32)
         }       
     }
 
@@ -154,4 +159,4 @@ class lcdDisplayConstructor {
 
 const lcdDisplay = new lcdDisplayConstructor()
 
-const lcdDevice = new MappedIO(0x00, 0x00, () => { lcdDisplay.getStatus() }, (_, value) => { lcdDisplay.update(value) })
+const lcdDevice = new MappedIO(0x00, 0x00, () => {return lcdDisplay.getStatus() }, (_, value) => { lcdDisplay.update(value) })
