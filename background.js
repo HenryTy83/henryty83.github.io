@@ -1,6 +1,6 @@
 function fireflySketch(p) { 
     p.config = {
-        resetTimer: 80,
+        resetTimer: 40,
         width: 6,
         height: 4,
         threshold: 10
@@ -43,9 +43,9 @@ function fireflySketch(p) {
         }
 
         update() { 
-            const dt = 1
+            const dt = p.deltaTime * 0.03
 
-            this.flickerTimer -= dt * 3;
+            this.flickerTimer -= dt;
             if (this.flickerTimer < 0) {
                 this.flickerTimer = this.flickerReset;
 

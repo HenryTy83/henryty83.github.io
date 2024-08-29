@@ -13,6 +13,14 @@ const newStuff = [
         img_alt_text: `A sudoku grid: 9 by 9 grid of squares with numbers interspersed.`
         
     },
+
+    {
+        path: './sims/6502',
+        name: '6502 Emulator (EXTREME WIP)',
+        description: `Virtual microprocessor with a bunch of stuff added on`,
+        img_alt_text: `A green LCD display with the text "Hello, World!" written on it`
+        
+    },
 ]
 
 const games = [
@@ -63,6 +71,14 @@ const games = [
 
 const sims = [
     {
+        path: './sims/6502',
+        name: '6502 Emulator (EXTREME WIP)',
+        description: `Virtual microprocessor with a bunch of stuff added on`,
+        img_alt_text: `A green LCD display with the text "Hello, World!" written on it`
+        
+    },
+    
+    {
         path: '/sims/marbles',
         name: 'The Marble Box',
         description: 'Physics Simulations of the same thing: small balls moving around. Such simple things, but they come together with so much variation.',
@@ -85,7 +101,7 @@ const sims = [
 
     {
         path: '/sims/fractals',
-        name: 'The Gallery of Multidimensional Surfaces',
+        name: 'The Fractal Hall',
         description: 'Just a collection of fractals. Bear witness the simplistic beauty of infinite fractals.',
         img_alt_text: 'The Sierpinski Triangle'
     },
