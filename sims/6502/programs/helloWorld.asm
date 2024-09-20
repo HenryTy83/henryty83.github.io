@@ -22,6 +22,9 @@ loop:
     jmp loop
 
 write_string:
+    lda LCD_OUTPUT                  ; wait until LCD ready
+    bne *-3
+
     ldy #00
     lda ($00),y
 
@@ -34,9 +37,6 @@ write_string_loop:
 
     lda ($00),y
     bne write_string_loop
-
-    lda LCD_OUTPUT                  ; wait until LCD ready
-    bne *-3
 
     rts
 
