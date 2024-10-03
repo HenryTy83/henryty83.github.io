@@ -11,7 +11,8 @@ lcdDevice.offsetStart(0x7FFF)
 //     ROM.setUint8(0xFFFD, 0x80)
 // }
 
-const helloWorld = assemble(tokenize(sanitize(loadFile('programs/helloWorld.asm'))))
+const helloWorld = assemble(parse(loadFile('programs/helloWorld.asm')))
+// const binToDec = assemble(parse(loadFile('programs/binToDec.asm')))
 
 const loadMachineCode = (code) => { 
     for (var i in code) ROM.setUint8(i, code[i])   
