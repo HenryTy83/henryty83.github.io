@@ -43,6 +43,8 @@ class lcdDisplayConstructor {
 
         this.blinkTime = 500
 
+        this.baseDelay = 1
+
         this.cursorValue = nonbreakingSpace
 
         this.cursorPointer = 0
@@ -67,6 +69,8 @@ class lcdDisplayConstructor {
     }
 
     unblinkCursor(singleShot=false) {
+        if (this.cursorValue == '_' && this.digits[this.cursorPointer].innerText != '_') return
+
         this.digits[this.cursorPointer].innerText = this.cursorValue
 
         if (!singleShot && this.b) { this.blinkID = setTimeout(() => { this.blinkCursor() }, this.blinkTime) }
@@ -86,16 +90,17 @@ class lcdDisplayConstructor {
         if (this.busy) return // console.log('STFU IM BUSY')
 
         const isInstruction = data & 0b10000000
-        const baseDelay = 5
 
         if (!isInstruction) { 
+            clearTimeout(this.blinkID)
             this.unblinkCursor(true)
 
             this.digits[this.cursorPointer].innerText = (0x21 <= data && data <= 0x7e && data != 0x20) ? String.fromCharCode(data) : nonbreakingSpace
             this.cursorPointer = (this.cursorPointer + (this.r ? 1 : 0b1111)) & 0b11111
-            this.cursorValue = this.digits[this.cursorPointer].innerText
 
-            return this.executionDelay(baseDelay * 2) 
+            this.blinkCursor()
+
+            return this.executionDelay(this.baseDelay * 2) 
         }
 
         const instructionNibble = (data & 0b01110000) >> 4
@@ -119,31 +124,33 @@ class lcdDisplayConstructor {
                 }
 
                 clearTimeout(this.blinkID)
-                if (this.b) this.blinkCursor()
-                return this.executionDelay(baseDelay * 4)
+                this.blinkCursor()
+                return this.executionDelay(this.baseDelay * 4)
+
             case 0b001:   // 1101 XXXX - set text grayscale color
                 this.fontColor = operandNibble << 4
                 if (this.d) this.setFontColor(this.fontColor)
-                return this.executionDelay(baseDelay*2)
+                return this.executionDelay(this.baseDelay*2)
             case 0b010:   // 100X XXXX - set cursor to position X
             case 0b011: 
+                clearTimeout(this.blinkID)
                 this.unblinkCursor(true)
-                this.digits[this.cursorPointer].innerText = this.cursorValue
-                this.cursorPointer = data & 0b11111
 
-                this.cursorValue = this.digits[this.cursorPointer].innerText
-                return this.executionDelay(baseDelay * 2)
+                this.cursorPointer = data & 0b11111
+                this.blinkCursor()
+
+                return this.executionDelay(this.baseDelay * 2)
            
             case 0b100:   // 1100 RRRR - set display green channel
             case 0b101:   // 1101 GGGG - set display blue channel
             case 0b110:   // 1011 BBBB - set display red channel
                 this.backlightColor[instructionNibble & 0b11] = operandNibble << 4
                 if (this.d) this.refreshDisplay()
-                return this.executionDelay(baseDelay * 2)
+                return this.executionDelay(this.baseDelay * 2)
             case 0b111:   // 1111 **** - clear the display
                 this.cursorValue = nonbreakingSpace
-                for (var i = 0; i < 16; i++) this.digits[i].innerText = nonbreakingSpace
-                return this.executionDelay(baseDelay * 32)
+                for (var i = 0; i < 32; i++) this.digits[i].innerText = nonbreakingSpace
+                return this.executionDelay(this.baseDelay * 32)
         }       
     }
 

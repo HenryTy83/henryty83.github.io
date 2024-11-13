@@ -12,7 +12,7 @@ lcdDevice.offsetStart(0x7FFF)
 // }
 
 const helloWorld = assemble(parse(loadFile('programs/helloWorld.asm')))
-// const binToDec = assemble(parse(loadFile('programs/binToDec.asm')))
+const binToDec = assemble(parse(loadFile('programs/binToDec.asm')))
 
 const loadMachineCode = (code) => { 
     for (var i in code) ROM.setUint8(i, code[i])   
@@ -20,7 +20,7 @@ const loadMachineCode = (code) => {
 
 // load programs here
 // nopProgram()
-loadMachineCode(helloWorld)
+loadMachineCode(binToDec)
 
 ROM.setUint8 = () => { }
 
@@ -30,7 +30,7 @@ cpu.attachMemory(memory)
 
 cpu.reset();
 
-var maxOpsPerFrame = 1
+var maxOpsPerFrame = Infinity
 
 // profiler
 // setInterval(() => {
@@ -56,11 +56,9 @@ const run = (timeStamp) => {
     previousTimeStamp = timeStamp
 
     const startingTime = performance.now()
-    if (cpu.enable) {
-        while (operations < maxOpsPerFrame && performance.now() - startingTime < maxRuntime) {
-            cpu.run();
-            operations++;
-        }
+    while (cpu.enable && operations < maxOpsPerFrame && performance.now() - startingTime < maxRuntime) {
+        cpu.run();
+        operations++;
     }
     
     totalOperations += operations
