@@ -1,8 +1,23 @@
 const cpu = new Microprocessor()
-const RAM = new Memory(0x0000, 0x01FF)
+const RAM = new Memory(0x0000, 0x1FFF)
 const ROM = new Memory(0x8000, 0xFFFF)
 
-lcdDevice.offsetStart(0x7FFF)
+lcdDevice.offsetStart(0x6000)
+
+interruptHandler.attachComputer(cpu)
+interruptDevice.offsetStart(0x6001)
+
+/* 
+
+0x0000 - 0x00ff: RAM zero page
+0x0100 - 0x01ff: RAM stack
+0x0200 - 0x1fff: RAM general purpose
+
+0x6000 - 0x60ff: Memory Mapped I/O
+0x8000 - 0xffff: ROM
+
+*/
+
 
 // const nopProgram = () => {
 //     for (var i = 0x8000; i <= 0xFFFB; i++) ROM.setUint8(i, 0xea)
@@ -11,16 +26,28 @@ lcdDevice.offsetStart(0x7FFF)
 //     ROM.setUint8(0xFFFD, 0x80)
 // }
 
-const helloWorld = assemble(parse(loadFile('programs/helloWorld.asm')))
-const binToDec = assemble(parse(loadFile('programs/binToDec.asm')))
+const createProgram = (path) => {
+    console.group(`Reading ${path}`)
+    const text = loadFile(path)
+    console.log(`Parsing program...`)
+    const parsedProgram = parse(text)
+    console.log(`Assembling...`)
+    const bytes = assemble(parsedProgram)
+    console.log(`Success!`)
+    console.groupEnd()
+    return bytes
+}
+
+const helloWorld = createProgram('programs/helloWorld.asm')
+const binToDec = createProgram('programs/binToDec.asm')
+const interrupt = createProgram('programs/interrupt.asm')
 
 const loadMachineCode = (code) => { 
     for (var i in code) ROM.setUint8(i, code[i])   
 }
 
 // load programs here
-// nopProgram()
-loadMachineCode(binToDec)
+loadMachineCode(interrupt)
 
 ROM.setUint8 = () => { }
 
@@ -28,7 +55,10 @@ const memory = new MemoryMap([RAM, lcdDevice, ROM])
 
 cpu.attachMemory(memory)
 
-cpu.reset();
+resetCPU = function() {
+    cpu.reset()
+}
+resetCPU()
 
 var maxOpsPerFrame = Infinity
 

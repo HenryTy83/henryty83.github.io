@@ -1,4 +1,4 @@
-LCD_OUTPUT = $7fff
+LCD_OUTPUT = $6000
 
 .org $8000                                  ; starting position
 reset: 

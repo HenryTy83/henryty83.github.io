@@ -16,22 +16,60 @@
         <script src="/lib/io.js"></script>
         <script src="/lib/6502/microprocessor.js"></script>
         <script src="/lib/6502/memory.js"></script>
-        
+
         <script src="/lib/6502/parser.js"></script>
         <script src="/lib/6502/assembler.js"></script>
+
+        <div id="reset-button">
+            <button onclick="resetCPU()" style="border: 0; border-radius: 1em; color:white; background-color: red;">
+                RESET
+            </button>
+        </div>
+
+        <br>
 
         <div class="canvas" id="LCD_display">
             <div id="LCD_backlight">
                 <div id="LCD_text"></div>
             </div>
 
-            <link rel="stylesheet" href="lcdDisplay/lcd.css">
-            <script src="lcdDisplay/displayOutput.js"></script>
+            <link rel="stylesheet" href="hardware/lcdDisplay/lcd.css">
+            <script src="hardware/lcdDisplay/displayOutput.js"></script>
         </div>
+
+
+        <div id="button">
+            <br>
+            <button onmousedown="handleClick()">
+                _
+            </button>
+        </div>
+
+        <div id="hardware">
+            <script src="hardware/interrupts.js"></script>
+            <script src="hardware/keyboard.js"></script>
+        </div>
+
+
 
         <div id="computer">
             <script src="sketch.js"></script>
+            <script>
+                resetCPU = function () {
+                    cpu.reset()
+                }
+
+                handleClick = function () {
+                    cpu.nmi = false
+                    document.addEventListener('mouseup', handleRelease);
+                }
+                handleRelease = function () {
+                    cpu.nmi = true
+                    document.removeEventListener('mouseup', handleRelease);
+                }
+            </script>
         </div>
+
 
         <br>
 

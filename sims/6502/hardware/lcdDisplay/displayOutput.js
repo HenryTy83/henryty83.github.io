@@ -88,6 +88,7 @@ class lcdDisplayConstructor {
 
     update(data) {
         if (this.busy) return // console.log('STFU IM BUSY')
+        this.busy = true
 
         const isInstruction = data & 0b10000000
 
@@ -148,14 +149,13 @@ class lcdDisplayConstructor {
                 if (this.d) this.refreshDisplay()
                 return this.executionDelay(this.baseDelay * 2)
             case 0b111:   // 1111 **** - clear the display
-                this.cursorValue = nonbreakingSpace
                 for (var i = 0; i < 32; i++) this.digits[i].innerText = nonbreakingSpace
+                this.cursorValue = nonbreakingSpace
                 return this.executionDelay(this.baseDelay * 32)
         }       
     }
 
     executionDelay(time = 10) { 
-        this.busy = true;
         setTimeout(() => { this.busy = false }, time)
     }
 
