@@ -65,7 +65,7 @@ lcd_config_instructions:
 .byte 0
 
 hello_world_string:
-.text "Hello, World!",0
+.byte "Hello, World!",0
 
 .org $fffc 
 vectors:

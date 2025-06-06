@@ -37,14 +37,6 @@
             <script src="hardware/lcdDisplay/displayOutput.js"></script>
         </div>
 
-
-        <div id="button">
-            <br>
-            <button onmousedown="handleClick()">
-                _
-            </button>
-        </div>
-
         <div id="hardware">
             <script src="hardware/interrupts.js"></script>
             <script src="hardware/keyboard.js"></script>
@@ -57,15 +49,6 @@
             <script>
                 resetCPU = function () {
                     cpu.reset()
-                }
-
-                handleClick = function () {
-                    cpu.nmi = false
-                    document.addEventListener('mouseup', handleRelease);
-                }
-                handleRelease = function () {
-                    cpu.nmi = true
-                    document.removeEventListener('mouseup', handleRelease);
                 }
             </script>
         </div>
